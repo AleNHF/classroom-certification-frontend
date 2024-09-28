@@ -6,14 +6,16 @@ import HeaderComponent from '../components/HeaderComponent';
 const LoginPage: React.FC = () => {
     return (
         <>
-            <div className="flex flex-col items-center justify-center bg-white h-full">
+            <div className="flex flex-col items-center justify-start bg-white min-h-screen">
                 {/* Header */}
-                <HeaderComponent/>
+                <div className="w-full flex-shrink-0">
+                    <HeaderComponent />
+                </div>
 
                 {/* Main Content */}
-                <div className="flex items-center justify-center mt-2 w-full max-w-6xl">
-                    {/* Left Section (Image/Illustration) */}
-                    <div className="w-1/2 ">
+                <div className="flex flex-col-reverse md:flex-row items-center justify-center mt-2 w-full max-w-6xl px-4">
+                    {/* Left Section (Image) */}
+                    <div className="w-full md:w-1/2 mb-6 md:mb-0">
                         <img
                             src={loginImage}
                             alt="Certification Illustration"
@@ -22,7 +24,7 @@ const LoginPage: React.FC = () => {
                     </div>
 
                     {/* Right Section (Form) */}
-                    <div className="w-1/2">
+                    <div className="w-full md:w-1/2">
                         <LoginForm />
                     </div>
                 </div>

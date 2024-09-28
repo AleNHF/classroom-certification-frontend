@@ -28,11 +28,11 @@ const LoginForm: React.FC = () => {
     };
 
     return (
-        <form className="bg-white p-8 shadow-md rounded-lg w-full h-full" onSubmit={handleSubmit}>
+        <form className="bg-white p-6 md:p-8 shadow-md rounded-lg w-full" onSubmit={handleSubmit}>
             <img
                 src={logo}
                 alt="Certification Illustration"
-                className="w-full h-32 object-contain mb-4"
+                className="w-full h-24 md:h-32 object-contain mb-4"
             />
             {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
 

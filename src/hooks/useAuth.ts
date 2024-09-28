@@ -10,8 +10,6 @@ export const useAuth = () => {
     const handleLogin = async (username: string, password: string) => {
         try {
             const response = await ApiService.login(username, password);
-            console.log('response user', response)
-
             const { user } = response.data;
 
             localStorage.setItem('token', user.access_token)
