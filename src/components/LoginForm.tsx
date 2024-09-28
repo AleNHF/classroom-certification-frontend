@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import logo from '../assets/logo_certification.png';
 import { validateLogin } from '../utils/validateLogin';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const { handleLogin } = useAuth();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,6 +21,7 @@ const LoginForm: React.FC = () => {
 
         try {
             await handleLogin(username, password);
+            navigate('/home');
         } catch (error) {
             setErrorMessage('Error en la autenticación, por favor intente de nuevo.');
         }

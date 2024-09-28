@@ -1,15 +1,28 @@
 import { useState } from 'react';
-import { login } from '../services/authService';
+import ApiService from '../services/apiService'
 
 export const useAuth = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        // Cargar el estado inicial desde localStorage
+        return localStorage.getItem('token') !== null;
+    });
 
     const handleLogin = async (username: string, password: string) => {
         try {
-            await login(username, password);
+            const response = await ApiService.login(username, password);
+            console.log('response user', response)
+
+            const { user } = response.data;
+
+            localStorage.setItem('token', user.access_token)
+            localStorage.setItem('username', user.username)
+            localStorage.setItem('moodle_token', user.moodleToken)
+            localStorage.setItem('name', user.name)
+
             setIsAuthenticated(true);
         } catch (error) {
             setIsAuthenticated(false);
+            throw error;
         }
     };
 
