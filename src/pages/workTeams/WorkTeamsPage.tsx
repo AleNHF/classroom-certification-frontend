@@ -1,6 +1,6 @@
 import React from 'react';
-import HeaderComponent from '../components/HeaderComponent';
-import Card from '../components/CardComponent';
+import HeaderComponent from '../../components/layout/HeaderComponent';
+import Card from '../../components/ui/CardComponent';
 
 const WorkTeamsPage: React.FC = () => {
     return (

@@ -3,8 +3,9 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
-import WorkTeamsPage from '../pages/WorkTeamsPage';
+import WorkTeamsPage from '../pages/workTeams/WorkTeamsPage';
 import { useAuthContext } from '../context/AuthContext';
+import PersonalPage from '../pages/workTeams/PersonalPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { isAuthenticated } = useAuthContext();
@@ -35,6 +36,14 @@ const AppRoutes: React.FC = () => {
                     element={
                         <ProtectedRoute>
                             <WorkTeamsPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="work-teams/personal"
+                    element={
+                        <ProtectedRoute>
+                            <PersonalPage />
                         </ProtectedRoute>
                     }
                 />

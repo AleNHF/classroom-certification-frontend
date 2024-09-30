@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ApiService from '../services/apiService'
+import AuthService from '../services/authService'
 
 export const useAuth = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -8,7 +8,7 @@ export const useAuth = () => {
 
     const handleLogin = async (username: string, password: string) => {
         try {
-            const response = await ApiService.login(username, password);
+            const response = await AuthService.login(username, password);
             const { user } = response.data;
 
             localStorage.setItem('token', user.access_token)

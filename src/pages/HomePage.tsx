@@ -1,6 +1,6 @@
 import React from 'react';
-import Card from '../components/CardComponent';
-import HeaderComponent from '../components/HeaderComponent';
+import Card from '../components/ui/CardComponent';
+import HeaderComponent from '../components/layout/HeaderComponent';
 
 const HomePage: React.FC = () => {
     console.log('homepage')

@@ -15,7 +15,7 @@ export default {
         'card-color': '#F1F1F1',
         'loaded-color': '#0AC228', 
         'secondary-red': '#FEF2F2',
-        'border-red-color': '#FECACA'
+        'border-red-color': '#FECACA',
       },
     },
   },
