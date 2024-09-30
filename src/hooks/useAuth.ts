@@ -3,7 +3,6 @@ import ApiService from '../services/apiService'
 
 export const useAuth = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        // Cargar el estado inicial desde localStorage
         return localStorage.getItem('token') !== null;
     });
 
@@ -18,14 +17,27 @@ export const useAuth = () => {
             localStorage.setItem('name', user.name)
 
             setIsAuthenticated(true);
+            console.log('User authenticated', user.username)
         } catch (error) {
             setIsAuthenticated(false);
+            console.log('Authenticated failed', error)
             throw error;
         }
     };
 
+    const logout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('moodle_token');
+        localStorage.removeItem('name');
+        setIsAuthenticated(false);
+    };
+
+    console.log('setIsAuthenticated', isAuthenticated)
+
     return {
         isAuthenticated,
         handleLogin,
+        logout
     };
 };
