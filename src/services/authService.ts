@@ -35,6 +35,9 @@ class AuthService {
 
     public logout() {
         localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('moodle_token');
+        localStorage.removeItem('name');
     }
 
     public getToken() {

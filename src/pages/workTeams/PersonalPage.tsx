@@ -107,14 +107,14 @@ const PersonalPage: React.FC = () => {
                 primaryButtonText="Agregar"
                 onSubmit={handleAddPersonal}
             >
-                <form>
+                <form className="space-y-4">
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Nombre</label>
                         <input
                             type="text"
                             value={newPersonal.name}
                             onChange={(e) => setNewPersonal({ ...newPersonal, name: e.target.value })}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2"
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                     </div>
                     <div className="mb-4">
@@ -122,9 +122,9 @@ const PersonalPage: React.FC = () => {
                         <select
                             value={newPersonal.position}
                             onChange={(e) => setNewPersonal({ ...newPersonal, position: e.target.value })}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2"
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         >
-                            <option value="">Selecciona un cargo</option> {/* Opción por defecto */}
+                            <option value="">Selecciona un cargo</option> 
                             <option value="Editor Audiovisual">Editor Audiovisual</option>
                             <option value="Integrador">Integrador</option>
                             <option value="Diseñador">Diseñador</option>
@@ -135,9 +135,9 @@ const PersonalPage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-700">Firma (Subir imagen)</label>
                         <input
                             type="file"
-                            accept="image/*" 
-                            onChange={handleFileChange} 
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                     </div>
                 </form>
