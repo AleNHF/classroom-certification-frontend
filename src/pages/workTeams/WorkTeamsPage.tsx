@@ -23,6 +23,9 @@ const WorkTeamsPage: React.FC = () => {
 
                         {/* Tarjeta que redirige a los equipos */}
                         <Card title='EQUIPOS' route='/teams' />
+
+                        {/* Tarjeta que redirige a los usuarios */}
+                        <Card title='GESTIÓN DE USUARIOS' route='users' />
                     </div>
                 </div>
             </div>

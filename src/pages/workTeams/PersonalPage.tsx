@@ -104,7 +104,7 @@ const PersonalPage: React.FC = () => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 title="Nuevo Personal Técnico"
-                primaryButtonText="Agregar"
+                primaryButtonText="AGREGAR"
                 onSubmit={handleAddPersonal}
             >
                 <form className="space-y-4">
