@@ -7,6 +7,7 @@ import WorkTeamsPage from '../pages/workTeams/WorkTeamsPage';
 import { useAuthContext } from '../context/AuthContext';
 import PersonalPage from '../pages/workTeams/PersonalPage';
 import UserPage from '../pages/workTeams/UserPage';
+import TeamPage from '../pages/workTeams/TeamPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { isAuthenticated } = useAuthContext();
@@ -53,6 +54,14 @@ const AppRoutes: React.FC = () => {
                     element={
                         <ProtectedRoute>
                             <UserPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="work-teams/teams"
+                    element={
+                        <ProtectedRoute>
+                            <TeamPage />
                         </ProtectedRoute>
                     }
                 />

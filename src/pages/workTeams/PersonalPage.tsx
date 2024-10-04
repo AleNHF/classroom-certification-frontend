@@ -106,6 +106,7 @@ const PersonalPage: React.FC = () => {
                 title="Nuevo Personal Técnico"
                 primaryButtonText="AGREGAR"
                 onSubmit={handleAddPersonal}
+                size='medium'
             >
                 <form className="space-y-4">
                     <div className="mb-4">

@@ -122,6 +122,7 @@ const UserPage: React.FC = () => {
                 title="Nuevo Usuario"
                 primaryButtonText="AGREGAR"
                 onSubmit={handleAddUser}
+                size='medium'
             >
                 <form className="space-y-4">
                     <div className="mb-4">
