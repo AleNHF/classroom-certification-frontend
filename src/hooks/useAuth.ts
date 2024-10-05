@@ -2,22 +2,20 @@ import { useState } from 'react';
 import AuthService from '../services/authService'
 
 export const useAuth = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return localStorage.getItem('token') !== null;
-    });
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
 
     const handleLogin = async (username: string, password: string) => {
         try {
             const response = await AuthService.login(username, password);
             const { user } = response.data;
 
-            localStorage.setItem('token', user.access_token)
+            localStorage.setItem('token', user.accessToken)
             localStorage.setItem('username', user.username)
             localStorage.setItem('moodle_token', user.moodleToken)
             localStorage.setItem('name', user.name)
+            localStorage.setItem('role', user.rol.name)
 
             setIsAuthenticated(true);
-            console.log('User authenticated', user.username)
         } catch (error) {
             setIsAuthenticated(false);
             console.log('Authenticated failed', error)
@@ -26,18 +24,18 @@ export const useAuth = () => {
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        localStorage.removeItem('moodle_token');
-        localStorage.removeItem('name');
+        ['token', 'username', 'moodle_token', 'name', 'role'].forEach((key) => localStorage.removeItem(key));
         setIsAuthenticated(false);
     };
 
-    console.log('setIsAuthenticated', isAuthenticated)
+    const getUserRole = () => {
+        return localStorage.getItem('role');
+    }
 
     return {
         isAuthenticated,
         handleLogin,
-        logout
+        logout,
+        getUserRole
     };
 };

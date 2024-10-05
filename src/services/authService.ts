@@ -34,14 +34,31 @@ class AuthService {
     }
 
     public logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        localStorage.removeItem('moodle_token');
-        localStorage.removeItem('name');
+        ['token', 'username', 'moodle_token', 'name', 'role'].forEach((key) => localStorage.removeItem(key));
     }
 
     public getToken() {
         return localStorage.getItem('token');
+    }
+
+    public getRole() {
+        return localStorage.getItem('role');
+    }
+
+    public getTokenMoodle() {
+        return localStorage.getItem('moodle_token');
+    }
+
+    /*
+     * Obtener listado de roles
+     */
+    public async getRoles() {
+        return this.request('/role', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
     }
 }
 

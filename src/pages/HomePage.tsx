@@ -3,7 +3,6 @@ import Card from '../components/ui/CardComponent';
 import HeaderComponent from '../components/layout/HeaderComponent';
 
 const HomePage: React.FC = () => {
-    console.log('homepage')
     return (
         <>
             <div className="flex flex-col items-center justify-start bg-white min-h-screen">

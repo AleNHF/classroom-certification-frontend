@@ -10,7 +10,6 @@ const Card: React.FC<CardProps> = ({ title, route }) => {
     const navigate = useNavigate();
 
     const handleRedirect = () => {
-        console.log('route', route)
         navigate(route);
     };
 

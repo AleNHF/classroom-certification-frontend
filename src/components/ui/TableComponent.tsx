@@ -1,9 +1,5 @@
 import React from 'react';
-
-interface TableComponentProps {
-    headers: string[];
-    rows: Array<{ [key: string]: string | React.ReactNode }>;
-}
+import { TableComponentProps } from '../../types/tableTypes';
 
 const TableComponent: React.FC<TableComponentProps> = ({ headers, rows }) => {
     return (

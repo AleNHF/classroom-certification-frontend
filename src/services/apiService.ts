@@ -1,4 +1,5 @@
 import AuthService from '../services/authService';
+import { UserProps } from '../types/userTypes';
 
 class ApiService {
     private baseUrl: string;
@@ -11,6 +12,7 @@ class ApiService {
         const url = `${this.baseUrl}${endpoint}`;
         const token = AuthService.getToken();
 
+        // Agregar token de autenticación si está presente
         if (token) {
             options.headers = {
                 ...options.headers,
@@ -22,7 +24,8 @@ class ApiService {
             const response = await fetch(url, options);
 
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(`Error: ${response.status} - ${errorData.message || 'No details available'}`);
             }
 
             return await response.json();
@@ -32,45 +35,104 @@ class ApiService {
         }
     }
 
-    // Obtener lista de personal
-    public async getPersonnel() {
-        return this.request('/personnel', {
+    private getHeaders(contentType: string = 'application/json') {
+        return {
+            'Content-Type': contentType,
+        };
+    }
+
+    /*
+     * Obtener listado de usuarios
+     */
+    public async getUsers() {
+        return this.request('/user', {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: this.getHeaders(),
         });
     }
 
-    // Agregar nuevo personal
-    public async addPersonnel(personnelData: FormData) {
-        return this.request('/personnel', {
+    /*
+     * Registrar usuario
+     */
+    public async addUser(userData: UserProps) {
+        return this.request('/user', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(personnelData),
+            headers: this.getHeaders(),
+            body: JSON.stringify(userData),
         });
     }
 
-    // Editar personal
-    public async updatePersonnel(id: string, updatedData: { name?: string; position?: string }) {
-        return this.request(`/personnel/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+    /*
+     * Editar usuario
+     */
+    public async updateUser(id: string, updatedData: UserProps) {
+        return this.request(`/user/${id}`, {
+            method: 'PATCH',
+            headers: this.getHeaders(),
             body: JSON.stringify(updatedData),
         });
     }
 
-    // Eliminar personal
-    public async deletePersonnel(id: string) {
-        return this.request(`/personnel/${id}`, {
+    /*
+     * Eliminar usuario
+     */
+    public async deleteUser(id: string) {
+        return this.request(`/user/${id}`, {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: this.getHeaders(),
+        });
+    }
+
+    /*
+     * Obtener listado de usuarios de Moodle
+     */
+    public async getUsersInMoodle() {
+        const moodleToken = AuthService.getTokenMoodle();
+        return this.request(`/user/moodle/all?token=${moodleToken}`, {
+            method: 'GET',
+            headers: this.getHeaders(),
+        });
+    }
+
+    /*
+     * Obtener listado de personal
+     */
+    public async getPersonal() {
+        return this.request('/personal', {
+            method: 'GET',
+            headers: this.getHeaders(),
+        });
+    }
+
+    /*
+     * Registrar personal
+     */
+    public async addPersonal(personalData: FormData) {
+        return this.request('/personal', {
+            method: 'POST',
+            //headers: this.getHeaders(),
+            body: personalData,
+        });
+    }
+
+    /*
+     * Editar personal
+     */
+    public async updatePersonal(id: string, updatedData: FormData) {
+        return this.request(`/personal/${id}`, {
+            method: 'PATCH',
+            //headers: this.getHeaders(),
+            body: updatedData,
+        });
+    }
+
+    /*
+     * Eliminar personal
+     */
+    public async deletePersonal(id: string) {
+        return this.request(`/personal/${id}`, {
+            method: 'DELETE',
+            headers: this.getHeaders(),
         });
     }
 }
