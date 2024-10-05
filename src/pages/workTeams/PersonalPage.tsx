@@ -133,6 +133,7 @@ const PersonalPage: React.FC = () => {
                 title={newPersonal.id ? 'Editar Personal' : 'Nuevo Personal Técnico'}
                 primaryButtonText={newPersonal.id ? 'EDITAR' : 'AGREGAR'}
                 onSubmit={handleAddOrUpdate}
+                size='medium'
             >
                 <form className="space-y-4">
                     <div className="mb-4">

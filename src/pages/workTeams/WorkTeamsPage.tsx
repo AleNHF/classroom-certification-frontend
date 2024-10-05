@@ -22,7 +22,7 @@ const WorkTeamsPage: React.FC = () => {
                         <Card title='PERSONAL TÉCNICO' route='personal' />
 
                         {/* Tarjeta que redirige a los equipos */}
-                        <Card title='EQUIPOS' route='/teams' />
+                        <Card title='EQUIPOS' route='teams' />
 
                         {/* Tarjeta que redirige a los usuarios */}
                         <Card title='GESTIÓN DE USUARIOS' route='users' />

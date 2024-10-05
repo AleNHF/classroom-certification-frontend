@@ -7,6 +7,7 @@ import { useAuthContext } from '../context/AuthContext';
 import PersonalPage from '../pages/workTeams/PersonalPage';
 import RoleProtectedRoute from './RoleProtectedRoute';
 import UserPage from '../pages/workTeams/UserPage';
+import TeamPage from '../pages/workTeams/TeamPage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();

@@ -157,6 +157,7 @@ const UserPage: React.FC = () => {
                 title={newUser.id ? 'Editar Usuario' : 'Nuevo Usuario'}
                 primaryButtonText={newUser.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleAddOrUpdate}
+                size='medium'
             >
                 <form className="space-y-4">
                     <div className="mb-4">
