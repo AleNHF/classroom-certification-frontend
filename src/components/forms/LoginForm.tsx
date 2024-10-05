@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import logo from '../assets/logo_certification.png';
-import { validateLogin } from '../utils/validateLogin';
+import React, { useEffect, useState } from 'react';
+import logo from '../../assets/logo_certification.png';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../../context/AuthContext';
+import { validateLogin } from '../../utils/validateLogin';
 
 const LoginForm: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const { handleLogin } = useAuth();
+    const { handleLogin, isAuthenticated } = useAuthContext();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -21,11 +21,16 @@ const LoginForm: React.FC = () => {
 
         try {
             await handleLogin(username, password);
-            navigate('/home');
         } catch (error) {
             setErrorMessage('Error en la autenticación, por favor intente de nuevo.');
         }
     };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/')
+        }
+    }, [isAuthenticated, navigate]);
 
     return (
         <form className="bg-white p-6 md:p-8 shadow-md rounded-lg w-full" onSubmit={handleSubmit}>
