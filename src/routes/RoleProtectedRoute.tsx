@@ -1,11 +1,7 @@
 import React, { useMemo } from "react";
 import { Navigate } from 'react-router-dom';
 import { useAuthContext } from "../context/AuthContext";
-
-interface RoleProtectedRouteProps {
-    allowedRoles: string[];
-    element: React.ReactNode;
-}
+import { RoleProtectedRouteProps } from "../types/protedtedRouteTypes";
 
 const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ allowedRoles, element }) => {
     const { isAuthenticated, getUserRole } = useAuthContext();

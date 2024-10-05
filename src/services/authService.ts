@@ -44,6 +44,22 @@ class AuthService {
     public getRole() {
         return localStorage.getItem('role');
     }
+
+    public getTokenMoodle() {
+        return localStorage.getItem('moodle_token');
+    }
+
+    /*
+     * Obtener listado de roles
+     */
+    public async getRoles() {
+        return this.request('/role', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    }
 }
 
 export default new AuthService(); 

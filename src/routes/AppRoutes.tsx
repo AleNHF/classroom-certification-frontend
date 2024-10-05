@@ -6,6 +6,7 @@ import WorkTeamsPage from '../pages/workTeams/WorkTeamsPage';
 import { useAuthContext } from '../context/AuthContext';
 import PersonalPage from '../pages/workTeams/PersonalPage';
 import RoleProtectedRoute from './RoleProtectedRoute';
+import UserPage from '../pages/workTeams/UserPage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -27,6 +28,10 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="work-teams/personal"
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<PersonalPage />} />}
+            />
+            <Route
+                path="work-teams/users"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<UserPage />} />}
             />
 
             {/* Página no encontrada */}
