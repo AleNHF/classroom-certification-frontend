@@ -55,7 +55,6 @@ class ApiService {
      * Registrar usuario
      */
     public async addUser(userData: UserProps) {
-        console.log('adduser',userData)
         return this.request('/user', {
             method: 'POST',
             headers: this.getHeaders(),
@@ -91,6 +90,48 @@ class ApiService {
         const moodleToken = AuthService.getTokenMoodle();
         return this.request(`/user/moodle/all?token=${moodleToken}`, {
             method: 'GET',
+            headers: this.getHeaders(),
+        });
+    }
+
+    /*
+     * Obtener listado de personal
+     */
+    public async getPersonal() {
+        return this.request('/personal', {
+            method: 'GET',
+            headers: this.getHeaders(),
+        });
+    }
+
+    /*
+     * Registrar personal
+     */
+    public async addPersonal(personalData: FormData) {
+        return this.request('/personal', {
+            method: 'POST',
+            //headers: this.getHeaders(),
+            body: personalData,
+        });
+    }
+
+    /*
+     * Editar personal
+     */
+    public async updatePersonal(id: string, updatedData: FormData) {
+        return this.request(`/personal/${id}`, {
+            method: 'PATCH',
+            //headers: this.getHeaders(),
+            body: updatedData,
+        });
+    }
+
+    /*
+     * Eliminar personal
+     */
+    public async deletePersonal(id: string) {
+        return this.request(`/personal/${id}`, {
+            method: 'DELETE',
             headers: this.getHeaders(),
         });
     }

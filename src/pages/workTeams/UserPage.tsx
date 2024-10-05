@@ -4,7 +4,7 @@ import TableComponent from '../../components/ui/TableComponent';
 import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import useUsers from '../../hooks/useUser';
-import notifyImage from '../../assets/undraw_notify_re_65on.svg';
+import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 
 const UserPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,7 +38,7 @@ const UserPage: React.FC = () => {
         setIsSuggestionsOpen(false);
     };
 
-    const handleAdd = async () => {
+    const handleAddOrUpdate = async () => {
         if (!newUser.roleId) {
             console.error('Error: roleId must not be empty');
             return;
@@ -51,11 +51,7 @@ const UserPage: React.FC = () => {
         };
 
         try {
-            if (newUser.id) {
-                await updateUser(newUser.id, userData);
-            } else {
-                await addUser(userData);
-            }
+            newUser.id ? await updateUser(newUser.id, userData) : await addUser(userData);
             handleCloseModal();
         } catch (error) {
             console.error('Error adding/updating user:', error);
@@ -109,7 +105,7 @@ const UserPage: React.FC = () => {
     };
 
     const handleEdit = (user: any) => {
-        setNewUser({ id: user.id, name: user.name, username: user.username, roleId: user.roleId });
+        setNewUser({ id: user.id, name: user.name, username: user.username, roleId: user.rol.id });
         setIsModalOpen(true);
     };
 
@@ -117,7 +113,7 @@ const UserPage: React.FC = () => {
     const rows = userList.map((user: any) => ({
         Nombre: user.name,
         Usuario: user.username,
-        Rol: user.rol.name,
+        Rol: roleList.find((role: any) => role.id === user.rol.id)?.name || 'N/A',
         Acciones: (
             <div className="flex space-x-2">
                 <button
@@ -160,7 +156,7 @@ const UserPage: React.FC = () => {
                 onClose={handleCloseModal}
                 title={newUser.id ? 'Editar Usuario' : 'Nuevo Usuario'}
                 primaryButtonText={newUser.id ? 'ACTUALIZAR' : 'AGREGAR'}
-                onSubmit={handleAdd}
+                onSubmit={handleAddOrUpdate}
             >
                 <form className="space-y-4">
                     <div className="mb-4">
@@ -187,16 +183,14 @@ const UserPage: React.FC = () => {
                             </ul>
                         )}
                     </div>
-                    <div className="mb-4">
+                    <div>
                         <label className="block text-sm font-medium text-gray-700">Rol</label>
-                        <select
-                            value={newUser.roleId}
-                            onChange={(e) => setNewUser({ ...newUser, roleId: e.target.value })}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                        >
+                        <select value={newUser.roleId} onChange={(e) => setNewUser({ ...newUser, roleId: e.target.value })} className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500">
                             <option value="">Selecciona un rol</option>
-                            {roleList.map((role, roleIndex) => (
-                                <option key={roleIndex} value={role.id}>{role.name}</option>
+                            {roleList.map((role: any) => (
+                                <option key={role.id} value={role.id}>
+                                    {role.name}
+                                </option>
                             ))}
                         </select>
                     </div>
@@ -204,22 +198,8 @@ const UserPage: React.FC = () => {
             </ModalComponent>
 
             {/* Modal de Confirmación de Eliminación */}
-            <ModalComponent
-                isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)}
-                title="Confirmar eliminación"
-                primaryButtonText="ELIMINAR"
-                onSubmit={confirmDeleteUser}
-            >
-                <div className="flex flex-col items-center">
-                    <img
-                        src={notifyImage}
-                        alt="Advertencia"
-                        className="w-48 h-48 mb-4"
-                    />
-                    <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-                </div>
-            </ModalComponent>
+            <ConfirmDeleteModal isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)} onSubmit={confirmDeleteUser} />
         </>
     );
 };

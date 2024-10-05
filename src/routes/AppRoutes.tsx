@@ -23,7 +23,7 @@ const AppRoutes: React.FC = () => {
             />
             <Route
                 path="work-teams"
-                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<WorkTeamsPage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<WorkTeamsPage />} />}
             />
             <Route
                 path="work-teams/personal"
