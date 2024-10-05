@@ -4,7 +4,7 @@ import TableComponent from '../../components/ui/TableComponent';
 import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import usePersonal from '../../hooks/usePersonal';
-import notifyImage from '../../assets/undraw_notify_re_65on.svg';
+import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 
 const PersonalPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -171,22 +171,8 @@ const PersonalPage: React.FC = () => {
             </ModalComponent>
 
             {/* Modal de Confirmación de Eliminación */}
-            <ModalComponent
-                isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)}
-                title="Confirmar eliminación"
-                primaryButtonText="ELIMINAR"
-                onSubmit={confirmDelete}
-            >
-                <div className="flex flex-col items-center">
-                    <img
-                        src={notifyImage}
-                        alt="Advertencia"
-                        className="w-48 h-48 mb-4"
-                    />
-                    <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-                </div>
-            </ModalComponent>
+            <ConfirmDeleteModal isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)} onSubmit={confirmDelete} />
         </>
     );
 };
