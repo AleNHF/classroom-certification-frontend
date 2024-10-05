@@ -7,7 +7,6 @@ const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ allowedRoles, e
     const { isAuthenticated, getUserRole } = useAuthContext();
 
     const userRole = useMemo(() => getUserRole(), [getUserRole]);  // Memoize user role
-    console.log('userRole', userRole);
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
