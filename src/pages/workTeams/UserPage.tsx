@@ -115,15 +115,15 @@ const UserPage: React.FC = () => {
         Usuario: user.username,
         Rol: roleList.find((role: any) => role.id === user.rol.id)?.name || 'N/A',
         Acciones: (
-            <div className="flex space-x-2">
+            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                 <button
-                    className="bg-secondary-button-color text-white text-sm px-4 py-1 rounded w-24"
+                    className="bg-secondary-button-color text-white text-sm px-2 py-1 rounded w-full md:w-24"
                     onClick={() => handleEdit(user)}
                 >
                     EDITAR
                 </button>
                 <button
-                    className="bg-primary-red-color text-white text-sm px-4 py-1 rounded w-24"
+                    className="bg-primary-red-color text-white text-sm px-2 py-1 rounded w-full md:w-24"
                     onClick={() => handleDelete(user.id)}
                 >
                     ELIMINAR
@@ -148,7 +148,9 @@ const UserPage: React.FC = () => {
                         </div>
                     )}
                     <AddButtonComponent onClick={handleAddClick} />
-                    <TableComponent headers={headers} rows={rows} />
+                    <div className="overflow-x-auto w-full">
+                        <TableComponent headers={headers} rows={rows} />
+                    </div>
                 </div>
             </div>
             <ModalComponent
@@ -186,7 +188,11 @@ const UserPage: React.FC = () => {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Rol</label>
-                        <select value={newUser.roleId} onChange={(e) => setNewUser({ ...newUser, roleId: e.target.value })} className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500">
+                        <select
+                            value={newUser.roleId}
+                            onChange={(e) => setNewUser({ ...newUser, roleId: e.target.value })}
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                        >
                             <option value="">Selecciona un rol</option>
                             {roleList.map((role: any) => (
                                 <option key={role.id} value={role.id}>
