@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import apiService from '../services/apiService';
-import { PersonalProps } from '../types/models/personalTypes';
+import { Team } from '../types/models/teamTypes';
 
-const usePersonal = () => {
-    const [personalList, setPersonalList] = useState<PersonalProps[]>([]);
+const useTeam = () => {
+    const [teamList, setTeamList] = useState<Team[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -14,8 +14,8 @@ const usePersonal = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const personalData = await apiService.getPersonal();
-            setPersonalList(personalData.data.personals);
+            const teamData = await apiService.getTeams();
+            setTeamList(teamData.data.teams);
         } catch (error) {
             setError('Error al obtener los datos. Inténtalo de nuevo más tarde.');
             console.error('Error fetching data:', error);
@@ -24,44 +24,44 @@ const usePersonal = () => {
         }
     };
 
-    const addPersonal = async (personalData: FormData) => {
+    const addTeam = async (teamData: Team) => {
         try {
-            await apiService.addPersonal(personalData);
+            await apiService.addTeam(teamData);
             fetchData();
         } catch (error) {
-            console.error('Error adding user:', error);
+            console.error('Error adding team:', error);
             throw error;
         }
     };
 
-    const updatePersonal = async (id: string, personalData: FormData) => {
+    const updateTeam = async (id: string, teamData: Team) => {
         try {
-            await apiService.updatePersonal(id, personalData);
+            await apiService.updateTeam(id, teamData);
             fetchData();
         } catch (error) {
-            console.error('Error updating user:', error);
+            console.error('Error updating team:', error);
             throw error;
         }
     };
 
-    const deletePersonal = async (id: string) => {
+    const deleteTeam = async (id: string) => {
         try {
-            await apiService.deletePersonal(id);
+            await apiService.deleteTeam(id);
             fetchData();
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error('Error deleting team:', error);
             throw error;
         }
     };
 
     return {
-        personalList,
+        teamList,
         loading,
         error,
-        addPersonal,
-        updatePersonal,
-        deletePersonal,
+        addTeam,
+        updateTeam,
+        deleteTeam,
     };
 };
 
-export default usePersonal;
+export default useTeam;
