@@ -1,5 +1,6 @@
 import AuthService from '../services/authService';
-import { UserProps } from '../types/userTypes';
+import { Team } from '../types/models/teamTypes';
+import { UserProps } from '../types/models/userTypes';
 
 class ApiService {
     private baseUrl: string;
@@ -131,6 +132,48 @@ class ApiService {
      */
     public async deletePersonal(id: string) {
         return this.request(`/personal/${id}`, {
+            method: 'DELETE',
+            headers: this.getHeaders(),
+        });
+    }
+
+    /*
+     * Obtener listado de equipo
+     */
+    public async getTeams() {
+        return this.request('/team', {
+            method: 'GET',
+            headers: this.getHeaders(),
+        });
+    }
+
+    /*
+     * Registrar equipo
+     */
+    public async addTeam(teamData: Team) {
+        return this.request('/team', {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify(teamData),
+        });
+    }
+
+    /*
+     * Editar equipo
+     */
+    public async updateTeam(id: string, updatedData: Team) {
+        return this.request(`/team/${id}`, {
+            method: 'PATCH',
+            headers: this.getHeaders(),
+            body: JSON.stringify(updatedData),
+        });
+    }
+
+    /*
+     * Eliminar equipo
+     */
+    public async deleteTeam(id: string) {
+        return this.request(`/team/${id}`, {
             method: 'DELETE',
             headers: this.getHeaders(),
         });

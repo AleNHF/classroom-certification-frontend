@@ -9,7 +9,7 @@ import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 const PersonalPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newPersonal, setNewPersonal] = useState({ id: '', name: '', position: '', signature: null as File | null, });
+    const [newPersonal, setNewPersonal] = useState({ id: '', name: '', position: '', signature: null as File | null });
     const [personalToDelete, setPersonalToDelete] = useState<string | null>(null);
     const {
         personalList,
@@ -30,13 +30,12 @@ const PersonalPage: React.FC = () => {
         setNewPersonal({ id: '', name: '', position: '', signature: null });
     };
 
-    // Manejador para el input de archivo
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
         if (file && file.type.startsWith('image/')) {
             setNewPersonal({ ...newPersonal, signature: file });
         } else {
-            alert("Please upload a valid image file.");
+            alert("Por favor, sube un archivo de imagen válido.");
         }
     };
 
@@ -80,22 +79,22 @@ const PersonalPage: React.FC = () => {
     const handleEdit = (personal: any) => {
         setNewPersonal({ id: personal.id, name: personal.name, position: personal.position, signature: personal.signature });
         setIsModalOpen(true);
-    }
+    };
 
     const headers = ["Nombre", "Cargo", "Acciones"];
     const rows = personalList.map((personal: any) => ({
         Nombre: personal.name,
         Cargo: personal.position,
         Acciones: (
-            <div className="flex space-x-2">
+            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                 <button
-                    className="bg-secondary-button-color text-white text-sm px-4 py-1 rounded w-24"
+                    className="bg-secondary-button-color text-white text-sm px-4 py-1 rounded w-full md:w-24"
                     onClick={() => handleEdit(personal)}
                 >
                     EDITAR
                 </button>
                 <button
-                    className="bg-primary-red-color text-white text-sm px-4 py-1 rounded w-24"
+                    className="bg-primary-red-color text-white text-sm px-4 py-1 rounded w-full md:w-24"
                     onClick={() => handleDelete(personal.id)}
                 >
                     ELIMINAR
@@ -124,7 +123,9 @@ const PersonalPage: React.FC = () => {
                         </div>
                     )}
                     <AddButtonComponent onClick={handleAddClick} />
-                    <TableComponent headers={headers} rows={rows} />
+                    <div className="overflow-x-auto w-full">
+                        <TableComponent headers={headers} rows={rows} />
+                    </div>
                 </div>
             </div>
             <ModalComponent

@@ -1,6 +1,6 @@
 
 import notifyImage from '../../assets/undraw_notify_re_65on.svg';
-import { ConfirmDeleteModalProps } from '../../types/deleteModalTypes';
+import { ConfirmDeleteModalProps } from '../../types/utils/deleteModalTypes';
 import ModalComponent from './ModalComponent';
 
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({

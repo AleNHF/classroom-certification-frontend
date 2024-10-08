@@ -3,7 +3,7 @@ import AuthService from '../services/authService'
 
 export const useAuth = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-
+    
     const handleLogin = async (username: string, password: string) => {
         try {
             const response = await AuthService.login(username, password);
@@ -29,11 +29,12 @@ export const useAuth = () => {
     };
 
     const getUserRole = () => {
-        return localStorage.getItem('role');
+        return localStorage.getItem('role') || '';
     }
 
     return {
         isAuthenticated,
+        setIsAuthenticated,
         handleLogin,
         logout,
         getUserRole

@@ -34,6 +34,10 @@ const AppRoutes: React.FC = () => {
                 path="work-teams/users"
                 element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<UserPage />} />}
             />
+            <Route
+                path="work-teams/teams"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<TeamPage />} />}
+            />
 
             {/* Página no encontrada */}
             <Route path="*" element={<Navigate to="/login" replace />} />

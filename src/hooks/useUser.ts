@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import apiService from '../services/apiService';
 import authService from '../services/authService';
-import { Role } from '../types/roleTypes';
-import { UserProps } from '../types/userTypes';
+import { Role } from '../types/models/roleTypes';
+import { UserProps } from '../types/models/userTypes';
 
 const useUsers = () => {
     const [userList, setUserList] = useState<UserProps[]>([]);
