@@ -5,12 +5,18 @@ import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import usePersonal from '../../hooks/usePersonal';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
+import PageHeaderComponent from '../../components/ui/PageHeader';
+import { validatePersonalForm } from '../../utils/validatePersonalForm';
+
+const headers = ["Nombre", "Cargo", "Acciones"];
 
 const PersonalPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newPersonal, setNewPersonal] = useState({ id: '', name: '', position: '', signature: null as File | null });
+    const [personalForm, setPersonalForm] = useState({ id: '', name: '', position: '', signature: null as File | null });
     const [personalToDelete, setPersonalToDelete] = useState<string | null>(null);
+    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+
     const {
         personalList,
         loading,
@@ -20,41 +26,51 @@ const PersonalPage: React.FC = () => {
         deletePersonal
     } = usePersonal();
 
+    const resetPersonalForm = () => {
+        setPersonalForm({ id: '', name: '', position: '', signature: null });
+        setErrorMessages({});
+    };
+
     const handleAddClick = () => {
-        setNewPersonal({ id: '', name: '', position: '', signature: null });
+        resetPersonalForm();
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setNewPersonal({ id: '', name: '', position: '', signature: null });
+        resetPersonalForm();
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
         if (file && file.type.startsWith('image/')) {
-            setNewPersonal({ ...newPersonal, signature: file });
+            setPersonalForm({ ...personalForm, signature: file });
+            setErrorMessages((prev) => ({ ...prev, signature: '' })); // Clear previous error
         } else {
             alert("Por favor, sube un archivo de imagen válido.");
         }
     };
 
     const handleAddOrUpdate = async () => {
-        const formData = new FormData();
-        formData.append('name', newPersonal.name);
-        formData.append('position', newPersonal.position);
-        if (newPersonal.signature) {
-            formData.append('signature', newPersonal.signature);
-        } else {
-            console.error('No file selected for signature.');
+        const validation = validatePersonalForm(personalForm);
+        if (!validation.isValid) {
+            setErrorMessages(validation.errors);
             return;
         }
 
+        const formData = new FormData();
+        formData.append('name', personalForm.name);
+        formData.append('position', personalForm.position);
+        formData.append('signature', personalForm.signature as File); // Asserting because we know it's valid
+
         try {
-            newPersonal.id ? await updatePersonal(newPersonal.id, formData) : await addPersonal(formData);
+            personalForm.id
+                ? await updatePersonal(personalForm.id, formData)
+                : await addPersonal(formData);
+
             handleCloseModal();
         } catch (error) {
-            console.error('Error adding/updating personal:', error);
+            console.error('Error al añadir/actualizar personal:', error);
         }
     };
 
@@ -68,7 +84,7 @@ const PersonalPage: React.FC = () => {
             try {
                 await deletePersonal(personalToDelete);
             } catch (error) {
-                console.error('Error deleting personal:', error);
+                console.error('Error al eliminar personal:', error);
             } finally {
                 setPersonalToDelete(null);
                 setIsConfirmDeleteOpen(false);
@@ -77,11 +93,15 @@ const PersonalPage: React.FC = () => {
     };
 
     const handleEdit = (personal: any) => {
-        setNewPersonal({ id: personal.id, name: personal.name, position: personal.position, signature: personal.signature });
+        setPersonalForm({
+            id: personal.id,
+            name: personal.name,
+            position: personal.position,
+            signature: personal.signature
+        });
         setIsModalOpen(true);
     };
 
-    const headers = ["Nombre", "Cargo", "Acciones"];
     const rows = personalList.map((personal: any) => ({
         Nombre: personal.name,
         Cargo: personal.position,
@@ -109,14 +129,12 @@ const PersonalPage: React.FC = () => {
     return (
         <>
             <div className="flex flex-col items-center justify-start bg-white min-h-screen">
-                {/* Header */}
                 <div className="w-full flex-shrink-0">
                     <HeaderComponent />
                 </div>
 
-                {/* Main Content */}
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <h1 className="text-2xl font-medium my-10 text-left w-full">GESTIONAR PERSONAL TÉCNICO</h1>
+                    <PageHeaderComponent title='GESTIONAR PERSONAL TÉCNICO' />
                     {error && (
                         <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
                             {error}
@@ -128,29 +146,31 @@ const PersonalPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+
             <ModalComponent
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={newPersonal.id ? 'Editar Personal' : 'Nuevo Personal Técnico'}
-                primaryButtonText={newPersonal.id ? 'EDITAR' : 'AGREGAR'}
+                title={personalForm.id ? 'Editar Personal' : 'Nuevo Personal Técnico'}
+                primaryButtonText={personalForm.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleAddOrUpdate}
-                size='medium'
+                size="medium"
             >
                 <form className="space-y-4">
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Nombre</label>
                         <input
                             type="text"
-                            value={newPersonal.name}
-                            onChange={(e) => setNewPersonal({ ...newPersonal, name: e.target.value })}
+                            value={personalForm.name}
+                            onChange={(e) => setPersonalForm({ ...personalForm, name: e.target.value })}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
+                        {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Cargo</label>
                         <select
-                            value={newPersonal.position}
-                            onChange={(e) => setNewPersonal({ ...newPersonal, position: e.target.value })}
+                            value={personalForm.position}
+                            onChange={(e) => setPersonalForm({ ...personalForm, position: e.target.value })}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         >
                             <option value="">Selecciona un cargo</option>
@@ -159,6 +179,7 @@ const PersonalPage: React.FC = () => {
                             <option value="Diseñador">Diseñador</option>
                             <option value="Diseñador instruccional">Diseñador instruccional</option>
                         </select>
+                        {errorMessages.position && <p className="text-red-600 text-sm">{errorMessages.position}</p>}
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Firma (Subir imagen)</label>
@@ -168,13 +189,16 @@ const PersonalPage: React.FC = () => {
                             onChange={handleFileChange}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
+                        {errorMessages.signature && <p className="text-red-600 text-sm">{errorMessages.signature}</p>}
                     </div>
                 </form>
             </ModalComponent>
 
-            {/* Modal de Confirmación de Eliminación */}
-            <ConfirmDeleteModal isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)} onSubmit={confirmDelete} />
+            <ConfirmDeleteModal
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onSubmit={confirmDelete}
+            />
         </>
     );
 };

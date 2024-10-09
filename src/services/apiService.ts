@@ -1,6 +1,6 @@
 import AuthService from '../services/authService';
-import { Team } from '../types/models/teamTypes';
-import { UserProps } from '../types/models/userTypes';
+import { Team } from '../types/teamTypes';
+import { UserProps } from '../types/userTypes';
 
 class ApiService {
     private baseUrl: string;
@@ -9,16 +9,33 @@ class ApiService {
         this.baseUrl = 'http://localhost:3000/api';
     }
 
-    private async request(endpoint: string, options: RequestInit) {
+    private async request(
+        endpoint: string,
+        method: string,
+        body?: any,
+        contentType: string = 'application/json'
+    ) {
         const url = `${this.baseUrl}${endpoint}`;
         const token = AuthService.getToken();
+        const headers: HeadersInit = {
+            'Content-Type': contentType,
+        };
 
         // Agregar token de autenticación si está presente
         if (token) {
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`,
-            };
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const options: RequestInit = {
+            method,
+            headers,
+            body: body ? JSON.stringify(body) : undefined,
+        };
+
+        // Manejo de contenido `FormData` para el personal
+        if (body instanceof FormData) {
+            delete headers['Content-Type']; // Dejar que el navegador maneje los headers
+            options.body = body;
         }
 
         try {
@@ -36,147 +53,105 @@ class ApiService {
         }
     }
 
-    private getHeaders(contentType: string = 'application/json') {
-        return {
-            'Content-Type': contentType,
-        };
+    // Métodos genéricos para CRUD
+    private get(endpoint: string) {
+        return this.request(endpoint, 'GET');
+    }
+
+    private post(endpoint: string, data: any) {
+        return this.request(endpoint, 'POST', data);
+    }
+
+    private patch(endpoint: string, data: any) {
+        return this.request(endpoint, 'PATCH', data);
+    }
+
+    private delete(endpoint: string) {
+        return this.request(endpoint, 'DELETE');
     }
 
     /*
-     * Obtener listado de usuarios
+     * Métodos específicos para usuarios
      */
-    public async getUsers() {
-        return this.request('/user', {
-            method: 'GET',
-            headers: this.getHeaders(),
-        });
+    public getUsers() {
+        return this.get('/user');
+    }
+
+    public addUser(userData: UserProps) {
+        return this.post('/user', userData);
+    }
+
+    public updateUser(id: string, updatedData: UserProps) {
+        return this.patch(`/user/${id}`, updatedData);
+    }
+
+    public deleteUser(id: string) {
+        return this.delete(`/user/${id}`);
     }
 
     /*
-     * Registrar usuario
+     * Métodos específicos para personal
      */
-    public async addUser(userData: UserProps) {
-        return this.request('/user', {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify(userData),
-        });
+    public getPersonal() {
+        return this.get('/personal');
+    }
+
+    public addPersonal(personalData: FormData) {
+        return this.post('/personal', personalData);
+    }
+
+    public updatePersonal(id: string, updatedData: FormData) {
+        return this.patch(`/personal/${id}`, updatedData);
+    }
+
+    public deletePersonal(id: string) {
+        return this.delete(`/personal/${id}`);
     }
 
     /*
-     * Editar usuario
+     * Métodos específicos para equipos
      */
-    public async updateUser(id: string, updatedData: UserProps) {
-        return this.request(`/user/${id}`, {
-            method: 'PATCH',
-            headers: this.getHeaders(),
-            body: JSON.stringify(updatedData),
-        });
+    public getTeams() {
+        return this.get('/team');
+    }
+
+    public addTeam(teamData: Team) {
+        return this.post('/team', teamData);
+    }
+
+    public updateTeam(id: string, updatedData: Team) {
+        return this.patch(`/team/${id}`, updatedData);
+    }
+
+    public deleteTeam(id: string) {
+        return this.delete(`/team/${id}`);
     }
 
     /*
-     * Eliminar usuario
+     * Métodos específicos para ciclos
      */
-    public async deleteUser(id: string) {
-        return this.request(`/user/${id}`, {
-            method: 'DELETE',
-            headers: this.getHeaders(),
-        });
+    public getCycles() {
+        return this.get('/cycle');
+    }
+
+    public addCycle(teamData: {name: string}) {
+        return this.post('/cycle', teamData);
+    }
+
+    public updateCycle(id: string, updatedData: {name: string}) {
+        return this.patch(`/cycle/${id}`, updatedData);
+    }
+
+    public deleteCycle(id: string) {
+        return this.delete(`/cycle/${id}`);
     }
 
     /*
-     * Obtener listado de usuarios de Moodle
+     * Otros métodos específicos
      */
-    public async getUsersInMoodle() {
+    public getUsersInMoodle() {
         const moodleToken = AuthService.getTokenMoodle();
-        return this.request(`/user/moodle/all?token=${moodleToken}`, {
-            method: 'GET',
-            headers: this.getHeaders(),
-        });
-    }
-
-    /*
-     * Obtener listado de personal
-     */
-    public async getPersonal() {
-        return this.request('/personal', {
-            method: 'GET',
-            headers: this.getHeaders(),
-        });
-    }
-
-    /*
-     * Registrar personal
-     */
-    public async addPersonal(personalData: FormData) {
-        return this.request('/personal', {
-            method: 'POST',
-            //headers: this.getHeaders(),
-            body: personalData,
-        });
-    }
-
-    /*
-     * Editar personal
-     */
-    public async updatePersonal(id: string, updatedData: FormData) {
-        return this.request(`/personal/${id}`, {
-            method: 'PATCH',
-            //headers: this.getHeaders(),
-            body: updatedData,
-        });
-    }
-
-    /*
-     * Eliminar personal
-     */
-    public async deletePersonal(id: string) {
-        return this.request(`/personal/${id}`, {
-            method: 'DELETE',
-            headers: this.getHeaders(),
-        });
-    }
-
-    /*
-     * Obtener listado de equipo
-     */
-    public async getTeams() {
-        return this.request('/team', {
-            method: 'GET',
-            headers: this.getHeaders(),
-        });
-    }
-
-    /*
-     * Registrar equipo
-     */
-    public async addTeam(teamData: Team) {
-        return this.request('/team', {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify(teamData),
-        });
-    }
-
-    /*
-     * Editar equipo
-     */
-    public async updateTeam(id: string, updatedData: Team) {
-        return this.request(`/team/${id}`, {
-            method: 'PATCH',
-            headers: this.getHeaders(),
-            body: JSON.stringify(updatedData),
-        });
-    }
-
-    /*
-     * Eliminar equipo
-     */
-    public async deleteTeam(id: string) {
-        return this.request(`/team/${id}`, {
-            method: 'DELETE',
-            headers: this.getHeaders(),
-        });
+        return this.get(`/user/moodle/all?token=${moodleToken}`);
     }
 }
 
