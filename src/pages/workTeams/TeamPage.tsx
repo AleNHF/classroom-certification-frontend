@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
 import TableComponent from '../../components/ui/TableComponent';
 import AddButtonComponent from '../../components/ui/AddButtonComponent';
@@ -6,6 +6,11 @@ import ModalComponent from '../../components/ui/ModalComponent';
 import useTeam from '../../hooks/useTeam';
 import usePersonal from '../../hooks/usePersonal';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
+import PageHeaderComponent from '../../components/ui/PageHeader';
+import { validateTeamData } from '../../utils/validateTeamData';
+
+const teamHeaders = ["Nombre", "Gestión", "Facultad", "Acciones"];
+const memberHeaders = ["Nombre", "Cargo", "Acciones"];
 
 interface TeamMember {
     id: string;
@@ -21,69 +26,61 @@ const TeamPage: React.FC = () => {
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     const [memberData, setMemberData] = useState<number[]>([]);
     const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
+    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
 
     const { teamList, loading, error, addTeam, updateTeam, deleteTeam } = useTeam();
     const { personalList } = usePersonal();
 
-    const handleAddClick = () => {
-        setIsModalOpen(true);
+    const resetTeamData = () => {
         setNewTeam({ id: '', name: '', management: '', faculty: '' });
         setTeamMembers([]);
         setMemberData([]);
         setSelectedPersonalId(null);
+        setErrorMessages({});
     };
 
-    const handleEditClick = (team: any) => {
+    const handleAddClick = () => {
         setIsModalOpen(true);
-        setNewTeam({ id: team.id, name: team.name, management: team.management, faculty: team.faculty });
-    
-        const members = Array.isArray(team.personals) ? team.personals : [];
-    
-        setTeamMembers(members); 
-        setMemberData(members.map((member: any) => member.id));
+        resetTeamData();
     };
-    
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setSelectedPersonalId(null);
-        setNewTeam({ id: '', name: '', management: '', faculty: '' });
+        resetTeamData();
     };
 
-    const handleAddMember = () => {
+    const handleAddMember = useCallback(() => {
         if (selectedPersonalId) {
             const selectedMember = personalList.find(person => Number(person.id) === Number(selectedPersonalId));
-            if (selectedMember) {
-                const isMemberAlreadyAdded = teamMembers.some(member => member.id === selectedMember.id);
-                if (!isMemberAlreadyAdded) {
-                    setTeamMembers(prevMembers => [
-                        ...prevMembers,
-                        { id: selectedMember.id, name: selectedMember.name, position: selectedMember.position }
-                    ]);
-                    setMemberData(prevData => [...prevData, Number(selectedMember.id)]);
-                } else {
-                    console.error('El miembro ya está en el equipo.');
-                }
-                setSelectedPersonalId(null);
-            } else {
-                console.error('No se encontró el miembro seleccionado.');
+            if (selectedMember && !teamMembers.some(member => member.id === selectedMember.id)) {
+                setTeamMembers(prevMembers => [
+                    ...prevMembers,
+                    { id: selectedMember.id, name: selectedMember.name, position: selectedMember.position }
+                ]);
+                setMemberData(prevData => [...prevData, Number(selectedMember.id)]);
             }
+            setSelectedPersonalId(null);
         }
-    };
+    }, [selectedPersonalId, personalList, teamMembers]);
 
-    const handleRemoveMember = (id: string) => {
-        const updatedMembers = teamMembers.filter(member => member.id !== id); // filtra el miembro por ID
-        setTeamMembers(updatedMembers);
-        setMemberData(memberData.filter(memberId => memberId !== Number(id))); // elimina ID del estado memberData
-    };
+    const handleRemoveMember = useCallback((id: string) => {
+        setTeamMembers(prevMembers => prevMembers.filter(member => member.id !== id));
+        setMemberData(prevData => prevData.filter(memberId => memberId !== Number(id)));
+    }, []);
 
-    const handleSubmitTeam = async () => {
+    const handleSubmitTeam = useCallback(async () => {
+        const newErrorMessages = validateTeamData(newTeam, teamMembers);
+
+        setErrorMessages(newErrorMessages);
+
+        if (Object.keys(newErrorMessages).length > 0) return;
+
         const teamData = {
             name: newTeam.name,
             faculty: newTeam.faculty,
             management: newTeam.management,
             personal: memberData
-        }
+        };
 
         try {
             newTeam.id ? await updateTeam(newTeam.id, teamData) : await addTeam(teamData);
@@ -91,14 +88,14 @@ const TeamPage: React.FC = () => {
         } catch (error) {
             console.error('Error adding/updating team:', error);
         }
-    };
+    }, [newTeam, memberData, addTeam, updateTeam, handleCloseModal, teamMembers]);
 
-    const handleDelete = (id: string) => {
+    const handleDelete = useCallback((id: string) => {
         setTeamToDelete(id);
         setIsConfirmDeleteOpen(true);
-    };
+    }, []);
 
-    const confirmDeleteTeam = async () => {
+    const confirmDeleteTeam = useCallback(async () => {
         if (teamToDelete) {
             try {
                 await deleteTeam(teamToDelete);
@@ -109,10 +106,23 @@ const TeamPage: React.FC = () => {
                 setIsConfirmDeleteOpen(false);
             }
         }
+    }, [teamToDelete, deleteTeam]);
+
+    const handleEdit = (team: any) => {
+        setNewTeam({
+            id: team.id,
+            name: team.name,
+            management: team.management,
+            faculty: team.faculty
+        });
+
+        const members = Array.isArray(team.personals) ? team.personals : [];
+        setTeamMembers(members);
+        setMemberData(members.map((member: any) => member.id));
+        setIsModalOpen(true);
     };
 
-    const headers = ["Nombre", "Gestión", "Facultad", "Acciones"];
-    const rows = teamList.map((team: any) => ({
+    const teamRows = teamList.map((team: any) => ({
         Nombre: team.name,
         Gestión: team.management,
         Facultad: team.faculty,
@@ -120,7 +130,7 @@ const TeamPage: React.FC = () => {
             <div className="flex space-x-2">
                 <button
                     className="bg-secondary-button-color text-white text-sm px-4 py-1 rounded w-24"
-                    onClick={() => handleEditClick(team)}
+                    onClick={() => handleEdit(team)}
                 >
                     EDITAR
                 </button>
@@ -131,6 +141,19 @@ const TeamPage: React.FC = () => {
                     ELIMINAR
                 </button>
             </div>
+        )
+    }));
+
+    const memberRows = teamMembers.map((member) => ({
+        Nombre: member.name,
+        Cargo: member.position,
+        Acciones: (
+            <button
+                onClick={() => handleRemoveMember(member.id)}
+                className="bg-red-600 text-white px-4 py-1 rounded"
+            >
+                ELIMINAR
+            </button>
         )
     }));
 
@@ -145,9 +168,9 @@ const TeamPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <h1 className="text-2xl font-medium my-10 text-left w-full">GESTIONAR EQUIPOS</h1>
+                    <PageHeaderComponent title='GESTIONAR EQUIPOS' />
                     <AddButtonComponent onClick={handleAddClick} />
-                    <TableComponent headers={headers} rows={rows} />
+                    <TableComponent headers={teamHeaders} rows={teamRows} />
                 </div>
             </div>
 
@@ -161,49 +184,72 @@ const TeamPage: React.FC = () => {
                 size='large'
             >
                 <form className="space-y-4">
-                    <div className="flex space-x-4">
-                        <div className="w-1/2">
-                            <label className="block text-sm font-medium text-gray-700">Nombre</label>
-                            <input
-                                type="text"
-                                value={newTeam.name}
-                                onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
-                                className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                            />
+                    <div>
+                        {/* Primera fila: Nombre y Gestión */}
+                        <div className="flex space-x-4">
+                            <div className="w-1/2">
+                                <label className="block text-sm font-medium text-gray-700">Nombre</label>
+                                <input
+                                    type="text"
+                                    value={newTeam.name || ''}
+                                    onChange={(e) =>
+                                        setNewTeam({
+                                            ...newTeam,
+                                            name: e.target.value,
+                                        })
+                                    }
+                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                                />
+                                {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
+                            </div>
+
+                            <div className="w-1/2">
+                                <label className="block text-sm font-medium text-gray-700">Gestión</label>
+                                <input
+                                    type="text"
+                                    value={newTeam.management || ''}
+                                    onChange={(e) =>
+                                        setNewTeam({
+                                            ...newTeam,
+                                            management: e.target.value,
+                                        })
+                                    }
+                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                                />
+                                {errorMessages.management && <p className="text-red-600 text-sm">{errorMessages.management}</p>}
+                            </div>
                         </div>
-                        <div className="w-1/2">
-                            <label className="block text-sm font-medium text-gray-700">Gestión</label>
-                            <input
-                                type="text"
-                                value={newTeam.management}
-                                onChange={(e) => setNewTeam({ ...newTeam, management: e.target.value })}
-                                className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                            />
-                        </div>
-                        <div className="w-1/2">
+
+                        {/* Segunda fila: Facultad */}
+                        <div className="mt-4">
                             <label className="block text-sm font-medium text-gray-700">Facultad</label>
                             <input
                                 type="text"
-                                value={newTeam.faculty}
-                                onChange={(e) => setNewTeam({ ...newTeam, faculty: e.target.value })}
+                                value={newTeam.faculty || ''}
+                                onChange={(e) =>
+                                    setNewTeam({
+                                        ...newTeam,
+                                        faculty: e.target.value,
+                                    })
+                                }
                                 className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                             />
+                            {errorMessages.faculty && <p className="text-red-600 text-sm">{errorMessages.faculty}</p>}
                         </div>
                     </div>
 
+                    {/* Miembros del equipo */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Personal Técnico</label>
+                        <h3 className="text-lg font-semibold">Miembros del equipo</h3>
                         <div className="flex items-center mt-2">
                             <select
                                 value={selectedPersonalId || ''}
                                 onChange={(e) => setSelectedPersonalId(e.target.value)}
                                 className="border border-gray-300 rounded-md p-2 w-full focus:ring focus:ring-blue-200 focus:border-blue-500"
                             >
-                                <option value="" disabled>Selecciona un miembro del personal...</option>
+                                <option value="" disabled>Seleccionar miembro</option>
                                 {personalList.map(person => (
-                                    <option key={person.id} value={person.id}>
-                                        {person.name}
-                                    </option>
+                                    <option key={person.id} value={person.id}>{person.name}</option>
                                 ))}
                             </select>
                             <button
@@ -214,39 +260,20 @@ const TeamPage: React.FC = () => {
                                 AGREGAR
                             </button>
                         </div>
-                    </div>
 
-                    <table className="min-w-full mt-4">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-2">Nombre</th>
-                                <th className="px-4 py-2">Cargo</th>
-                                <th className="px-4 py-2">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {teamMembers.map((member) => (
-                                <tr key={member.id}>
-                                    <td className="border px-4 py-2">{member.name}</td>
-                                    <td className="border px-4 py-2">{member.position}</td>
-                                    <td className="border px-4 py-2">
-                                        <button
-                                            onClick={() => handleRemoveMember(member.id)}
-                                            className="bg-red-600 text-white px-4 py-1 rounded"
-                                        >
-                                            ELIMINAR
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                        {errorMessages.members && <p className="text-red-600 text-sm">{errorMessages.members}</p>}
+
+                        <TableComponent headers={memberHeaders} rows={memberRows} />
+                    </div>
                 </form>
             </ModalComponent>
 
-            {/* Modal de Confirmación de Eliminación */}
-            <ConfirmDeleteModal isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)} onSubmit={confirmDeleteTeam} />
+            {/* Confirmar eliminación de equipo */}
+            <ConfirmDeleteModal
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onSubmit={confirmDeleteTeam}
+            />
         </>
     );
 };

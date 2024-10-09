@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import apiService from '../services/apiService';
-import { Team } from '../types/teamTypes';
 
-const useTeam = () => {
-    const [teamList, setTeamList] = useState<Team[]>([]);
+const useCycle = () => {
+    const [cycleList, setCycleList] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -14,8 +13,8 @@ const useTeam = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const teamData = await apiService.getTeams();
-            setTeamList(teamData.data.teams);
+            const cycleData = await apiService.getCycles();
+            setCycleList(cycleData.data.cycles);
         } catch (error) {
             setError('Error al obtener los datos. Inténtalo de nuevo más tarde.');
             console.error('Error fetching data:', error);
@@ -24,44 +23,44 @@ const useTeam = () => {
         }
     };
 
-    const addTeam = async (teamData: Team) => {
+    const addCycle = async (cycleData: { name: string }) => {
         try {
-            await apiService.addTeam(teamData);
+            await apiService.addCycle(cycleData);
             fetchData();
         } catch (error) {
-            console.error('Error adding team:', error);
+            console.error('Error adding cycle:', error);
             throw error;
         }
     };
 
-    const updateTeam = async (id: string, teamData: Team) => {
+    const updateCycle = async (id: string, cycleData: { name: string }) => {
         try {
-            await apiService.updateTeam(id, teamData);
+            await apiService.updateCycle(id, cycleData);
             fetchData();
         } catch (error) {
-            console.error('Error updating team:', error);
+            console.error('Error updating cycle:', error);
             throw error;
         }
     };
 
-    const deleteTeam = async (id: string) => {
+    const deleteCycle = async (id: string) => {
         try {
-            await apiService.deleteTeam(id);
+            await apiService.deleteCycle(id);
             fetchData();
         } catch (error) {
-            console.error('Error deleting team:', error);
+            console.error('Error deleting cycle:', error);
             throw error;
         }
     };
 
     return {
-        teamList,
+        cycleList,
         loading,
         error,
-        addTeam,
-        updateTeam,
-        deleteTeam,
+        addCycle,
+        updateCycle,
+        deleteCycle,
     };
 };
 
-export default useTeam;
+export default useCycle;

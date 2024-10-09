@@ -5,6 +5,8 @@ import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import useUsers from '../../hooks/useUser';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
+import PageHeaderComponent from '../../components/ui/PageHeader';
+import { validateUserForm } from '../../utils/validateUserForm';
 
 const UserPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,7 +16,18 @@ const UserPage: React.FC = () => {
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
-    const { userList, usersMoodleList, roleList, loading, error, addUser, updateUser, deleteUser } = useUsers();
+    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+
+    const {
+        userList,
+        usersMoodleList,
+        roleList,
+        loading,
+        error,
+        addUser,
+        updateUser,
+        deleteUser
+    } = useUsers();
 
     useEffect(() => {
         if (!loading && usersMoodleList.length) {
@@ -36,11 +49,18 @@ const UserPage: React.FC = () => {
         setNewUser({ id: '', name: '', username: '', roleId: '' });
         setFilteredSuggestions([]);
         setIsSuggestionsOpen(false);
+        setErrorMessages({});
     };
 
     const handleAddOrUpdate = async () => {
-        if (!newUser.roleId) {
-            console.error('Error: roleId must not be empty');
+        const newErrorMessages = validateUserForm(newUser);
+        setErrorMessages(newErrorMessages);
+
+        if (Object.keys(newErrorMessages).length > 0) return;
+
+        const validationError = validateUserForm(newUser);
+        if (validationError) {
+            console.log('Error de validación', validationError);
             return;
         }
 
@@ -141,7 +161,7 @@ const UserPage: React.FC = () => {
                 </div>
                 {/* Main Content */}
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <h1 className="text-2xl font-medium my-10 text-left w-full">GESTIONAR USUARIOS</h1>
+                    <PageHeaderComponent title='GESTIONAR USUARIOS' />
                     {error && (
                         <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
                             {error}
@@ -185,6 +205,7 @@ const UserPage: React.FC = () => {
                                 ))}
                             </ul>
                         )}
+                        {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Rol</label>
@@ -200,6 +221,7 @@ const UserPage: React.FC = () => {
                                 </option>
                             ))}
                         </select>
+                        {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.roleId}</p>}
                     </div>
                 </form>
             </ModalComponent>

@@ -8,6 +8,8 @@ import PersonalPage from '../pages/workTeams/PersonalPage';
 import RoleProtectedRoute from './RoleProtectedRoute';
 import UserPage from '../pages/workTeams/UserPage';
 import TeamPage from '../pages/workTeams/TeamPage';
+import IndicatorConfigurationPage from '../pages/indicatorsConfiguration/IndicatorConfigurationPage';
+import CyclePage from '../pages/indicatorsConfiguration/CyclePage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -37,6 +39,14 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="work-teams/teams"
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<TeamPage />} />}
+            />
+            <Route
+                path="indicators-configuration"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<IndicatorConfigurationPage />} />}
+            />
+            <Route
+                path="indicators-configuration/cycles"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<CyclePage />} />}
             />
 
             {/* Página no encontrada */}

@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import apiService from '../services/apiService';
-import { PersonalProps } from '../types/models/personalTypes';
+
+export interface PersonalProps {
+    id: string,
+    name: string;
+    position: string;
+    //signature: string;
+}
 
 const usePersonal = () => {
     const [personalList, setPersonalList] = useState<PersonalProps[]>([]);
