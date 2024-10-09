@@ -14,6 +14,7 @@ const CyclePage: React.FC = () => {
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [newCycle, setNewCyle] = useState({ id: '', name: '' });
     const [cycleToDelete, setCycleToDelete] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null); 
     
     const {
         cycleList,
@@ -26,6 +27,7 @@ const CyclePage: React.FC = () => {
 
     const resetCycleForm = () => {
         setNewCyle({ id: '', name: '' });
+        setErrorMessage(null);
     };
 
     const handleAddClick = () => {
@@ -39,6 +41,11 @@ const CyclePage: React.FC = () => {
     };
 
     const handleAddOrUpdate = async () => {
+        if (!newCycle.name.trim()) {
+            setErrorMessage('El nombre del ciclo es obligatorio.');
+            return;
+        }
+
         const cycleData = {
             name: newCycle.name,
         };
@@ -146,6 +153,9 @@ const CyclePage: React.FC = () => {
                             onChange={(e) => setNewCyle({ ...newCycle, name: e.target.value })}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
+                        {errorMessage && (
+                            <p className="text-red-600 text-sm mt-1">{errorMessage}</p> // Mostrar el mensaje de error
+                        )}
                     </div>
                 </form>
             </ModalComponent>
