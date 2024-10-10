@@ -8,6 +8,8 @@ import useCycle from '../../hooks/useCycle';
 import PageHeaderComponent from '../../components/ui/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
+import LoadingPage from '../utils/LoadingPage';
+import ErrorPage from '../utils/ErrorPage';
 
 const headers = ["Nombre del ciclo", "Acciones"];
 
@@ -117,8 +119,8 @@ const CyclePage: React.FC = () => {
         )
     }));
 
-    if (loading) return <p>Cargando datos...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading) return <LoadingPage />;
+    if (error) return <ErrorPage message={error} />;
 
     return (
         <>

@@ -8,6 +8,8 @@ import PageHeaderComponent from '../../components/ui/PageHeader';
 import useResource from '../../hooks/useResource';
 import { useLocation, useParams } from 'react-router-dom';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
+import LoadingPage from '../utils/LoadingPage';
+import ErrorPage from '../utils/ErrorPage';
 
 const headers = ["Nombre del recurso", "Acciones"];
 
@@ -118,8 +120,8 @@ const ResourcePage: React.FC = () => {
         )
     }));
 
-    if (loading) return <p>Cargando datos...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading) return <LoadingPage />;
+    if (error) return <ErrorPage message={error} />;
 
     return (
         <>

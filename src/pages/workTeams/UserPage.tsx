@@ -8,6 +8,8 @@ import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validateUserForm } from '../../utils/validateUserForm';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
+import LoadingPage from '../utils/LoadingPage';
+import ErrorPage from '../utils/ErrorPage';
 
 const UserPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -150,6 +152,9 @@ const UserPage: React.FC = () => {
             </div>
         )
     }));
+
+    if (loading) return <LoadingPage />;
+    if (error) return <ErrorPage message={error} />;
 
     return (
         <>

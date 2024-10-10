@@ -9,6 +9,8 @@ import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validateTeamData } from '../../utils/validateTeamData';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
+import LoadingPage from '../utils/LoadingPage';
+import ErrorPage from '../utils/ErrorPage';
 
 const teamHeaders = ["Nombre", "Gestión", "Facultad", "Acciones"];
 const memberHeaders = ["Nombre", "Cargo", "Acciones"];
@@ -156,8 +158,8 @@ const TeamPage: React.FC = () => {
         )
     }));
 
-    if (loading) return <p>Cargando datos...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading) return <LoadingPage />;
+    if (error) return <ErrorPage message={error} />;
 
     return (
         <>

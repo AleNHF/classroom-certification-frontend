@@ -2,6 +2,7 @@ import React from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
 import Card from '../../components/ui/CardComponent';
 import { useAuthContext } from '../../context/AuthContext';
+import PageHeaderComponent from '../../components/ui/PageHeader';
 
 const IndicatorConfigurationPage: React.FC = () => {
     const { getUserRole } = useAuthContext();
@@ -17,7 +18,7 @@ const IndicatorConfigurationPage: React.FC = () => {
 
                 {/* Main Content */}
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <h1 className="text-2xl font-medium my-10 text-left w-full">CONFIGURACIÓN DE INDICADORES</h1>
+                    <PageHeaderComponent title='CONFIGURACIÓN DE INDICADORES' />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
                         {role !== 'Evaluador' && (
