@@ -4,59 +4,63 @@ import TableComponent from '../../components/ui/TableComponent';
 import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import useCycle from '../../hooks/useCycle';
 import PageHeaderComponent from '../../components/ui/PageHeader';
-import { useNavigate } from 'react-router-dom';
+import useResource from '../../hooks/useResource';
+import { useLocation, useParams } from 'react-router-dom';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 
-const headers = ["Nombre del ciclo", "Acciones"];
+const headers = ["Nombre del recurso", "Acciones"];
 
-const CyclePage: React.FC = () => {
-    const navigate = useNavigate();
+const ResourcePage: React.FC = () => {
+    const { cycleId } = useParams<{ cycleId: string }>();
+    const location = useLocation();
+    const cycleName = location.state?.cycleName;
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newCycle, setNewCyle] = useState({ id: '', name: '' });
-    const [cycleToDelete, setCycleToDelete] = useState<string | null>(null);
+    const [newResource, setNewResource] = useState({ id: '', name: '', cycleId: -1 });
+    const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
     
     const {
-        cycleList,
+        resourceList,
         loading,
         error,
-        addCycle,
-        updateCycle,
-        deleteCycle
-    } = useCycle();
+        addResource,
+        updateResource,
+        deleteResource
+    } = useResource();
 
-    const resetCycleForm = () => {
-        setNewCyle({ id: '', name: '' });
+    const resetResourceForm = () => {
+        setNewResource({ id: '', name: '', cycleId: -1 });
         setErrorMessage(null);
     };
 
     const handleAddClick = () => {
-        resetCycleForm();
+        resetResourceForm();
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        resetCycleForm();
+        resetResourceForm();
     };
 
     const handleAddOrUpdate = async () => {
-        if (!newCycle.name.trim()) {
-            setErrorMessage('El nombre del ciclo es obligatorio.');
+        if (!newResource.name.trim()) {
+            setErrorMessage('El nombre del recurso es obligatorio.');
             return;
         }
 
-        const cycleData = {
-            name: newCycle.name,
+        const resourceData = {
+            name: newResource.name,
+            cycleId: Number(cycleId) 
         };
 
         try {
-            newCycle.id 
-                ? await updateCycle(newCycle.id, cycleData)
-                : await addCycle(cycleData);
+            newResource.id 
+                ? await updateResource(newResource.id, resourceData)
+                : await addResource(resourceData);
                 
             handleCloseModal();
         } catch (error) {
@@ -65,52 +69,49 @@ const CyclePage: React.FC = () => {
     };
 
     const handleDelete = (id: string) => {
-        setCycleToDelete(id);
+        setResourceToDelete(id);
         setIsConfirmDeleteOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (cycleToDelete) {
+        if (resourceToDelete) {
             try {
-                await deleteCycle(cycleToDelete);
+                await deleteResource(resourceToDelete);
             } catch (error) {
-                console.error('Error al eliminar ciclo:', error);
+                console.error('Error al eliminar recurso:', error);
             } finally {
-                setCycleToDelete(null);
+                setResourceToDelete(null);
                 setIsConfirmDeleteOpen(false);
             }
         }
     };
 
-    const handleEdit = (cycle: any) => {
-        setNewCyle({ 
-            id: cycle.id, 
-            name: cycle.name
+    const handleEdit = (resource: any) => {
+        setNewResource({ 
+            id: resource.id, 
+            name: resource.name,
+            cycleId: resource.cycleId
         });
         setIsModalOpen(true);
     };
 
-    const handleResourcesClick = (cycleId: string, cycleName: string) => {
-        navigate(`/indicators-configuration/resources/${cycleId}`, { state: { cycleName: cycleName } })
-    };
-
-    const rows = cycleList.map((cycle: any) => ({
-        Nombre: cycle.name,
+    const rows = resourceList.map((resource: any) => ({
+        Nombre: resource.name,
         Acciones: (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="EDITAR"
-                    onClick={() => handleEdit(cycle)}
-                    bgColor="bg-secondary-button-color"
+                    onClick={() => handleEdit(resource)}
+                    bgColor='bg-secondary-button-color'
                 />
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="ELIMINAR"
-                    onClick={() => handleDelete(cycle.id)}
+                    onClick={() => handleDelete(resource.id)}
                     bgColor="bg-primary-red-color"
                 />
-                <ActionButtonComponent 
-                    label="RECURSOS"
-                    onClick={() => handleResourcesClick(cycle.id, cycle.name)}
+                <ActionButtonComponent
+                    label="CONTENIDO"
+                    onClick={() => {}}
                     bgColor="bg-optional-button-color"
                 />
             </div>
@@ -128,7 +129,7 @@ const CyclePage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title='CONFIGURAR CICLOS' />
+                    <PageHeaderComponent title={`CICLO: ${cycleName} - RECURSOS`} />
                     {error && (
                         <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
                             {error}
@@ -144,8 +145,8 @@ const CyclePage: React.FC = () => {
             <ModalComponent
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={newCycle.id ? 'Editar Ciclo' : 'Nuevo Ciclo'}
-                primaryButtonText={newCycle.id ? 'ACTUALIZAR' : 'AGREGAR'}
+                title={newResource.id ? 'Editar Recurso' : 'Nuevo Recurso'}
+                primaryButtonText={newResource.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleAddOrUpdate}
                 size="medium"
             >
@@ -154,8 +155,8 @@ const CyclePage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-700">Nombre</label>
                         <input
                             type="text"
-                            value={newCycle.name}
-                            onChange={(e) => setNewCyle({ ...newCycle, name: e.target.value })}
+                            value={newResource.name}
+                            onChange={(e) => setNewResource({ ...newResource, name: e.target.value })}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                         {errorMessage && (
@@ -174,4 +175,4 @@ const CyclePage: React.FC = () => {
     );
 };
 
-export default CyclePage;
+export default ResourcePage;

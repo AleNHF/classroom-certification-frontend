@@ -10,6 +10,7 @@ import UserPage from '../pages/workTeams/UserPage';
 import TeamPage from '../pages/workTeams/TeamPage';
 import IndicatorConfigurationPage from '../pages/indicatorsConfiguration/IndicatorConfigurationPage';
 import CyclePage from '../pages/indicatorsConfiguration/CyclePage';
+import ResourcePage from '../pages/indicatorsConfiguration/ResourcePage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -47,6 +48,10 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="indicators-configuration/cycles"
                 element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<CyclePage />} />}
+            />
+            <Route
+                path="indicators-configuration/resources/:cycleId"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<ResourcePage />} />}
             />
 
             {/* Página no encontrada */}

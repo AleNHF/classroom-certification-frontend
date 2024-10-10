@@ -7,6 +7,7 @@ import usePersonal from '../../hooks/usePersonal';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validatePersonalForm } from '../../utils/validatePersonalForm';
+import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 
 const headers = ["Nombre", "Cargo", "Acciones"];
 
@@ -107,18 +108,16 @@ const PersonalPage: React.FC = () => {
         Cargo: personal.position,
         Acciones: (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <button
-                    className="bg-secondary-button-color text-white text-sm px-4 py-1 rounded w-full md:w-24"
+                <ActionButtonComponent 
+                    label="EDITAR"
                     onClick={() => handleEdit(personal)}
-                >
-                    EDITAR
-                </button>
-                <button
-                    className="bg-primary-red-color text-white text-sm px-4 py-1 rounded w-full md:w-24"
+                    bgColor="bg-secondary-button-color"
+                />
+                <ActionButtonComponent 
+                    label="ELIMINAR"
                     onClick={() => handleDelete(personal.id)}
-                >
-                    ELIMINAR
-                </button>
+                    bgColor="bg-primary-red-color"
+                />
             </div>
         )
     }));

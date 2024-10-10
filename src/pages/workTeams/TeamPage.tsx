@@ -8,6 +8,7 @@ import usePersonal from '../../hooks/usePersonal';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validateTeamData } from '../../utils/validateTeamData';
+import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 
 const teamHeaders = ["Nombre", "Gestión", "Facultad", "Acciones"];
 const memberHeaders = ["Nombre", "Cargo", "Acciones"];
@@ -128,18 +129,16 @@ const TeamPage: React.FC = () => {
         Facultad: team.faculty,
         Acciones: (
             <div className="flex space-x-2">
-                <button
-                    className="bg-secondary-button-color text-white text-sm px-4 py-1 rounded w-24"
+                <ActionButtonComponent 
+                    label="EDITAR"
                     onClick={() => handleEdit(team)}
-                >
-                    EDITAR
-                </button>
-                <button
-                    className="bg-primary-red-color text-white text-sm px-4 py-1 rounded w-24"
+                    bgColor="bg-secondary-button-color"
+                />
+                <ActionButtonComponent 
+                    label="ELIMINAR"
                     onClick={() => handleDelete(team.id)}
-                >
-                    ELIMINAR
-                </button>
+                    bgColor="bg-primary-red-color"
+                />
             </div>
         )
     }));
