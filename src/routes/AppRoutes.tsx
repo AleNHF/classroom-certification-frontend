@@ -10,6 +10,8 @@ import UserPage from '../pages/workTeams/UserPage';
 import TeamPage from '../pages/workTeams/TeamPage';
 import IndicatorConfigurationPage from '../pages/indicatorsConfiguration/IndicatorConfigurationPage';
 import CyclePage from '../pages/indicatorsConfiguration/CyclePage';
+import ResourcePage from '../pages/indicatorsConfiguration/ResourcePage';
+import NoAccessPage from '../pages/utils/NoAccessPage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -48,6 +50,13 @@ const AppRoutes: React.FC = () => {
                 path="indicators-configuration/cycles"
                 element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<CyclePage />} />}
             />
+            <Route
+                path="indicators-configuration/resources/:cycleId"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<ResourcePage />} />}
+            />
+
+             {/* Ruta para la página de no acceso */}
+            <Route path="/no-access" element={<NoAccessPage />} />
 
             {/* Página no encontrada */}
             <Route path="*" element={<Navigate to="/login" replace />} />

@@ -134,8 +134,8 @@ class ApiService {
         return this.get('/cycle');
     }
 
-    public addCycle(teamData: {name: string}) {
-        return this.post('/cycle', teamData);
+    public addCycle(cycleData: {name: string}) {
+        return this.post('/cycle', cycleData);
     }
 
     public updateCycle(id: string, updatedData: {name: string}) {
@@ -144,6 +144,25 @@ class ApiService {
 
     public deleteCycle(id: string) {
         return this.delete(`/cycle/${id}`);
+    }
+
+    /*
+     * Métodos específicos para recursos
+     */
+    public getResources(cycleId: string) {
+        return this.get(`/resource/cycle/${cycleId}`);
+    }
+
+    public addResource(resourceData: {name: string, cycleId: number}) {
+        return this.post('/resource', resourceData);
+    }
+
+    public updateResource(id: string, updatedData: {name: string}) {
+        return this.patch(`/resource/${id}`, updatedData);
+    }
+
+    public deleteResource(id: string) {
+        return this.delete(`/resource/${id}`);
     }
 
     /*
