@@ -17,12 +17,14 @@ const ResourcePage: React.FC = () => {
     const { cycleId } = useParams<{ cycleId: string }>();
     const location = useLocation();
     const cycleName = location.state?.cycleName;
+    const safeCycleId = cycleId || '';
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [newResource, setNewResource] = useState({ id: '', name: '', cycleId: -1 });
     const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
+
     
     const {
         resourceList,
@@ -31,7 +33,7 @@ const ResourcePage: React.FC = () => {
         addResource,
         updateResource,
         deleteResource
-    } = useResource();
+    } = useResource(safeCycleId);
 
     const resetResourceForm = () => {
         setNewResource({ id: '', name: '', cycleId: -1 });

@@ -149,8 +149,8 @@ class ApiService {
     /*
      * Métodos específicos para recursos
      */
-    public getResources() {
-        return this.get('/resource');
+    public getResources(cycleId: string) {
+        return this.get(`/resource/cycle/${cycleId}`);
     }
 
     public addResource(resourceData: {name: string, cycleId: number}) {
