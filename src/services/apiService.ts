@@ -166,6 +166,25 @@ class ApiService {
     }
 
     /*
+     * Métodos específicos para recursos
+     */
+    public getContents(resourceId: string) {
+        return this.get(`/content/resource/${resourceId}`);
+    }
+
+    public addContent(contentData: {name: string, resourceId: number}) {
+        return this.post('/content', contentData);
+    }
+
+    public updateContent(id: string, updatedData: {name: string}) {
+        return this.patch(`/content/${id}`, updatedData);
+    }
+
+    public deleteContent(id: string) {
+        return this.delete(`/content/${id}`);
+    }
+
+    /*
      * Otros métodos específicos
      */
     public getUsersInMoodle() {
