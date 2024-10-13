@@ -13,6 +13,7 @@ import CyclePage from '../pages/indicatorsConfiguration/CyclePage';
 import ResourcePage from '../pages/indicatorsConfiguration/ResourcePage';
 import NoAccessPage from '../pages/utils/NoAccessPage';
 import ContentPage from '../pages/indicatorsConfiguration/ContentPage';
+import AreaPage from '../pages/indicatorsConfiguration/AreaPage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -58,6 +59,10 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="indicators-configuration/contents/:resourceId"
                 element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<ContentPage />} />}
+            />
+            <Route
+                path="indicators-configuration/areas"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<AreaPage />} />}
             />
 
              {/* Ruta para la página de no acceso */}

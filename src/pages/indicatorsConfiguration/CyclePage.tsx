@@ -4,7 +4,7 @@ import TableComponent from '../../components/ui/TableComponent';
 import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import useCycle from '../../hooks/useCycle';
+import useCycle from '../../hooks/indicatorsConfiguration/useCycle';
 import PageHeaderComponent from '../../components/ui/PageHeader';
 import { useNavigate } from 'react-router-dom';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
