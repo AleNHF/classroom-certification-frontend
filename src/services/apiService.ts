@@ -166,7 +166,7 @@ class ApiService {
     }
 
     /*
-     * Métodos específicos para recursos
+     * Métodos específicos para contenidos
      */
     public getContents(resourceId: string) {
         return this.get(`/content/resource/${resourceId}`);
@@ -182,6 +182,25 @@ class ApiService {
 
     public deleteContent(id: string) {
         return this.delete(`/content/${id}`);
+    }
+
+    /*
+     * Métodos específicos para áreas
+     */
+    public getAreas() {
+        return this.get(`/area`);
+    }
+
+    public addArea(areaData: {name: string}) {
+        return this.post('/area', areaData);
+    }
+
+    public updateArea(id: string, updatedData: {name: string}) {
+        return this.patch(`/area/${id}`, updatedData);
+    }
+
+    public deleteArea(id: string) {
+        return this.delete(`/area/${id}`);
     }
 
     /*

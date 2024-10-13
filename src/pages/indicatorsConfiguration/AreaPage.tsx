@@ -5,114 +5,115 @@ import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
-import { useLocation, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 import LoadingPage from '../utils/LoadingPage';
 import ErrorPage from '../utils/ErrorPage';
-import useContent from '../../hooks/indicatorsConfiguration/useContent';
+import useArea from '../../hooks/indicatorsConfiguration/useArea';
 
-const headers = ["Nombre del recurso", "Acciones"];
+const headers = ["Nombre del área", "Acciones"];
 
-const ContentPage: React.FC = () => {
-    const { resourceId } = useParams<{ resourceId: string }>();
-    const location = useLocation();
-    const resourceName = location.state?.resourceName;
-    const cycleName = location.state?.cycleName;
-    const safeResourceId = resourceId || '';
-
+const AreaPage: React.FC = () => {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newContent, setNewContent] = useState({ id: '', name: '', resourceId: -1 });
-    const [contentToDelete, setContentToDelete] = useState<string | null>(null);
+    const [newArea, setNewArea] = useState({ id: '', name: '' });
+    const [areaToDelete, setAreaToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
-
     
     const {
-        contentList,
+        areaList,
         loading,
         error,
-        addContent,
-        updateContent,
-        deleteContent
-    } = useContent(safeResourceId);
+        addArea,
+        updateArea,
+        deleteArea
+    } = useArea();
 
-    const resetContentForm = () => {
-        setNewContent({ id: '', name: '', resourceId: -1 });
+    const resetAreaForm = () => {
+        setNewArea({ id: '', name: '' });
         setErrorMessage(null);
     };
 
     const handleAddClick = () => {
-        resetContentForm();
+        resetAreaForm();
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        resetContentForm();
+        resetAreaForm();
     };
 
     const handleAddOrUpdate = async () => {
-        if (!newContent.name.trim()) {
-            setErrorMessage('El nombre del contenido es obligatorio.');
+        if (!newArea.name.trim()) {
+            setErrorMessage('El nombre del área es obligatorio.');
             return;
         }
 
-        const contentData = {
-            name: newContent.name,
-            resourceId: Number(resourceId) 
+        const areaData = {
+            name: newArea.name,
         };
 
         try {
-            newContent.id 
-                ? await updateContent(newContent.id, contentData)
-                : await addContent(contentData);
+            newArea.id 
+                ? await updateArea(newArea.id, areaData)
+                : await addArea(areaData);
                 
             handleCloseModal();
         } catch (error) {
-            console.error('Error al añadir/actualizar el contenido:', error);
+            console.error('Error al añadir/actualizar la área:', error);
         }
     };
 
     const handleDelete = (id: string) => {
-        setContentToDelete(id);
+        setAreaToDelete(id);
         setIsConfirmDeleteOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (contentToDelete) {
+        if (areaToDelete) {
             try {
-                await deleteContent(contentToDelete);
+                await deleteArea(areaToDelete);
             } catch (error) {
-                console.error('Error al eliminar contenido:', error);
+                console.error('Error al eliminar área:', error);
             } finally {
-                setContentToDelete(null);
+                setAreaToDelete(null);
                 setIsConfirmDeleteOpen(false);
             }
         }
     };
 
-    const handleEdit = (content: any) => {
-        setNewContent({ 
-            id: content.id, 
-            name: content.name,
-            resourceId: content.resourceId
+    const handleEdit = (area: any) => {
+        setNewArea({ 
+            id: area.id, 
+            name: area.name
         });
         setIsModalOpen(true);
     };
 
-    const rows = contentList.map((content: any) => ({
-        Nombre: content.name,
+    const handleIndicatorsClick = (areaId: string, areaName: string) => {
+        navigate(`/indicators-configuration/areas/${areaId}`, { state: { areaName: areaName } })
+    };
+
+    const rows = areaList.map((area: any) => ({
+        Nombre: area.name,
         Acciones: (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent
+                <ActionButtonComponent 
                     label="EDITAR"
-                    onClick={() => handleEdit(content)}
-                    bgColor='bg-secondary-button-color'
+                    onClick={() => handleEdit(area)}
+                    bgColor="bg-secondary-button-color"
                 />
-                <ActionButtonComponent
+                <ActionButtonComponent 
                     label="ELIMINAR"
-                    onClick={() => handleDelete(content.id)}
+                    onClick={() => handleDelete(area.id)}
                     bgColor="bg-primary-red-color"
+                />
+                <ActionButtonComponent 
+                    label="INDICADORES"
+                    onClick={() => handleIndicatorsClick(area.id, area.name)}
+                    bgColor="bg-optional-button-color"
                 />
             </div>
         )
@@ -129,7 +130,7 @@ const ContentPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title={`CICLO: ${cycleName}/${resourceName} - CONTENIDO`} />
+                    <PageHeaderComponent title='CONFIGURAR ÁREAS' />
                     {error && (
                         <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
                             {error}
@@ -145,8 +146,8 @@ const ContentPage: React.FC = () => {
             <ModalComponent
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={newContent.id ? 'Editar Contenido' : 'Nuevo Contenido'}
-                primaryButtonText={newContent.id ? 'ACTUALIZAR' : 'AGREGAR'}
+                title={newArea.id ? 'Editar Área' : 'Nueva Área'}
+                primaryButtonText={newArea.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleAddOrUpdate}
                 size="medium"
             >
@@ -155,8 +156,8 @@ const ContentPage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-700">Nombre</label>
                         <input
                             type="text"
-                            value={newContent.name}
-                            onChange={(e) => setNewContent({ ...newContent, name: e.target.value })}
+                            value={newArea.name}
+                            onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                         {errorMessage && (
@@ -175,4 +176,4 @@ const ContentPage: React.FC = () => {
     );
 };
 
-export default ContentPage;
+export default AreaPage;

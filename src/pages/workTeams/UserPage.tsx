@@ -3,7 +3,7 @@ import HeaderComponent from '../../components/layout/HeaderComponent';
 import TableComponent from '../../components/ui/TableComponent';
 import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
-import useUsers from '../../hooks/useUser';
+import useUsers from '../../hooks/workTeams/useUser';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validateUserForm } from '../../utils/validateUserForm';

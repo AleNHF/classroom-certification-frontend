@@ -5,7 +5,7 @@ import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
-import useResource from '../../hooks/useResource';
+import useResource from '../../hooks/indicatorsConfiguration/useResource';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 import LoadingPage from '../utils/LoadingPage';

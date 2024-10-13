@@ -24,7 +24,7 @@ const IndicatorConfigurationPage: React.FC = () => {
                         {role !== 'Evaluador' && (
                             <>
                                 <Card title='CICLOS' route='cycles' />
-                                <Card title='ÁREAS' route='teams' />
+                                <Card title='ÁREAS' route='areas' />
                                 <Card title='PORCENTAJES' route='users' />
                                 <Card title='VERSIONES' route='users' />
                             </>

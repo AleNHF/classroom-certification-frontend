@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import apiService from '../services/apiService';
-import authService from '../services/authService';
-import { UserProps } from '../types/userTypes';
+import apiService from '../../services/apiService';
+import authService from '../../services/authService';
+import { UserProps } from '../../types/userTypes';
 
 export interface Role {
     id: number;

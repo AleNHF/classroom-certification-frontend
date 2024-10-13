@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import apiService from '../services/apiService';
+import apiService from '../../services/apiService';
 
 const useCycle = () => {
     const [cycleList, setCycleList] = useState<string[]>([]);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import apiService from '../services/apiService';
-import { Team } from '../types/teamTypes';
+import apiService from '../../services/apiService';
+import { Team } from '../../types/teamTypes';
 
 const useTeam = () => {
     const [teamList, setTeamList] = useState<Team[]>([]);
