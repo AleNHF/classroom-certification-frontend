@@ -5,123 +5,114 @@ import AddButtonComponent from '../../components/ui/AddButtonComponent';
 import ModalComponent from '../../components/ui/ModalComponent';
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
 import PageHeaderComponent from '../../components/ui/PageHeader';
-import useResource from '../../hooks/useResource';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 import LoadingPage from '../utils/LoadingPage';
 import ErrorPage from '../utils/ErrorPage';
+import useContent from '../../hooks/useContent';
 
 const headers = ["Nombre del recurso", "Acciones"];
 
-const ResourcePage: React.FC = () => {
-    const { cycleId } = useParams<{ cycleId: string }>();
+const ContentPage: React.FC = () => {
+    const { resourceId } = useParams<{ resourceId: string }>();
     const location = useLocation();
+    const resourceName = location.state?.resourceName;
     const cycleName = location.state?.cycleName;
-    const safeCycleId = cycleId || '';
-    const navigate = useNavigate();
+    const safeResourceId = resourceId || '';
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newResource, setNewResource] = useState({ id: '', name: '', cycleId: -1 });
-    const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [newContent, setNewContent] = useState({ id: '', name: '', resourceId: -1 });
+    const [contentToDelete, setContentToDelete] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null); 
 
-
+    
     const {
-        resourceList,
+        contentList,
         loading,
         error,
-        addResource,
-        updateResource,
-        deleteResource
-    } = useResource(safeCycleId);
+        addContent,
+        updateContent,
+        deleteContent
+    } = useContent(safeResourceId);
 
-    const resetResourceForm = () => {
-        setNewResource({ id: '', name: '', cycleId: -1 });
+    const resetContentForm = () => {
+        setNewContent({ id: '', name: '', resourceId: -1 });
         setErrorMessage(null);
     };
 
     const handleAddClick = () => {
-        resetResourceForm();
+        resetContentForm();
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        resetResourceForm();
+        resetContentForm();
     };
 
     const handleAddOrUpdate = async () => {
-        if (!newResource.name.trim()) {
-            setErrorMessage('El nombre del recurso es obligatorio.');
+        if (!newContent.name.trim()) {
+            setErrorMessage('El nombre del contenido es obligatorio.');
             return;
         }
 
-        const resourceData = {
-            name: newResource.name,
-            cycleId: Number(cycleId)
+        const contentData = {
+            name: newContent.name,
+            resourceId: Number(resourceId) 
         };
 
         try {
-            newResource.id
-                ? await updateResource(newResource.id, resourceData)
-                : await addResource(resourceData);
-
+            newContent.id 
+                ? await updateContent(newContent.id, contentData)
+                : await addContent(contentData);
+                
             handleCloseModal();
         } catch (error) {
-            console.error('Error al añadir/actualizar el ciclo:', error);
+            console.error('Error al añadir/actualizar el contenido:', error);
         }
     };
 
     const handleDelete = (id: string) => {
-        setResourceToDelete(id);
+        setContentToDelete(id);
         setIsConfirmDeleteOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (resourceToDelete) {
+        if (contentToDelete) {
             try {
-                await deleteResource(resourceToDelete);
+                await deleteContent(contentToDelete);
             } catch (error) {
-                console.error('Error al eliminar recurso:', error);
+                console.error('Error al eliminar contenido:', error);
             } finally {
-                setResourceToDelete(null);
+                setContentToDelete(null);
                 setIsConfirmDeleteOpen(false);
             }
         }
     };
 
-    const handleEdit = (resource: any) => {
-        setNewResource({
-            id: resource.id,
-            name: resource.name,
-            cycleId: resource.cycleId
+    const handleEdit = (content: any) => {
+        setNewContent({ 
+            id: content.id, 
+            name: content.name,
+            resourceId: content.resourceId
         });
         setIsModalOpen(true);
     };
 
-    const handleContentsClick = (resourceId: string, cycleName: string, resourceName: string) => {
-        navigate(`/indicators-configuration/contents/${resourceId}`, { state: { cycleName: cycleName, resourceName: resourceName } })
-    };
-
-    const rows = resourceList.map((resource: any) => ({
-        Nombre: resource.name,
+    const rows = contentList.map((content: any) => ({
+        Nombre: content.name,
         Acciones: (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                 <ActionButtonComponent
                     label="EDITAR"
-                    onClick={() => handleEdit(resource)}
+                    onClick={() => handleEdit(content)}
                     bgColor='bg-secondary-button-color'
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
-                    onClick={() => handleDelete(resource.id)}
+                    onClick={() => handleDelete(content.id)}
                     bgColor="bg-primary-red-color"
-                />
-                <ActionButtonComponent
-                    label="CONTENIDO"
-                    onClick={() => handleContentsClick(resource.id, resource.name, cycleName)}
-                    bgColor="bg-optional-button-color"
                 />
             </div>
         )
@@ -138,7 +129,7 @@ const ResourcePage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title={`CICLO: ${cycleName} - RECURSOS`} />
+                    <PageHeaderComponent title={`CICLO: ${cycleName}/${resourceName} - CONTENIDO`} />
                     {error && (
                         <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
                             {error}
@@ -154,8 +145,8 @@ const ResourcePage: React.FC = () => {
             <ModalComponent
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={newResource.id ? 'Editar Recurso' : 'Nuevo Recurso'}
-                primaryButtonText={newResource.id ? 'ACTUALIZAR' : 'AGREGAR'}
+                title={newContent.id ? 'Editar Contenido' : 'Nuevo Contenido'}
+                primaryButtonText={newContent.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleAddOrUpdate}
                 size="medium"
             >
@@ -164,8 +155,8 @@ const ResourcePage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-700">Nombre</label>
                         <input
                             type="text"
-                            value={newResource.name}
-                            onChange={(e) => setNewResource({ ...newResource, name: e.target.value })}
+                            value={newContent.name}
+                            onChange={(e) => setNewContent({ ...newContent, name: e.target.value })}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                         {errorMessage && (
@@ -175,13 +166,13 @@ const ResourcePage: React.FC = () => {
                 </form>
             </ModalComponent>
 
-            <ConfirmDeleteModal
+            <ConfirmDeleteModal 
                 isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)}
-                onSubmit={confirmDelete}
+                onClose={() => setIsConfirmDeleteOpen(false)} 
+                onSubmit={confirmDelete} 
             />
         </>
     );
 };
 
-export default ResourcePage;
+export default ContentPage;
