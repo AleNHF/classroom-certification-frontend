@@ -92,8 +92,8 @@ const AreaPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleIndicatorsClick = (areaId: string, areaName: string) => {
-        navigate(`/indicators-configuration/areas/${areaId}`, { state: { areaName: areaName } })
+    const handleIndicatorsClick = () => {
+        navigate(`/indicators-configuration/indicators`)
     };
 
     const rows = areaList.map((area: any) => ({
@@ -112,7 +112,7 @@ const AreaPage: React.FC = () => {
                 />
                 <ActionButtonComponent 
                     label="INDICADORES"
-                    onClick={() => handleIndicatorsClick(area.id, area.name)}
+                    onClick={() => handleIndicatorsClick()}
                     bgColor="bg-optional-button-color"
                 />
             </div>
