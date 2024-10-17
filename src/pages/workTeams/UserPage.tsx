@@ -10,6 +10,7 @@ import { validateUserForm } from '../../utils/validateUserForm';
 import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 import LoadingPage from '../utils/LoadingPage';
 import ErrorPage from '../utils/ErrorPage';
+import { SelectInput } from '../../components/ui/SelectInput';
 
 const UserPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +21,7 @@ const UserPage: React.FC = () => {
     const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [userError, setUserError] = useState<string | null>(null);
 
     const {
         userList,
@@ -58,14 +60,9 @@ const UserPage: React.FC = () => {
     const handleAddOrUpdate = async () => {
         const newErrorMessages = validateUserForm(newUser);
         setErrorMessages(newErrorMessages);
+        setUserError(null);
 
         if (Object.keys(newErrorMessages).length > 0) return;
-
-        const validationError = validateUserForm(newUser);
-        if (validationError) {
-            console.log('Error de validación', validationError);
-            return;
-        }
 
         const userData = {
             name: newUser.name,
@@ -78,6 +75,13 @@ const UserPage: React.FC = () => {
             handleCloseModal();
         } catch (error) {
             console.error('Error adding/updating user:', error);
+            if (error instanceof Error) {
+                if (error.message.includes("User with username")) {
+                    alert(`Error: ${error.message}`);
+                }
+            } else {
+                alert('An unexpected error occurred.');
+            }
         }
     };
 
@@ -139,12 +143,12 @@ const UserPage: React.FC = () => {
         Rol: roleList.find((role: any) => role.id === user.rol.id)?.name || 'N/A',
         Acciones: (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(user)}
                     bgColor="bg-secondary-button-color"
                 />
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(user.id)}
                     bgColor="bg-primary-red-color"
@@ -212,20 +216,13 @@ const UserPage: React.FC = () => {
                         {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Rol</label>
-                        <select
+                        <SelectInput
+                            label="Rol"
                             value={newUser.roleId}
+                            options={roleList}
                             onChange={(e) => setNewUser({ ...newUser, roleId: e.target.value })}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                        >
-                            <option value="">Selecciona un rol</option>
-                            {roleList.map((role: any) => (
-                                <option key={role.id} value={role.id}>
-                                    {role.name}
-                                </option>
-                            ))}
-                        </select>
-                        {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.roleId}</p>}
+                            error={errorMessages.roleId}
+                        />
                     </div>
                 </form>
             </ModalComponent>

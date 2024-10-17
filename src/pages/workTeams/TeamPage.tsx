@@ -241,7 +241,7 @@ const TeamPage: React.FC = () => {
 
                     {/* Miembros del equipo */}
                     <div>
-                        <h3 className="text-lg font-semibold">Miembros del equipo</h3>
+                        <h3 className="text-lg font-semibold">Personal técnico</h3>
                         <div className="flex items-center mt-2">
                             <select
                                 value={selectedPersonalId || ''}

@@ -9,28 +9,35 @@ import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 import LoadingPage from '../utils/LoadingPage';
 import ErrorPage from '../utils/ErrorPage';
 import useArea from '../../hooks/indicatorsConfiguration/useArea';
+import usePercentage from '../../hooks/indicatorsConfiguration/usePercentage';
+import useCycle from '../../hooks/indicatorsConfiguration/useCycle';
+import { SelectInput } from '../../components/ui/SelectInput';
+import { validatePercentageForm } from '../../utils/validatePercentageForm';
 
 const headers = ["Ciclo", "Área", "Porcentaje", "Acciones"];
 
 const PercentagePage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newPercentage, setNewPercentage] = useState({ id: '', cycle: '', area: '', percentage: '' });
+    const [newPercentage, setNewPercentage] = useState({ id: '', cycleId: '', areaId: '', percentage: '' });
     const [percentageToDelete, setPercentageToDelete] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null); 
-    
+    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+
+    const { cycleList } = useCycle();
+    const { areaList } = useArea();
+
     const {
-        areaList,
+        percentageList,
         loading,
         error,
-        addArea,
-        updateArea,
-        deleteArea
-    } = useArea();
+        addPercentage,
+        updatePercentage,
+        deletePercentage
+    } = usePercentage();
 
     const resetPercentageForm = () => {
-        setNewPercentage({ id: '', cycle: '', area: '', percentage: '' });
-        setErrorMessage(null);
+        setNewPercentage({ id: '', cycleId: '', areaId: '', percentage: '' });
+        setErrorMessages({});
     };
 
     const handleAddClick = () => {
@@ -44,20 +51,22 @@ const PercentagePage: React.FC = () => {
     };
 
     const handleAddOrUpdate = async () => {
-        if (!newPercentage.cycle.trim()) {
-            setErrorMessage('Selecciona antes el ciclo.');
-            return;
-        }
+        const newErrorMessages = validatePercentageForm(newPercentage);;
+        setErrorMessages(newErrorMessages);
 
-        const areaData = {
-            name: newPercentage.cycle,
+        if (Object.keys(newErrorMessages).length > 0) return;
+
+        const percentageData = {
+            cycleId: Number(newPercentage.cycleId),
+            areaId: Number(newPercentage.areaId),
+            percentage: parseFloat(newPercentage.percentage)
         };
 
         try {
-            newPercentage.id 
-                ? await updateArea(newPercentage.id, areaData)
-                : await addArea(areaData);
-                
+            newPercentage.id
+                ? await updatePercentage(newPercentage.id, percentageData)
+                : await addPercentage(percentageData);
+
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar el porcentaje:', error);
@@ -72,9 +81,9 @@ const PercentagePage: React.FC = () => {
     const confirmDelete = async () => {
         if (percentageToDelete) {
             try {
-                await deleteArea(percentageToDelete);
+                await deletePercentage(percentageToDelete);
             } catch (error) {
-                console.error('Error al eliminar área:', error);
+                console.error('Error al eliminar porcentaje:', error);
             } finally {
                 setPercentageToDelete(null);
                 setIsConfirmDeleteOpen(false);
@@ -83,27 +92,29 @@ const PercentagePage: React.FC = () => {
     };
 
     const handleEdit = (percentage: any) => {
-        setNewPercentage({ 
-            id: percentage.id, 
-            cycle: percentage.cycle,
-            area: percentage.area,
+        setNewPercentage({
+            id: percentage.id,
+            cycleId: percentage.cycle.id,
+            areaId: percentage.area.id,
             percentage: percentage.percentage
         });
         setIsModalOpen(true);
     };
 
-    const rows = areaList.map((area: any) => ({
-        Nombre: area.name,
+    const rows = percentageList.map((percentage: any) => ({
+        Ciclo: cycleList.find((cycle: any) => cycle.id === percentage.cycle.id)?.name || 'N/A',
+        Área: areaList.find((area: any) => area.id === percentage.area.id)?.name || 'N/A',
+        Porcentaje: percentage.percentage + '%',
         Acciones: (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="EDITAR"
-                    onClick={() => handleEdit(area)}
+                    onClick={() => handleEdit(percentage)}
                     bgColor="bg-secondary-button-color"
                 />
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="ELIMINAR"
-                    onClick={() => handleDelete(area.id)}
+                    onClick={() => handleDelete(percentage.id)}
                     bgColor="bg-primary-red-color"
                 />
             </div>
@@ -121,7 +132,7 @@ const PercentagePage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title='CONFIGURAR ÁREAS' />
+                    <PageHeaderComponent title='CONFIGURAR PORCENTAJE DE CICLOS Y ÁREAS' />
                     {error && (
                         <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
                             {error}
@@ -137,31 +148,50 @@ const PercentagePage: React.FC = () => {
             <ModalComponent
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={newPercentage.id ? 'Editar Área' : 'Nueva Área'}
+                title={newPercentage.id ? 'Editar Porcentaje' : 'Nueva Porcentaje'}
                 primaryButtonText={newPercentage.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleAddOrUpdate}
                 size="medium"
             >
                 <form className="space-y-4">
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">Nombre</label>
-                        <input
-                            type="text"
-                            value={newPercentage.cycle}
-                            onChange={(e) => setNewPercentage({ ...newPercentage, cycle: e.target.value })}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                        <SelectInput
+                            label="Ciclo"
+                            value={newPercentage.cycleId}
+                            options={cycleList}
+                            onChange={(e) => setNewPercentage({ ...newPercentage, cycleId: e.target.value })}
+                            error={errorMessages.cycleId}
                         />
-                        {errorMessage && (
-                            <p className="text-red-600 text-sm mt-1">{errorMessage}</p> // Mostrar el mensaje de error
-                        )}
                     </div>
+                    <div className="mb-4">
+                        <SelectInput
+                            label="Área"
+                            value={newPercentage.areaId}
+                            options={areaList}
+                            onChange={(e) => setNewPercentage({ ...newPercentage, areaId: e.target.value })}
+                            error={errorMessages.areaId}
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">Porcentaje</label>
+                        <input
+                            type="number"
+                            value={newPercentage.percentage}
+                            onChange={(e) => setNewPercentage({ ...newPercentage, percentage: e.target.value })}
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                        />
+                    </div>
+                    {errorMessages.percentage && <p className="text-red-600 text-sm">{errorMessages.percentage}</p>}
                 </form>
             </ModalComponent>
 
-            <ConfirmDeleteModal 
+            <ConfirmDeleteModal
                 isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)} 
-                onSubmit={confirmDelete} 
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onSubmit={confirmDelete}
             />
         </>
     );
