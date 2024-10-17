@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
 
+interface Resource {
+    id: number;
+    name: string;
+}
+
 const useResource = (cycleId: string) => {
-    const [resourceList, setResourceList] = useState<string[]>([]);
+    const [resourceList, setResourceList] = useState<Resource[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +59,23 @@ const useResource = (cycleId: string) => {
         }
     };
 
+    const fetchResourceList = async (cycleId: string) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const resourceData = await apiService.getResources(cycleId);
+            console.log('resourceData', resourceData);
+            setResourceList(resourceData.data.resources);
+            return resourceData.data.resources; // Retornar la lista de recursos
+        } catch (error) {
+            setError('Error al obtener los datos. Inténtalo de nuevo más tarde.');
+            console.error('Error fetching data:', error);
+            throw error; // O puedes lanzar el error si necesitas manejarlo en otro lugar
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         resourceList,
         loading,
@@ -61,6 +83,7 @@ const useResource = (cycleId: string) => {
         addResource,
         updateResource,
         deleteResource,
+        fetchResourceList
     };
 };
 

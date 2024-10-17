@@ -204,6 +204,25 @@ class ApiService {
     }
 
     /*
+     * Métodos específicos para indicadores
+     */
+    public getIndicators() {
+        return this.get(`/indicator`);
+    }
+
+    public addIndicator(indicatorData: {name: string, areaId: number, resourceId: number, contentId?: number}) {
+        return this.post('/indicator', indicatorData);
+    }
+
+    public updateIndicator(id: string, updatedData: {name: string, areaId: number, resourceId: number, contentId?: number}) {
+        return this.patch(`/indicator/${id}`, updatedData);
+    }
+
+    public deleteIndicator(id: string) {
+        return this.delete(`/indicator/${id}`);
+    }
+
+    /*
      * Otros métodos específicos
      */
     public getUsersInMoodle() {
