@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
 
+interface Cycle {
+    name: string,
+};
+
 const useCycle = () => {
-    const [cycleList, setCycleList] = useState<string[]>([]);
+    const [cycleList, setCycleList] = useState<Cycle[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 

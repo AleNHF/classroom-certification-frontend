@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
 
+interface Area {
+    name: string,
+}
+
 const useArea = () => {
-    const [areaList, setAreaList] = useState<string[]>([]);
+    const [areaList, setAreaList] = useState<Area[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 

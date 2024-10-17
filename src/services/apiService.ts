@@ -204,6 +204,25 @@ class ApiService {
     }
 
     /*
+     * Métodos específicos para asignar porcentajes a áreas y ciclos
+     */
+    public getPercentages() {
+        return this.get(`/percentage`);
+    }
+
+    public addPercentage(percentageData: {percentage: number, areaId: number, cycleId: number}) {
+        return this.post('/percentage', percentageData);
+    }
+
+    public updatePercentage(id: string, updatedData: {percentage: number, areaId: number, cycleId: number}) {
+        return this.patch(`/percentage/${id}`, updatedData);
+    }
+
+    public deletePercentage(id: string) {
+        return this.delete(`/percentage/${id}`);
+    }
+
+    /*
      * Otros métodos específicos
      */
     public getUsersInMoodle() {
