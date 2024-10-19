@@ -1,94 +1,173 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeaderComponent from "../../components/layout/HeaderComponent";
 import AddButtonComponent from "../../components/ui/AddButtonComponent";
 import ModalComponent from "../../components/ui/ModalComponent";
 import PageHeaderComponent from "../../components/ui/PageHeader";
-import useContent from "../../hooks/indicatorsConfiguration/useContent";
 import useCycle from "../../hooks/indicatorsConfiguration/useCycle";
 import useIndicator from "../../hooks/indicatorsConfiguration/useIndicator";
-import useResource from "../../hooks/indicatorsConfiguration/useResource";
-
-interface Indicator {
-    name: string;
-    resource: string;
-    content: string;
-}
-
-// Tabla de los indicadores para cada ciclo
-const Section = ({ title, indicators }: { title: string, indicators: Indicator[] }) => {
-    return (
-        <div className="border p-4 bg-gray-50 mb-4">
-            <h2 className="font-bold text-xl mb-4">{title}</h2>
-            <div className="grid grid-cols-3 bg-red-500 text-white font-semibold p-2 rounded-t-md">
-                <span>Contenido</span>
-                <span>Indicador</span>
-            </div>
-            {indicators.map((item, index) => (
-                <div key={index} className="grid grid-cols-3 p-2 border-b last:border-b-0">
-                    <span>{item.content}</span>
-                    <span>{item.name}</span>
-                </div>
-            ))}
-        </div>
-    );
-};
-
-const Cycle = ({ cycle, indicators, cycleId }: { cycle: string, indicators: Indicator[], cycleId: string }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div className="w-full">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full text-left p-4 bg-gray-200 hover:bg-gray-300 rounded-md mb-2 transition-all duration-300 ease-in-out"
-            >
-                {cycle}
-            </button>
-
-            {isOpen && (
-                <>
-                    <Section title={`Contenido: ${cycle}`} indicators={indicators} />
-                </>
-            )}
-        </div>
-    );
-};
+import { SelectInput } from "../../components/ui/SelectInput";
+import { useLocation, useParams } from "react-router-dom";
+import { ActionButtonComponent, ConfirmDeleteModal } from "../../components/ui";
+import { LoadingPage, ErrorPage } from "../utils";
 
 const IndicatorPage: React.FC = () => {
-    const { indicatorList, loading: indicatorLoading, error: indicatorError } = useIndicator();
+    const { areaId } = useParams<{ areaId: string }>();
+    const location = useLocation();
+    const areaName = location.state.areaName;
+    const safeAreaId = areaId || '';
+
+    const { indicatorList, resourceList, contentList, loading, error, addIndicator, updateIndicator, deleteIndicator, fetchResourceList, fetchContentList } = useIndicator(safeAreaId);
     const { cycleList } = useCycle();
-    
-    // Estados para el modal y los selects dependientes
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
     const [selectedCycle, setSelectedCycle] = useState<string>('');
     const [selectedResource, setSelectedResource] = useState<string>('');
     const [selectedContent, setSelectedContent] = useState<string>('');
 
-    // Hooks para manejar recursos y contenidos
-    const { resourceList, fetchResourceList } = useResource(selectedCycle);
-    const { contentList, fetchContentList } = useContent(selectedResource);
+    const [indicatorName, setIndicatorName] = useState<string>('');
+    const [newIndicator, setNewIndicator] = useState({ id: '', name: indicatorName, areaId: safeAreaId, resourceId: selectedResource, contentId: selectedContent ? selectedContent : '' });
+    const [indicatorToDelete, setIndicatorToDelete] = useState<string | null>(null);
 
-    // Maneja el cambio en el select de ciclo
-    const handleCycleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const cycleId = e.target.value;
-        setSelectedCycle(cycleId);
-        setSelectedResource(''); // Resetea el recurso cuando se selecciona un nuevo ciclo
-        setSelectedContent('');  // Resetea el contenido
-        await fetchResourceList(cycleId);
+    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+
+    // Estado para manejar la expansión de ciclos y recursos
+    const [expandedCycles, setExpandedCycles] = useState<{ [key: string]: boolean }>({});
+    const [expandedResources, setExpandedResources] = useState<{ [key: string]: boolean }>({});
+
+    // Funciones para alternar la expansión de ciclos y recursos
+    const toggleCycleExpansion = (cycleId: string) => {
+        setExpandedCycles(prev => ({ ...prev, [cycleId]: !prev[cycleId] }));
+        fetchResourceList(cycleId);
     };
 
-    // Maneja el cambio en el select de recurso
-    const handleResourceChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const toggleResourceExpansion = (resourceId: string) => {
+        setExpandedResources(prev => ({ ...prev, [resourceId]: !prev[resourceId] }));
+        fetchContentList(resourceId);
+    };
+
+    // Cargar recursos cuando se selecciona un ciclo
+    useEffect(() => {
+        if (selectedCycle) {
+            fetchResourceList(selectedCycle);
+        }
+    }, [selectedCycle]);
+
+    // Cargar contenidos cuando se selecciona un recurso
+    useEffect(() => {
+        if (selectedResource) {
+            fetchContentList(selectedResource);
+        }
+    }, [selectedResource]);
+
+    const resetIndicatorForm = () => {
+        setNewIndicator({ id: '', name: '', areaId: '', resourceId: '', contentId: '' });
+        setSelectedCycle('');
+        setSelectedResource('');
+        setSelectedContent('');
+        setIndicatorName('');
+        setErrorMessages({});
+    }
+
+    const handleAddClick = () => {
+        resetIndicatorForm();
+        setIsModalOpen(true);
+    }
+
+    const handleCloseModal = () => {
+        resetIndicatorForm();
+        setIsModalOpen(false);
+    }
+
+    const handleCycleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCycle(e.target.value);
+        setSelectedResource('');
+        setSelectedContent('');
+    };
+
+    const handleResourceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const resourceId = e.target.value;
         setSelectedResource(resourceId);
-        setSelectedContent('');  // Resetea el contenido
-        await fetchContentList(resourceId);
+        setSelectedContent('');
     };
 
-    // Maneja la apertura del modal
-    const handleAddClick = () => {
+    const handleContentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedContent(e.target.value);
+    };
+
+    const handleAddOrEditIndicator = async () => {
+        const errors: { [key: string]: string } = {};
+
+        if (!indicatorName) {
+            errors.name = 'El nombre del indicador es obligatorio.';
+        }
+        if (!selectedCycle) {
+            errors.cycleId = 'Debe seleccionar un ciclo.';
+        }
+        if (!selectedResource) {
+            errors.resourceId = 'Debe seleccionar un recurso.';
+        }
+
+        setErrorMessages(errors);
+
+        if (Object.keys(errors).length > 0) return;
+
+        const indicatorData = {
+            name: indicatorName,
+            areaId: Number(safeAreaId),
+            resourceId: Number(selectedResource),
+            contentId: selectedContent ? Number(selectedContent) : undefined,
+        };
+        console.log(indicatorData)
+
+        try {
+            newIndicator.id
+                ? await updateIndicator(newIndicator.id, indicatorData)
+                : await addIndicator(indicatorData);
+            handleCloseModal();
+        } catch (error) {
+            console.error("Error al agregar/editar el indicador:", error);
+        }
+    };
+
+    const handleDelete = (id: string) => {
+        setIndicatorToDelete(id);
+        setIsConfirmDeleteOpen(true);
+    }
+
+    const confirmDelete = async () => {
+        if (indicatorToDelete) {
+            try {
+                await deleteIndicator(indicatorToDelete);
+            } catch (error) {
+                console.error('Error al eliminar indicador:', error);
+            } finally {
+                setIndicatorToDelete(null);
+                setIsConfirmDeleteOpen(false);
+            }
+        }
+    };
+
+    const handleEdit = (indicator: any) => {
+        setNewIndicator({
+            id: indicator.id,
+            name: indicator.name,
+            areaId: indicator.areaId,
+            resourceId: indicator.resource?.id || '',
+            contentId: indicator.content?.id || ''
+        });
+
+        setSelectedCycle(indicator.resource.cycle.id);
+        setSelectedResource(indicator.resource?.id || '');
+        setSelectedContent(indicator.content?.id || '');
+
+        setIndicatorName(indicator.name);
         setIsModalOpen(true);
     };
+
+    if (loading) return <LoadingPage />;
+    if (error) return <ErrorPage message={error} />;
 
     return (
         <>
@@ -98,80 +177,139 @@ const IndicatorPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title="AREA: DISEÑO DE FORMACIÓN - INDICADORES" />
+                    <PageHeaderComponent title={`ÁREA: ${areaName} - INDICADORES`} />
                     <AddButtonComponent onClick={handleAddClick} />
 
-                    {/* Modal para agregar nuevo indicador */}
                     <ModalComponent
                         isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                        title="Agregar Nuevo Indicador"
-                        primaryButtonText="Agregar"
+                        onClose={handleCloseModal}
+                        title={newIndicator.id ? "Editar Indicador" : "Agregar Nuevo Indicador"}
+                        primaryButtonText={newIndicator.id ? "ACTUALIZAR" : "AGREGAR"}
+                        onSubmit={handleAddOrEditIndicator}
                         size="medium"
                     >
                         <form className="space-y-4">
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Ciclo</label>
-                                <select
+                                <SelectInput
+                                    label="Ciclo"
                                     value={selectedCycle}
+                                    options={cycleList}
                                     onChange={handleCycleChange}
-                                    className="block w-full mt-1 border-gray-300 rounded-md shadow-sm"
-                                >
-                                    <option value="">Selecciona un ciclo</option>
-                                    {cycleList.map((cycle) => (
-                                        <option key={cycle.id} value={cycle.id}>
-                                            {cycle.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                    error={errorMessages.cycleId}
+                                />
                             </div>
 
                             {selectedCycle && (
                                 <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700">Recurso</label>
-                                    <select
+                                    <SelectInput
+                                        label="Recurso"
                                         value={selectedResource}
+                                        options={resourceList}
                                         onChange={handleResourceChange}
-                                        className="block w-full mt-1 border-gray-300 rounded-md shadow-sm"
-                                    >
-                                        <option value="">Selecciona un recurso</option>
-                                        {resourceList.map((resource) => (
-                                            <option key={resource.id} value={resource.id}>
-                                                {resource.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        error={errorMessages.resourceId}
+                                    />
                                 </div>
                             )}
 
                             {selectedResource && contentList.length > 0 && (
                                 <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700">Contenido</label>
-                                    <select
+                                    <SelectInput
+                                        label="Contenido"
                                         value={selectedContent}
-                                        onChange={(e) => setSelectedContent(e.target.value)}
-                                        className="block w-full mt-1 border-gray-300 rounded-md shadow-sm"
-                                    >
-                                        <option value="">Selecciona un contenido</option>
-                                        {contentList.map((content) => (
-                                            <option key={content.id} value={content.id}>
-                                                {content.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        options={contentList}
+                                        onChange={handleContentChange}
+                                    //error={errorMessages.cycleId}
+                                    />
                                 </div>
                             )}
+
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">Nombre del Indicador</label>
+                                <input
+                                    type="text"
+                                    value={indicatorName}
+                                    onChange={(e) => setIndicatorName(e.target.value)}
+                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                                />
+                                {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
+                            </div>
                         </form>
                     </ModalComponent>
 
-                    {/* Lista de ciclos y sus indicadores */}
-                    {cycleList.map((cycle: any) => (
-                        <Cycle key={cycle.id} cycle={cycle.name} cycleId={cycle.id} indicators={indicatorList} />
-                    ))}
+                    {/* Ciclos */}
+                    {cycleList.map(cycle => (
+                        <div key={cycle.id} className="w-full mt-4">
+                            <button
+                                onClick={() => toggleCycleExpansion(cycle.id.toString())}
+                                className="w-full text-left p-4 bg-gray-200 hover:bg-gray-300 rounded-md mb-2 transition-all duration-300 ease-in-out"
+                            >
+                                {cycle.name}
+                            </button>
 
-                    {indicatorLoading && <p>Cargando indicadores...</p>}
-                    {indicatorError && <p className="text-red-600">{indicatorError}</p>}
+                            {/* Mostrar recursos si el ciclo está expandido */}
+                            {expandedCycles[cycle.id] && (
+                                <div className="pl-4 mt-2">
+                                    {resourceList.map(resource => (
+                                        <div key={resource.id} className="mb-4">
+                                            <button
+                                                onClick={() => toggleResourceExpansion(resource.id.toString())}
+                                                className="w-full text-left p-4 bg-gray-200 hover:bg-gray-300 rounded-md mb-2 transition-all duration-300 ease-in-out"
+                                            >
+                                                {resource.name}
+                                            </button>
+
+                                            {/* Mostrar la tabla de indicadores si el recurso está expandido */}
+                                            {expandedResources[resource.id] && (
+                                                <div className="mt-2 pl-4">
+                                                    <table className="min-w-full bg-white shadow-md rounded-lg">
+                                                        <thead className="bg-primary-red-color text-white">
+                                                            <tr>
+                                                                <th className="py-2 px-4">Contenido</th>
+                                                                <th className="py-2 px-4">Indicador</th>
+                                                                <th className="py-2 px-4">Acciones</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {indicatorList
+                                                                .filter(indicator => indicator.resource.id === resource.id)
+                                                                .map(indicator => (
+                                                                    <tr key={indicator.id} className="border-b">
+                                                                        <td className="py-2 px-4">
+                                                                            {indicator.content ? indicator.content.name : indicator.resource.name}
+                                                                        </td>
+                                                                        <td className="py-2 px-4">{indicator.name}</td>
+                                                                        <td className="py-2 px-4">
+                                                                            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                                                                                <ActionButtonComponent
+                                                                                    label="EDITAR"
+                                                                                    onClick={() => handleEdit(indicator)}
+                                                                                    bgColor="bg-secondary-button-color"
+                                                                                />
+                                                                                <ActionButtonComponent
+                                                                                    label="ELIMINAR"
+                                                                                    onClick={() => handleDelete(indicator.id.toString())}
+                                                                                    bgColor="bg-primary-red-color"
+                                                                                />
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
+                <ConfirmDeleteModal
+                    isOpen={isConfirmDeleteOpen}
+                    onClose={() => setIsConfirmDeleteOpen(false)}
+                    onSubmit={confirmDelete}
+                />
             </div>
         </>
     );

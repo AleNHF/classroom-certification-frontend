@@ -1,6 +1,6 @@
 
+import { ModalComponent } from '.';
 import notifyImage from '../../assets/undraw_notify_re_65on.svg';
-import ModalComponent from './ModalComponent';
 
 export interface ConfirmDeleteModalProps {
     isOpen: boolean;

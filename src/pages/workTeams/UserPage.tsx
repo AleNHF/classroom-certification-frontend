@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import useUsers from '../../hooks/workTeams/useUser';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validateUserForm } from '../../utils/validateUserForm';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
 import { SelectInput } from '../../components/ui/SelectInput';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
+import { LoadingPage, ErrorPage } from '../utils';
+import useUsers from '../../hooks/workTeams/useUser';
 
 const UserPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newUser, setNewUser] = useState({ id: '', name: '', username: '', roleId: '' });
+    const [newUser, setNewUser] = useState<{ id: string; name: string; username: string; roleId: string }>({
+        id: '',
+        name: '',
+        username: '',
+        roleId: '',
+    });
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
@@ -23,16 +22,7 @@ const UserPage: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
     const [userError, setUserError] = useState<string | null>(null);
 
-    const {
-        userList,
-        usersMoodleList,
-        roleList,
-        loading,
-        error,
-        addUser,
-        updateUser,
-        deleteUser
-    } = useUsers();
+    const { userList, usersMoodleList, roleList, loading, error, addUser, updateUser, deleteUser } = useUsers();
 
     useEffect(() => {
         if (!loading && usersMoodleList.length) {
@@ -41,7 +31,7 @@ const UserPage: React.FC = () => {
     }, [loading, usersMoodleList]);
 
     const handleAddClick = () => {
-        setNewUser({ id: '', name: '', username: '', roleId: '' });
+        resetNewUserState();
         setIsModalOpen(true);
     };
 
@@ -74,14 +64,15 @@ const UserPage: React.FC = () => {
             newUser.id ? await updateUser(newUser.id, userData) : await addUser(userData);
             handleCloseModal();
         } catch (error) {
-            console.error('Error adding/updating user:', error);
-            if (error instanceof Error) {
-                if (error.message.includes("User with username")) {
-                    alert(`Error: ${error.message}`);
-                }
-            } else {
-                alert('An unexpected error occurred.');
-            }
+            handleUserActionError(error);
+        }
+    };
+
+    const handleUserActionError = (error: unknown) => {
+        console.error('Error adding/updating user:', error);
+        if (error instanceof Error) {
+            console.log('useError', userError);
+            alert(error.message.includes("User with username") ? `Error: ${error.message}` : 'An unexpected error occurred.');
         }
     };
 
@@ -125,7 +116,7 @@ const UserPage: React.FC = () => {
 
     const handleSuggestionClick = (suggestion: string) => {
         const selectedUser = usersMoodleList.find((user: any) => user.fullname === suggestion);
-        const username = selectedUser && selectedUser.username ? selectedUser.username : '';
+        const username = selectedUser?.username || '';
 
         setNewUser({ ...newUser, name: suggestion, username });
         resetFilteredSuggestions();
@@ -136,26 +127,27 @@ const UserPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const headers = ["Nombre", "Username", "Rol", "Acciones"];
-    const rows = userList.map((user: any) => ({
-        Nombre: user.name,
-        Usuario: user.username,
-        Rol: roleList.find((role: any) => role.id === user.rol.id)?.name || 'N/A',
-        Acciones: (
-            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent
-                    label="EDITAR"
-                    onClick={() => handleEdit(user)}
-                    bgColor="bg-secondary-button-color"
-                />
-                <ActionButtonComponent
-                    label="ELIMINAR"
-                    onClick={() => handleDelete(user.id)}
-                    bgColor="bg-primary-red-color"
-                />
-            </div>
-        )
-    }));
+    const renderTableRows = () => {
+        return userList.map((user: any) => ({
+            Nombre: user.name,
+            Usuario: user.username,
+            Rol: roleList.find((role: any) => role.id === user.rol.id)?.name || 'N/A',
+            Acciones: (
+                <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                    <ActionButtonComponent
+                        label="EDITAR"
+                        onClick={() => handleEdit(user)}
+                        bgColor="bg-secondary-button-color"
+                    />
+                    <ActionButtonComponent
+                        label="ELIMINAR"
+                        onClick={() => handleDelete(user.id)}
+                        bgColor="bg-primary-red-color"
+                    />
+                </div>
+            )
+        }));
+    };
 
     if (loading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
@@ -163,11 +155,9 @@ const UserPage: React.FC = () => {
     return (
         <>
             <div className="flex flex-col items-center justify-start bg-white min-h-screen">
-                {/* Header */}
                 <div className="w-full flex-shrink-0">
                     <HeaderComponent />
                 </div>
-                {/* Main Content */}
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
                     <PageHeaderComponent title='GESTIONAR USUARIOS' />
                     {error && (
@@ -177,7 +167,7 @@ const UserPage: React.FC = () => {
                     )}
                     <AddButtonComponent onClick={handleAddClick} />
                     <div className="overflow-x-auto w-full">
-                        <TableComponent headers={headers} rows={rows} />
+                        <TableComponent headers={["Nombre", "Username", "Rol", "Acciones"]} rows={renderTableRows()} />
                     </div>
                 </div>
             </div>
@@ -199,7 +189,6 @@ const UserPage: React.FC = () => {
                             disabled={!!newUser.id}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
-                        {/* Mostrar las sugerencias filtradas */}
                         {isSuggestionsOpen && filteredSuggestions.length > 0 && (
                             <ul className="border border-gray-300 mt-1 rounded-md max-h-40 overflow-y-auto">
                                 {filteredSuggestions.map((suggestion, index) => (
@@ -226,10 +215,11 @@ const UserPage: React.FC = () => {
                     </div>
                 </form>
             </ModalComponent>
-
-            {/* Modal de Confirmación de Eliminación */}
-            <ConfirmDeleteModal isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)} onSubmit={confirmDeleteUser} />
+            <ConfirmDeleteModal 
+                isOpen={isConfirmDeleteOpen} 
+                onClose={() => setIsConfirmDeleteOpen(false)} 
+                onSubmit={confirmDeleteUser} 
+            />
         </>
     );
 };

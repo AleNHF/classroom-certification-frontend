@@ -84,7 +84,7 @@ const CyclePage: React.FC = () => {
         }
     };
 
-    const handleEdit = (cycle: any) => {
+    const handleEdit = (cycle: { id: string; name: string }) => {
         setNewCyle({ 
             id: cycle.id, 
             name: cycle.name

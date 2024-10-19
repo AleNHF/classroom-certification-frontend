@@ -1,6 +1,6 @@
 import AuthService from '../services/authService';
-import { Team } from '../types/teamTypes';
-import { UserProps } from '../types/userTypes';
+import { Team } from '../types/team';
+import { UserProps } from '../types/userProps';
 
 class ApiService {
     private baseUrl: string;
@@ -206,8 +206,8 @@ class ApiService {
     /*
      * Métodos específicos para indicadores
      */
-    public getIndicators() {
-        return this.get(`/indicator`);
+    public getIndicators(areaId: string) {
+        return this.get(`/indicator/area/${areaId}`);
     }
 
     public addIndicator(indicatorData: {name: string, areaId: number, resourceId: number, contentId?: number}) {
