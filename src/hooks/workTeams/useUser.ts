@@ -1,26 +1,16 @@
 import { useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
 import authService from '../../services/authService';
-import { UserProps } from '../../types/userTypes';
-
-export interface Role {
-    id: number;
-    name: string;
-}
+import { UserProps, Role, FetchState } from '../../types';
 
 const useUsers = () => {
     const [userList, setUserList] = useState<UserProps[]>([]);
     const [usersMoodleList, setUsersMoodleList] = useState<UserProps[]>([]);
     const [roleList, setRoleList] = useState<Role[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const [fetchState, setFetchState] = useState<FetchState>({ loading: true, error: null });
 
     const fetchData = async () => {
-        setLoading(true);
+        setFetchState({ loading: true, error: null });
         try {
             const [userData, moodleData, roleData] = await Promise.all([
                 apiService.getUsers(),
@@ -33,40 +23,34 @@ const useUsers = () => {
             setUsersMoodleList(usersMoodle);
             setRoleList(roleData.data.roles);
         } catch (error) {
-            setError('Error al obtener los datos. Inténtalo de nuevo más tarde.');
+            setFetchState({ loading: false, error: 'Error al obtener los datos. Inténtalo de nuevo más tarde.' });
             console.error('Error fetching data:', error);
         } finally {
-            setLoading(false);
+            setFetchState(prevState => ({ ...prevState, loading: false }));
         }
     };
 
-    const addUser = async (userData: UserProps) => {
-        try {
-            await apiService.addUser(userData);
-            fetchData();
-        } catch (error) {
-            console.error('Error adding user:', error);
-            throw error;
-        }
-    };
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-    const updateUser = async (id: string, userData: UserProps) => {
+    const handleUserAction = async (action: 'add' | 'update' | 'delete', userData?: UserProps, id?: string) => {
+        setFetchState(prevState => ({ ...prevState, loading: true, error: null }));
         try {
-            await apiService.updateUser(id, userData);
-            fetchData();
+            if (action === 'add') {
+                await apiService.addUser(userData!);
+            } else if (action === 'update') {
+                await apiService.updateUser(id!, userData!);
+            } else if (action === 'delete') {
+                await apiService.deleteUser(id!);
+            }
+            await fetchData();
         } catch (error) {
-            console.error('Error updating user:', error);
+            console.error(`Error ${action} user:`, error);
+            setFetchState({ loading: false, error: `Error al ${action} el usuario.` });
             throw error;
-        }
-    };
-
-    const deleteUser = async (id: string) => {
-        try {
-            await apiService.deleteUser(id);
-            fetchData();
-        } catch (error) {
-            console.error('Error deleting user:', error);
-            throw error;
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
         }
     };
 
@@ -74,11 +58,11 @@ const useUsers = () => {
         userList,
         usersMoodleList,
         roleList,
-        loading,
-        error,
-        addUser,
-        updateUser,
-        deleteUser,
+        loading: fetchState.loading,
+        error: fetchState.error,
+        addUser: (userData: UserProps) => handleUserAction('add', userData),
+        updateUser: (id: string, userData: UserProps) => handleUserAction('update', userData, id),
+        deleteUser: (id: string) => handleUserAction('delete', undefined, id),
     };
 };
 

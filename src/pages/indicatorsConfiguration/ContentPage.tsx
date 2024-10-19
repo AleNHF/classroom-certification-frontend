@@ -91,7 +91,7 @@ const ContentPage: React.FC = () => {
         }
     };
 
-    const handleEdit = (content: any) => {
+    const handleEdit = (content: {id: string, name: string, resourceId: number}) => {
         setNewContent({ 
             id: content.id, 
             name: content.name,

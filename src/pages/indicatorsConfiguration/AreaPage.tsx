@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import PageHeaderComponent from '../../components/ui/PageHeader';
 import { useNavigate } from 'react-router-dom';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
 import LoadingPage from '../utils/LoadingPage';
 import ErrorPage from '../utils/ErrorPage';
 import useArea from '../../hooks/indicatorsConfiguration/useArea';
+import { ActionButtonComponent, AddButtonComponent, ConfirmDeleteModal, ModalComponent, PageHeaderComponent, TableComponent } from '../../components/ui';
 
 const headers = ["Nombre del área", "Acciones"];
 
@@ -19,8 +14,8 @@ const AreaPage: React.FC = () => {
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [newArea, setNewArea] = useState({ id: '', name: '' });
     const [areaToDelete, setAreaToDelete] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null); 
-    
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
     const {
         areaList,
         loading,
@@ -56,10 +51,10 @@ const AreaPage: React.FC = () => {
         };
 
         try {
-            newArea.id 
+            newArea.id
                 ? await updateArea(newArea.id, areaData)
                 : await addArea(areaData);
-                
+
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar la área:', error);
@@ -85,32 +80,32 @@ const AreaPage: React.FC = () => {
     };
 
     const handleEdit = (area: any) => {
-        setNewArea({ 
-            id: area.id, 
+        setNewArea({
+            id: area.id,
             name: area.name
         });
         setIsModalOpen(true);
     };
 
     const handleIndicatorsClick = (areaId: string, areaName: string) => {
-        navigate(`/indicators-configuration/areas/${areaId}`, { state: { areaName: areaName } })
+        navigate(`/indicators-configuration/indicators/${areaId}`, {state: { areaName: areaName } });
     };
 
     const rows = areaList.map((area: any) => ({
         Nombre: area.name,
         Acciones: (
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(area)}
                     bgColor="bg-secondary-button-color"
                 />
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(area.id)}
                     bgColor="bg-primary-red-color"
                 />
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="INDICADORES"
                     onClick={() => handleIndicatorsClick(area.id, area.name)}
                     bgColor="bg-optional-button-color"
@@ -161,16 +156,16 @@ const AreaPage: React.FC = () => {
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                         {errorMessage && (
-                            <p className="text-red-600 text-sm mt-1">{errorMessage}</p> // Mostrar el mensaje de error
+                            <p className="text-red-600 text-sm mt-1">{errorMessage}</p> 
                         )}
                     </div>
                 </form>
             </ModalComponent>
 
-            <ConfirmDeleteModal 
+            <ConfirmDeleteModal
                 isOpen={isConfirmDeleteOpen}
-                onClose={() => setIsConfirmDeleteOpen(false)} 
-                onSubmit={confirmDelete} 
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onSubmit={confirmDelete}
             />
         </>
     );

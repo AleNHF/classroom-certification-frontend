@@ -1,66 +1,81 @@
 import { useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
+import { Resource, FetchState } from '../../types';
 
 const useResource = (cycleId: string) => {
-    const [resourceList, setResourceList] = useState<string[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [resourceList, setResourceList] = useState<Resource[]>([]);
+    const [fetchState, setFetchState] = useState<FetchState>({ loading: true, error: null });
 
-    useEffect(() => {
-        fetchData(cycleId);
-    }, [cycleId]); // Asegúrate de que se ejecute cada vez que cambie el cycleId
-
-    const fetchData = async (cycleId: string) => {
-        setLoading(true);
+    // Fetch resources based on cycleId
+    const fetchData = async () => {
+        setFetchState({ loading: true, error: null });
         try {
             const resourceData = await apiService.getResources(cycleId);
-            console.log('resourceData', resourceData)
             setResourceList(resourceData.data.resources);
         } catch (error) {
-            setError('Error al obtener los datos. Inténtalo de nuevo más tarde.');
-            console.error('Error fetching data:', error);
+            handleFetchError(error);
         } finally {
-            setLoading(false);
+            setFetchState(prevState => ({ ...prevState, loading: false }));
         }
     };
 
-    const addResource = async (resourceData: { name: string, cycleId: number }) => {
+    // Centralized error handling for fetching
+    const handleFetchError = (error: unknown) => {
+        console.error('Error fetching resources:', error);
+        setFetchState({
+            loading: false,
+            error: 'Error al obtener los datos. Inténtalo de nuevo más tarde.',
+        });
+    };
+
+    // Generic handler for adding, updating, and deleting resources
+    const handleResourceAction = async (
+        action: 'add' | 'update' | 'delete',
+        resourceData?: { name: string; cycleId: number },
+        id?: string
+    ) => {
+        setFetchState(prevState => ({ ...prevState, loading: true, error: null }));
         try {
-            await apiService.addResource(resourceData);
-            fetchData(String(resourceData.cycleId)); // Asegúrate de enviar el cycleId correcto
+            switch (action) {
+                case 'add':
+                    await apiService.addResource(resourceData!);
+                    break;
+                case 'update':
+                    await apiService.updateResource(id!, resourceData!);
+                    break;
+                case 'delete':
+                    await apiService.deleteResource(id!);
+                    break;
+            }
+            await fetchData();
         } catch (error) {
-            console.error('Error adding resource:', error);
-            throw error;
+            handleActionError(action, error);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
         }
     };
 
-    const updateResource = async (id: string, resourceData: { name: string, cycleId: number }) => {
-        try {
-            await apiService.updateResource(id, resourceData);
-            fetchData(String(resourceData.cycleId)); // Asegúrate de enviar el cycleId correcto
-        } catch (error) {
-            console.error('Error updating resource:', error);
-            throw error;
-        }
+    // Centralized error handling for resource actions
+    const handleActionError = (action: 'add' | 'update' | 'delete', error: unknown) => {
+        console.error(`Error ${action} resource:`, error);
+        setFetchState({
+            loading: false,
+            error: `Error al ${action} el recurso.`,
+        });
     };
 
-    const deleteResource = async (id: string) => {
-        try {
-            await apiService.deleteResource(id);
-            fetchData(cycleId); // Usa el cycleId actual
-        } catch (error) {
-            console.error('Error deleting resource:', error);
-            throw error;
-        }
-    };
+    // Fetch resources on cycleId change
+    useEffect(() => {
+        if (cycleId) fetchData();
+    }, [cycleId]);
 
     return {
         resourceList,
-        loading,
-        error,
-        addResource,
-        updateResource,
-        deleteResource,
+        loading: fetchState.loading,
+        error: fetchState.error,
+        addResource: (resourceData: { name: string; cycleId: number }) => handleResourceAction('add', resourceData),
+        updateResource: (id: string, resourceData: { name: string; cycleId: number }) => handleResourceAction('update', resourceData, id),
+        deleteResource: (id: string) => handleResourceAction('delete', undefined, id),
     };
 };
 

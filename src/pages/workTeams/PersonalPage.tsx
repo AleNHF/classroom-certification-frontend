@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import usePersonal from '../../hooks/workTeams/usePersonal';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validatePersonalForm } from '../../utils/validatePersonalForm';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
+import usePersonal from '../../hooks/workTeams/usePersonal';
+import { LoadingPage, ErrorPage } from '../utils';
 
 const headers = ["Nombre", "Cargo", "Acciones"];
 
@@ -19,23 +13,24 @@ const PersonalPage: React.FC = () => {
     const [personalForm, setPersonalForm] = useState({ id: '', name: '', position: '', signature: null as File | null });
     const [personalToDelete, setPersonalToDelete] = useState<string | null>(null);
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
-
-    const {
-        personalList,
-        loading,
-        error,
-        addPersonal,
-        updatePersonal,
-        deletePersonal
-    } = usePersonal();
+    const { personalList, loading, error, addPersonal, updatePersonal, deletePersonal } = usePersonal();
 
     const resetPersonalForm = () => {
         setPersonalForm({ id: '', name: '', position: '', signature: null });
         setErrorMessages({});
     };
 
-    const handleAddClick = () => {
-        resetPersonalForm();
+    const handleOpenModal = (personal?: any) => {
+        if (personal) {
+            setPersonalForm({
+                id: personal.id,
+                name: personal.name,
+                position: personal.position,
+                signature: personal.signature
+            });
+        } else {
+            resetPersonalForm();
+        }
         setIsModalOpen(true);
     };
 
@@ -47,10 +42,10 @@ const PersonalPage: React.FC = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
         if (file && file.type.startsWith('image/')) {
-            setPersonalForm({ ...personalForm, signature: file });
-            setErrorMessages((prev) => ({ ...prev, signature: '' })); // Clear previous error
+            setPersonalForm(prev => ({ ...prev, signature: file }));
+            setErrorMessages(prev => ({ ...prev, signature: '' }));
         } else {
-            alert("Por favor, sube un archivo de imagen válido.");
+            setErrorMessages(prev => ({ ...prev, signature: 'Por favor, sube un archivo de imagen válido.' }));
         }
     };
 
@@ -64,13 +59,14 @@ const PersonalPage: React.FC = () => {
         const formData = new FormData();
         formData.append('name', personalForm.name);
         formData.append('position', personalForm.position);
-        formData.append('signature', personalForm.signature as File); // Asserting because we know it's valid
+        if (personalForm.signature) {
+            formData.append('signature', personalForm.signature);
+        }
 
         try {
             personalForm.id
                 ? await updatePersonal(personalForm.id, formData)
                 : await addPersonal(formData);
-
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar personal:', error);
@@ -95,16 +91,6 @@ const PersonalPage: React.FC = () => {
         }
     };
 
-    const handleEdit = (personal: any) => {
-        setPersonalForm({
-            id: personal.id,
-            name: personal.name,
-            position: personal.position,
-            signature: personal.signature
-        });
-        setIsModalOpen(true);
-    };
-
     const rows = personalList.map((personal: any) => ({
         Nombre: personal.name,
         Cargo: personal.position,
@@ -112,7 +98,7 @@ const PersonalPage: React.FC = () => {
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                 <ActionButtonComponent 
                     label="EDITAR"
-                    onClick={() => handleEdit(personal)}
+                    onClick={() => handleOpenModal(personal)}
                     bgColor="bg-secondary-button-color"
                 />
                 <ActionButtonComponent 
@@ -128,23 +114,18 @@ const PersonalPage: React.FC = () => {
     if (error) return <ErrorPage message={error} />;
 
     return (
-        <>
-            <div className="flex flex-col items-center justify-start bg-white min-h-screen">
-                <div className="w-full flex-shrink-0">
-                    <HeaderComponent />
-                </div>
-
-                <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title='GESTIONAR PERSONAL TÉCNICO' />
-                    {error && (
-                        <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
-                            {error}
-                        </div>
-                    )}
-                    <AddButtonComponent onClick={handleAddClick} />
-                    <div className="overflow-x-auto w-full">
-                        <TableComponent headers={headers} rows={rows} />
+        <div className="flex flex-col items-center justify-start bg-white min-h-screen">
+            <HeaderComponent />
+            <div className="flex flex-col items-center w-full max-w-6xl px-4">
+                <PageHeaderComponent title='GESTIONAR PERSONAL TÉCNICO' />
+                {error && (
+                    <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
+                        {error}
                     </div>
+                )}
+                <AddButtonComponent onClick={() => handleOpenModal()} />
+                <div className="overflow-x-auto w-full">
+                    <TableComponent headers={headers} rows={rows} />
                 </div>
             </div>
 
@@ -162,7 +143,7 @@ const PersonalPage: React.FC = () => {
                         <input
                             type="text"
                             value={personalForm.name}
-                            onChange={(e) => setPersonalForm({ ...personalForm, name: e.target.value })}
+                            onChange={(e) => setPersonalForm(prev => ({ ...prev, name: e.target.value }))}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                         {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
@@ -171,7 +152,7 @@ const PersonalPage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-700">Cargo</label>
                         <select
                             value={personalForm.position}
-                            onChange={(e) => setPersonalForm({ ...personalForm, position: e.target.value })}
+                            onChange={(e) => setPersonalForm(prev => ({ ...prev, position: e.target.value }))}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         >
                             <option value="">Selecciona un cargo</option>
@@ -200,7 +181,7 @@ const PersonalPage: React.FC = () => {
                 onClose={() => setIsConfirmDeleteOpen(false)}
                 onSubmit={confirmDelete}
             />
-        </>
+        </div>
     );
 };
 

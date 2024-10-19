@@ -1,66 +1,72 @@
 import { useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Team } from '../../types/teamTypes';
+import { FetchState, Team } from '../../types';
 
 const useTeam = () => {
     const [teamList, setTeamList] = useState<Team[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [fetchState, setFetchState] = useState<FetchState>({ loading: true, error: null });
+
+    const fetchData = async () => {
+        setFetchState({ loading: true, error: null });
+        try {
+            const teamData = await apiService.getTeams();
+            setTeamList(teamData.data.teams);
+        } catch (error) {
+            handleFetchError(error);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    };
+
+    const handleFetchError = (error: unknown) => {
+        console.error('Error fetching data:', error);
+        setFetchState({
+            loading: false,
+            error: 'Error al obtener los datos. Inténtalo de nuevo más tarde.',
+        });
+    };
+
+    const handleTeamAction = async (action: 'add' | 'update' | 'delete', teamData?: Team, id?: string) => {
+        setFetchState(prevState => ({ ...prevState, loading: true, error: null }));
+        try {
+            switch (action) {
+                case 'add':
+                    await apiService.addTeam(teamData!);
+                    break;
+                case 'update':
+                    await apiService.updateTeam(id!, teamData!);
+                    break;
+                case 'delete':
+                    await apiService.deleteTeam(id!);
+                    break;
+            }
+            await fetchData(); 
+        } catch (error) {
+            handleActionError(action, error);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    };
+
+    const handleActionError = (action: 'add' | 'update' | 'delete', error: unknown) => {
+        console.error(`Error ${action} team:`, error);
+        setFetchState({
+            loading: false,
+            error: `Error al ${action} el equipo.`,
+        });
+    };
 
     useEffect(() => {
         fetchData();
     }, []);
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const teamData = await apiService.getTeams();
-            setTeamList(teamData.data.teams);
-        } catch (error) {
-            setError('Error al obtener los datos. Inténtalo de nuevo más tarde.');
-            console.error('Error fetching data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const addTeam = async (teamData: Team) => {
-        try {
-            await apiService.addTeam(teamData);
-            fetchData();
-        } catch (error) {
-            console.error('Error adding team:', error);
-            throw error;
-        }
-    };
-
-    const updateTeam = async (id: string, teamData: Team) => {
-        try {
-            await apiService.updateTeam(id, teamData);
-            fetchData();
-        } catch (error) {
-            console.error('Error updating team:', error);
-            throw error;
-        }
-    };
-
-    const deleteTeam = async (id: string) => {
-        try {
-            await apiService.deleteTeam(id);
-            fetchData();
-        } catch (error) {
-            console.error('Error deleting team:', error);
-            throw error;
-        }
-    };
-
     return {
         teamList,
-        loading,
-        error,
-        addTeam,
-        updateTeam,
-        deleteTeam,
+        loading: fetchState.loading,
+        error: fetchState.error,
+        addTeam: (teamData: Team) => handleTeamAction('add', teamData),
+        updateTeam: (id: string, teamData: Team) => handleTeamAction('update', teamData, id),
+        deleteTeam: (id: string) => handleTeamAction('delete', undefined, id),
     };
 };
 

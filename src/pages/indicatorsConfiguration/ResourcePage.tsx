@@ -26,7 +26,6 @@ const ResourcePage: React.FC = () => {
     const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-
     const {
         resourceList,
         loading,

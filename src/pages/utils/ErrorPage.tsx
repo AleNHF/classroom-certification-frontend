@@ -14,7 +14,7 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ message = "Por favor, intenta de 
                 className="w-64 h-64 md:w-96 md:h-96 object-contain mb-4"
             />
             <h1 className="text-xl text-red-600">¡Vaya! Algo salió mal.</h1>
-            <p className="text-lg text-gray-700">{message}</p> {/* Mensaje pasado como prop */}
+            <p className="text-lg text-gray-700">{message}</p>
         </div>
     );
 };

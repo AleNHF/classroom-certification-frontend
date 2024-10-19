@@ -1,16 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import useTeam from '../../hooks/workTeams/useTeam';
-import usePersonal from '../../hooks/workTeams/usePersonal';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import PageHeaderComponent from '../../components/ui/PageHeader';
 import { validateTeamData } from '../../utils/validateTeamData';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
+import usePersonal from '../../hooks/workTeams/usePersonal';
+import useTeam from '../../hooks/workTeams/useTeam';
+import { LoadingPage, ErrorPage } from '../utils';
 
 const teamHeaders = ["Nombre", "Gestión", "Facultad", "Acciones"];
 const memberHeaders = ["Nombre", "Cargo", "Acciones"];
@@ -73,7 +67,6 @@ const TeamPage: React.FC = () => {
 
     const handleSubmitTeam = useCallback(async () => {
         const newErrorMessages = validateTeamData(newTeam, teamMembers);
-
         setErrorMessages(newErrorMessages);
 
         if (Object.keys(newErrorMessages).length > 0) return;
@@ -185,58 +178,39 @@ const TeamPage: React.FC = () => {
                 size='large'
             >
                 <form className="space-y-4">
-                    <div>
-                        {/* Primera fila: Nombre y Gestión */}
-                        <div className="flex space-x-4">
-                            <div className="w-1/2">
-                                <label className="block text-sm font-medium text-gray-700">Nombre</label>
-                                <input
-                                    type="text"
-                                    value={newTeam.name || ''}
-                                    onChange={(e) =>
-                                        setNewTeam({
-                                            ...newTeam,
-                                            name: e.target.value,
-                                        })
-                                    }
-                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                                />
-                                {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
-                            </div>
-
-                            <div className="w-1/2">
-                                <label className="block text-sm font-medium text-gray-700">Gestión</label>
-                                <input
-                                    type="text"
-                                    value={newTeam.management || ''}
-                                    onChange={(e) =>
-                                        setNewTeam({
-                                            ...newTeam,
-                                            management: e.target.value,
-                                        })
-                                    }
-                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                                />
-                                {errorMessages.management && <p className="text-red-600 text-sm">{errorMessages.management}</p>}
-                            </div>
-                        </div>
-
-                        {/* Segunda fila: Facultad */}
-                        <div className="mt-4">
-                            <label className="block text-sm font-medium text-gray-700">Facultad</label>
+                    <div className="flex space-x-4">
+                        <div className="w-1/2">
+                            <label className="block text-sm font-medium text-gray-700">Nombre</label>
                             <input
                                 type="text"
-                                value={newTeam.faculty || ''}
-                                onChange={(e) =>
-                                    setNewTeam({
-                                        ...newTeam,
-                                        faculty: e.target.value,
-                                    })
-                                }
+                                value={newTeam.name || ''}
+                                onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
                                 className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                             />
-                            {errorMessages.faculty && <p className="text-red-600 text-sm">{errorMessages.faculty}</p>}
+                            {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
                         </div>
+
+                        <div className="w-1/2">
+                            <label className="block text-sm font-medium text-gray-700">Gestión</label>
+                            <input
+                                type="text"
+                                value={newTeam.management || ''}
+                                onChange={(e) => setNewTeam({ ...newTeam, management: e.target.value })}
+                                className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                            />
+                            {errorMessages.management && <p className="text-red-600 text-sm">{errorMessages.management}</p>}
+                        </div>
+                    </div>
+
+                    <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700">Facultad</label>
+                        <input
+                            type="text"
+                            value={newTeam.faculty || ''}
+                            onChange={(e) => setNewTeam({ ...newTeam, faculty: e.target.value })}
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                        />
+                        {errorMessages.faculty && <p className="text-red-600 text-sm">{errorMessages.faculty}</p>}
                     </div>
 
                     {/* Miembros del equipo */}
@@ -248,9 +222,11 @@ const TeamPage: React.FC = () => {
                                 onChange={(e) => setSelectedPersonalId(e.target.value)}
                                 className="border border-gray-300 rounded-md p-2 w-full focus:ring focus:ring-blue-200 focus:border-blue-500"
                             >
-                                <option value="" disabled>Seleccionar miembro</option>
-                                {personalList.map(person => (
-                                    <option key={person.id} value={person.id}>{person.name}</option>
+                                <option value="">Seleccionar personal</option>
+                                {personalList.map((personal) => (
+                                    <option key={personal.id} value={personal.id}>
+                                        {personal.name} ({personal.position})
+                                    </option>
                                 ))}
                             </select>
                             <button
@@ -261,15 +237,14 @@ const TeamPage: React.FC = () => {
                                 AGREGAR
                             </button>
                         </div>
-
-                        {errorMessages.members && <p className="text-red-600 text-sm">{errorMessages.members}</p>}
-
-                        <TableComponent headers={memberHeaders} rows={memberRows} />
+                        <div className="mt-4">
+                            <TableComponent headers={memberHeaders} rows={memberRows} />
+                        </div>
                     </div>
                 </form>
             </ModalComponent>
 
-            {/* Confirmar eliminación de equipo */}
+            {/* Modal de confirmación de eliminación */}
             <ConfirmDeleteModal
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}

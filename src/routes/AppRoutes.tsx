@@ -1,20 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/LoginPage';
-import WorkTeamsPage from '../pages/workTeams/WorkTeamsPage';
 import { useAuthContext } from '../context/AuthContext';
-import PersonalPage from '../pages/workTeams/PersonalPage';
+import { LoginPage, HomePage, WorkTeamsPage, PersonalPage, UserPage, TeamPage, IndicatorConfigurationPage, CyclePage, ResourcePage, ContentPage, AreaPage, IndicatorPage, PercentagePage } from '../pages';
+import { NoAccessPage } from '../pages/utils';
 import RoleProtectedRoute from './RoleProtectedRoute';
-import UserPage from '../pages/workTeams/UserPage';
-import TeamPage from '../pages/workTeams/TeamPage';
-import IndicatorConfigurationPage from '../pages/indicatorsConfiguration/IndicatorConfigurationPage';
-import CyclePage from '../pages/indicatorsConfiguration/CyclePage';
-import ResourcePage from '../pages/indicatorsConfiguration/ResourcePage';
-import NoAccessPage from '../pages/utils/NoAccessPage';
-import ContentPage from '../pages/indicatorsConfiguration/ContentPage';
-import AreaPage from '../pages/indicatorsConfiguration/AreaPage';
-import PercentagePage from '../pages/indicatorsConfiguration/PercentagePage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -64,6 +53,10 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="indicators-configuration/areas"
                 element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<AreaPage />} />}
+            />
+            <Route
+                path="indicators-configuration/indicators/:areaId"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<IndicatorPage />} />}
             />
             <Route
                 path="indicators-configuration/percentages"
