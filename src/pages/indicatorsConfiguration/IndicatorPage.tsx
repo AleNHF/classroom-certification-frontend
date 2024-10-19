@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
 import HeaderComponent from "../../components/layout/HeaderComponent";
-import AddButtonComponent from "../../components/ui/AddButtonComponent";
-import ModalComponent from "../../components/ui/ModalComponent";
-import PageHeaderComponent from "../../components/ui/PageHeader";
 import useCycle from "../../hooks/indicatorsConfiguration/useCycle";
 import useIndicator from "../../hooks/indicatorsConfiguration/useIndicator";
-import { SelectInput } from "../../components/ui/SelectInput";
 import { useLocation, useParams } from "react-router-dom";
-import { ActionButtonComponent, ConfirmDeleteModal } from "../../components/ui";
+import { AddButtonComponent, ConfirmDeleteModal, CycleResourceIndicatorList, IndicatorForm, ModalComponent, PageHeaderComponent } from "../../components/ui";
 import { LoadingPage, ErrorPage } from "../utils";
 
 const IndicatorPage: React.FC = () => {
@@ -33,18 +29,26 @@ const IndicatorPage: React.FC = () => {
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
 
     // Estado para manejar la expansión de ciclos y recursos
-    const [expandedCycles, setExpandedCycles] = useState<{ [key: string]: boolean }>({});
-    const [expandedResources, setExpandedResources] = useState<{ [key: string]: boolean }>({});
+    const [expandedCycleId, setExpandedCycleId] = useState<string | null>(null);
+    const [expandedResourceId, setExpandedResourceId] = useState<string | null>(null);
 
     // Funciones para alternar la expansión de ciclos y recursos
     const toggleCycleExpansion = (cycleId: string) => {
-        setExpandedCycles(prev => ({ ...prev, [cycleId]: !prev[cycleId] }));
-        fetchResourceList(cycleId);
-    };
+        if (expandedCycleId === cycleId) {
+            setExpandedCycleId(null);
+        } else {
+            setExpandedCycleId(cycleId);
+            fetchResourceList(cycleId);
+        }
+    }; 
 
     const toggleResourceExpansion = (resourceId: string) => {
-        setExpandedResources(prev => ({ ...prev, [resourceId]: !prev[resourceId] }));
-        fetchContentList(resourceId);
+        if (expandedResourceId === resourceId) {
+            setExpandedResourceId(null);
+        } else {
+            setExpandedResourceId(resourceId);
+            fetchContentList(resourceId);
+        }
     };
 
     // Cargar recursos cuando se selecciona un ciclo
@@ -188,122 +192,34 @@ const IndicatorPage: React.FC = () => {
                         onSubmit={handleAddOrEditIndicator}
                         size="medium"
                     >
-                        <form className="space-y-4">
-                            <div className="mb-4">
-                                <SelectInput
-                                    label="Ciclo"
-                                    value={selectedCycle}
-                                    options={cycleList}
-                                    onChange={handleCycleChange}
-                                    error={errorMessages.cycleId}
-                                />
-                            </div>
-
-                            {selectedCycle && (
-                                <div className="mb-4">
-                                    <SelectInput
-                                        label="Recurso"
-                                        value={selectedResource}
-                                        options={resourceList}
-                                        onChange={handleResourceChange}
-                                        error={errorMessages.resourceId}
-                                    />
-                                </div>
-                            )}
-
-                            {selectedResource && contentList.length > 0 && (
-                                <div className="mb-4">
-                                    <SelectInput
-                                        label="Contenido"
-                                        value={selectedContent}
-                                        options={contentList}
-                                        onChange={handleContentChange}
-                                    //error={errorMessages.cycleId}
-                                    />
-                                </div>
-                            )}
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Nombre del Indicador</label>
-                                <input
-                                    type="text"
-                                    value={indicatorName}
-                                    onChange={(e) => setIndicatorName(e.target.value)}
-                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                                />
-                                {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
-                            </div>
-                        </form>
+                        <IndicatorForm
+                            selectedCycle={selectedCycle}
+                            selectedResource={selectedResource}
+                            selectedContent={selectedContent}
+                            indicatorName={indicatorName}
+                            cycleList={cycleList}
+                            resourceList={resourceList}
+                            contentList={contentList}
+                            errorMessages={errorMessages}
+                            handleCycleChange={handleCycleChange}
+                            handleResourceChange={handleResourceChange}
+                            handleContentChange={handleContentChange}
+                            setIndicatorName={setIndicatorName}
+                        />
                     </ModalComponent>
 
                     {/* Ciclos */}
-                    {cycleList.map(cycle => (
-                        <div key={cycle.id} className="w-full mt-4">
-                            <button
-                                onClick={() => toggleCycleExpansion(cycle.id.toString())}
-                                className="w-full text-left p-4 bg-gray-200 hover:bg-gray-300 rounded-md mb-2 transition-all duration-300 ease-in-out"
-                            >
-                                {cycle.name}
-                            </button>
-
-                            {/* Mostrar recursos si el ciclo está expandido */}
-                            {expandedCycles[cycle.id] && (
-                                <div className="pl-4 mt-2">
-                                    {resourceList.map(resource => (
-                                        <div key={resource.id} className="mb-4">
-                                            <button
-                                                onClick={() => toggleResourceExpansion(resource.id.toString())}
-                                                className="w-full text-left p-4 bg-gray-200 hover:bg-gray-300 rounded-md mb-2 transition-all duration-300 ease-in-out"
-                                            >
-                                                {resource.name}
-                                            </button>
-
-                                            {/* Mostrar la tabla de indicadores si el recurso está expandido */}
-                                            {expandedResources[resource.id] && (
-                                                <div className="mt-2 pl-4">
-                                                    <table className="min-w-full bg-white shadow-md rounded-lg">
-                                                        <thead className="bg-primary-red-color text-white">
-                                                            <tr>
-                                                                <th className="py-2 px-4">Contenido</th>
-                                                                <th className="py-2 px-4">Indicador</th>
-                                                                <th className="py-2 px-4">Acciones</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {indicatorList
-                                                                .filter(indicator => indicator.resource.id === resource.id)
-                                                                .map(indicator => (
-                                                                    <tr key={indicator.id} className="border-b">
-                                                                        <td className="py-2 px-4">
-                                                                            {indicator.content ? indicator.content.name : indicator.resource.name}
-                                                                        </td>
-                                                                        <td className="py-2 px-4">{indicator.name}</td>
-                                                                        <td className="py-2 px-4">
-                                                                            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                                                                                <ActionButtonComponent
-                                                                                    label="EDITAR"
-                                                                                    onClick={() => handleEdit(indicator)}
-                                                                                    bgColor="bg-secondary-button-color"
-                                                                                />
-                                                                                <ActionButtonComponent
-                                                                                    label="ELIMINAR"
-                                                                                    onClick={() => handleDelete(indicator.id.toString())}
-                                                                                    bgColor="bg-primary-red-color"
-                                                                                />
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                    <CycleResourceIndicatorList
+                        cycleList={cycleList}
+                        resourceList={resourceList}
+                        indicatorList={indicatorList}
+                        expandedCycles={expandedCycleId ? { [expandedCycleId]: true } : {}} 
+                        expandedResources={expandedResourceId ? { [expandedResourceId]: true } : {}} 
+                        toggleCycleExpansion={toggleCycleExpansion}
+                        toggleResourceExpansion={toggleResourceExpansion}
+                        handleEdit={handleEdit}
+                        handleDelete={handleDelete}
+                    />
                 </div>
                 <ConfirmDeleteModal
                     isOpen={isConfirmDeleteOpen}
