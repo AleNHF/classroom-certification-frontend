@@ -1,5 +1,5 @@
 import React from 'react';
-import { SelectInput } from './SelectInput';
+import { SelectInput } from '../ui/SelectInput';
 import { Cycle } from '../../types';
 import { Content, Resource } from '../../types/indicator';
 

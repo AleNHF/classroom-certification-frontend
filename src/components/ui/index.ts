@@ -7,4 +7,4 @@ export { default as ModalComponent } from './ModalComponent';
 export { default as PageHeaderComponent } from './PageHeader';
 export { default as TableComponent } from './TableComponent';
 export { default as CycleResourceIndicatorList } from './CycleResourceIndicatorList';
-export { default as IndicatorForm } from './IndicatorForm';
+export { default as IndicatorForm } from '../forms/IndicatorForm';
