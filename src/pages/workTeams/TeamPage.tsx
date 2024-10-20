@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
 import { validateTeamData } from '../../utils/validateTeamData';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
