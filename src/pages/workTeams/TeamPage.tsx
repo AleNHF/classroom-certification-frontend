@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
 import { validateTeamData } from '../../utils/validateTeamData';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
@@ -28,23 +28,24 @@ const TeamPage: React.FC = () => {
     const { teamList, loading, error, addTeam, updateTeam, deleteTeam } = useTeam();
     const { personalList } = usePersonal();
 
-    const resetTeamData = () => {
+    const resetTeamData = useCallback(() => {
         setNewTeam({ id: '', name: '', management: '', faculty: '' });
         setTeamMembers([]);
         setMemberData([]);
         setSelectedPersonalId(null);
         setErrorMessages({});
-    };
+    }, []);
 
-    const handleAddClick = () => {
+    const handleAddClick = useCallback(() => {
         setIsModalOpen(true);
         resetTeamData();
-    };
+    }, []);
 
-    const handleCloseModal = () => {
+    const handleCloseModal = useCallback(() => {
+        console.log('Cerrando modal');
         setIsModalOpen(false);
         resetTeamData();
-    };
+    }, [resetTeamData]);
 
     const handleAddMember = useCallback(() => {
         if (selectedPersonalId) {
@@ -61,8 +62,14 @@ const TeamPage: React.FC = () => {
     }, [selectedPersonalId, personalList, teamMembers]);
 
     const handleRemoveMember = useCallback((id: string) => {
-        setTeamMembers(prevMembers => prevMembers.filter(member => member.id !== id));
-        setMemberData(prevData => prevData.filter(memberId => memberId !== Number(id)));
+        setTeamMembers(prevMembers => {
+            const updatedMembers = prevMembers.filter(member => member.id !== id);
+            return updatedMembers;
+        });
+        setMemberData(prevData => {
+            const updatedData = prevData.filter(memberId => memberId !== Number(id));
+            return updatedData;
+        });
     }, []);
 
     const handleSubmitTeam = useCallback(async () => {
@@ -104,7 +111,7 @@ const TeamPage: React.FC = () => {
         }
     }, [teamToDelete, deleteTeam]);
 
-    const handleEdit = (team: any) => {
+    const handleEdit = useCallback((team: any) => {
         setNewTeam({
             id: team.id,
             name: team.name,
@@ -116,7 +123,7 @@ const TeamPage: React.FC = () => {
         setTeamMembers(members);
         setMemberData(members.map((member: any) => member.id));
         setIsModalOpen(true);
-    };
+    }, []);
 
     const teamRows = teamList.map((team: any) => ({
         Nombre: team.name,
@@ -124,12 +131,12 @@ const TeamPage: React.FC = () => {
         Facultad: team.faculty,
         Acciones: (
             <div className="flex space-x-2">
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(team)}
                     bgColor="bg-secondary-button-color"
                 />
-                <ActionButtonComponent 
+                <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(team.id)}
                     bgColor="bg-primary-red-color"
@@ -143,7 +150,11 @@ const TeamPage: React.FC = () => {
         Cargo: member.position,
         Acciones: (
             <button
-                onClick={() => handleRemoveMember(member.id)}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleRemoveMember(member.id);
+                }}
                 className="bg-red-600 text-white px-4 py-1 rounded"
             >
                 ELIMINAR
