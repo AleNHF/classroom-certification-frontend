@@ -4,6 +4,7 @@ import { useAuthContext } from '../context/AuthContext';
 import { LoginPage, HomePage, WorkTeamsPage, PersonalPage, UserPage, TeamPage, IndicatorConfigurationPage, CyclePage, ResourcePage, ContentPage, AreaPage, IndicatorPage, PercentagePage } from '../pages';
 import { NoAccessPage } from '../pages/utils';
 import RoleProtectedRoute from './RoleProtectedRoute';
+import ClassroomPage from '../pages/classrooms/ClassroomsPage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -12,7 +13,6 @@ const AppRoutes: React.FC = () => {
         <Routes>
             {/* Ruta de login */}
             <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
-
             {/* Rutas protegidas con roles específicos */}
             <Route
                 path="/"
@@ -61,6 +61,10 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="indicators-configuration/percentages"
                 element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<PercentagePage />} />}
+            />
+            <Route
+                path="classrooms"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<ClassroomPage />} />}
             />
 
              {/* Ruta para la página de no acceso */}
