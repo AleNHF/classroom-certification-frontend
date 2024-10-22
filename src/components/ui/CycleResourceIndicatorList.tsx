@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActionButtonComponent } from '../../components/ui';
+import { ActionButtonComponent } from '..';
 import { Indicator, Resource } from '../../types/indicator';
 import { Cycle } from '../../types';
 
@@ -74,12 +74,12 @@ const CycleResourceIndicatorList: React.FC<CycleResourceIndicatorListProps> = ({
                                                                         <ActionButtonComponent
                                                                             label="EDITAR"
                                                                             onClick={() => handleEdit(indicator)}
-                                                                            bgColor="bg-secondary-button-color"
+                                                                            bgColor="bg-secondary-button-color hover:bg-blue-800"
                                                                         />
                                                                         <ActionButtonComponent
                                                                             label="ELIMINAR"
                                                                             onClick={() => handleDelete(indicator.id.toString())}
-                                                                            bgColor="bg-primary-red-color"
+                                                                            bgColor="bg-primary-red-color hover:bg-red-400"
                                                                         />
                                                                     </div>
                                                                 </td>

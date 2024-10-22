@@ -1,15 +1,8 @@
-import React, { useState } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import useCycle from '../../hooks/indicatorsConfiguration/useCycle';
-import PageHeaderComponent from '../../components/ui/PageHeader';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent } from '../../components';
+import { LoadingPage, ErrorPage } from '../utils';
+import { useCycle } from '../../hooks';
 
 const headers = ["Nombre del ciclo", "Acciones"];
 
@@ -20,6 +13,7 @@ const CyclePage: React.FC = () => {
     const [newCycle, setNewCyle] = useState({ id: '', name: '' });
     const [cycleToDelete, setCycleToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
+    const [isLoading, setIsLoading] = useState(true);
     
     const {
         cycleList,
@@ -103,23 +97,31 @@ const CyclePage: React.FC = () => {
                 <ActionButtonComponent 
                     label="EDITAR"
                     onClick={() => handleEdit(cycle)}
-                    bgColor="bg-secondary-button-color"
+                    bgColor="bg-secondary-button-color hover:bg-blue-800"
                 />
                 <ActionButtonComponent 
                     label="ELIMINAR"
                     onClick={() => handleDelete(cycle.id)}
-                    bgColor="bg-primary-red-color"
+                    bgColor="bg-primary-red-color hover:bg-red-400"
                 />
                 <ActionButtonComponent 
                     label="RECURSOS"
                     onClick={() => handleResourcesClick(cycle.id, cycle.name)}
-                    bgColor="bg-optional-button-color"
+                    bgColor="bg-optional-button-color hover:bg-slate-400"
                 />
             </div>
         )
     }));
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (

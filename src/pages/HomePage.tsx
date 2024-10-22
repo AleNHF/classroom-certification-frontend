@@ -1,7 +1,6 @@
 import React from 'react';
-import Card from '../components/ui/CardComponent';
-import HeaderComponent from '../components/layout/HeaderComponent';
 import { useAuthContext } from '../context/AuthContext';
+import { Card, HeaderComponent } from '../components';
 
 const HomePage: React.FC = () => {
     const { getUserRole } = useAuthContext();
@@ -19,7 +18,7 @@ const HomePage: React.FC = () => {
                     <h1 className="text-2xl font-medium my-10 text-left w-full">DASHBOARD</h1>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
-                        <Card title='CERTIFICACIÓN DE AULAS' route='/certificacion' />
+                        <Card title='CERTIFICACIÓN DE AULAS' route='classrooms' />
 
                         {role !== 'Evaluador' && (
                             <Card title='CONFIGURACIÓN DE INDICADORES' route='indicators-configuration' />

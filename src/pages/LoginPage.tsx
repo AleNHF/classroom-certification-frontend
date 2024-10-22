@@ -1,7 +1,6 @@
 import React from 'react';
-import LoginForm from '../components/forms/LoginForm';
 import loginImage from '../assets/login_image.svg';
-import HeaderComponent from '../components/layout/HeaderComponent';
+import { HeaderComponent, LoginForm } from '../components';
 
 const LoginPage: React.FC = () => {
     return (

@@ -1,8 +1,6 @@
 import React from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
-import Card from '../../components/ui/CardComponent';
 import { useAuthContext } from '../../context/AuthContext';
-import PageHeaderComponent from '../../components/ui/PageHeader';
+import { Card, HeaderComponent, PageHeaderComponent } from '../../components';
 
 const WorkTeamsPage: React.FC = () => {
     const { getUserRole } = useAuthContext();

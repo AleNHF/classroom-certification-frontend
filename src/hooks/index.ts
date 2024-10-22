@@ -1,0 +1,12 @@
+export { default as useClassroom } from './classrooms/useClassroom';
+
+export { default as useArea } from './indicatorsConfiguration/useArea';
+export { default as useContent } from './indicatorsConfiguration/useContent';
+export { default as useCycle } from './indicatorsConfiguration/useCycle';
+export { default as useIndicator } from './indicatorsConfiguration/useIndicator';
+export { default as usePercentage } from './indicatorsConfiguration/usePercentage';
+export { default as useResource } from './indicatorsConfiguration/useResource';
+
+export { default as usePersonal } from './workTeams/usePersonal';
+export { default as useTeam } from './workTeams/useTeam';
+export { default as useUsers } from './workTeams/useUser';

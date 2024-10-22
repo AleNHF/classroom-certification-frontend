@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
-import { validatePersonalForm } from '../../utils/validatePersonalForm';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
-import usePersonal from '../../hooks/workTeams/usePersonal';
+import React, { useEffect, useState } from 'react';
+import { validatePersonalForm } from '../../utils/validations/validatePersonalForm';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
+import { usePersonal } from '../../hooks';
 
 const headers = ["Nombre", "Cargo", "Acciones"];
 
@@ -13,6 +12,8 @@ const PersonalPage: React.FC = () => {
     const [personalForm, setPersonalForm] = useState({ id: '', name: '', position: '', signature: null as File | null });
     const [personalToDelete, setPersonalToDelete] = useState<string | null>(null);
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [isLoading, setIsLoading] = useState(true);
+
     const { personalList, loading, error, addPersonal, updatePersonal, deletePersonal } = usePersonal();
 
     const resetPersonalForm = () => {
@@ -99,18 +100,26 @@ const PersonalPage: React.FC = () => {
                 <ActionButtonComponent 
                     label="EDITAR"
                     onClick={() => handleOpenModal(personal)}
-                    bgColor="bg-secondary-button-color"
+                    bgColor="bg-secondary-button-color hover:bg-blue-800"
                 />
                 <ActionButtonComponent 
                     label="ELIMINAR"
                     onClick={() => handleDelete(personal.id)}
-                    bgColor="bg-primary-red-color"
+                    bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             </div>
         )
     }));
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (

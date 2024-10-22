@@ -242,6 +242,25 @@ class ApiService {
     }
 
     /*
+     * Métodos específicos para administrar aulas
+     */
+    public getClassrooms() {
+        return this.get(`/classroom`);
+    }
+
+    public addClassroom(classroomData: {name: string, code: string, status: string}) {
+        return this.post('/classroom', classroomData);
+    }
+
+    public updateClassroom(id: string, updatedData: {name: string, code: string, status: string}) {
+        return this.patch(`/classroom/${id}`, updatedData);
+    }
+
+    public deleteClassroom(id: string) {
+        return this.delete(`/classroom/${id}`);
+    }
+
+    /*
      * Otros métodos específicos
      */
     public getUsersInMoodle() {

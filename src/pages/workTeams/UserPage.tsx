@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
-import { validateUserForm } from '../../utils/validateUserForm';
-import { SelectInput } from '../../components/ui/SelectInput';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
+import { validateUserForm } from '../../utils/validations/validateUserForm';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
-import useUsers from '../../hooks/workTeams/useUser';
+import { useUsers } from '../../hooks';
 
 const UserPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +18,7 @@ const UserPage: React.FC = () => {
     const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [isLoading, setIsLoading] = useState(true);
     const [userError, setUserError] = useState<string | null>(null);
 
     const { userList, usersMoodleList, roleList, loading, error, addUser, updateUser, deleteUser } = useUsers();
@@ -137,19 +136,27 @@ const UserPage: React.FC = () => {
                     <ActionButtonComponent
                         label="EDITAR"
                         onClick={() => handleEdit(user)}
-                        bgColor="bg-secondary-button-color"
+                        bgColor="bg-secondary-button-color hover:bg-blue-800"
                     />
                     <ActionButtonComponent
                         label="ELIMINAR"
                         onClick={() => handleDelete(user.id)}
-                        bgColor="bg-primary-red-color"
+                        bgColor="bg-primary-red-color hover:bg-red-400"
                     />
                 </div>
             )
         }));
     };
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (
