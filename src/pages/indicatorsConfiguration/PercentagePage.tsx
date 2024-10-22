@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { validatePercentageForm } from '../../utils/validatePercentageForm';
+import { validatePercentageForm } from '../../utils/validations/validatePercentageForm';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { useArea, useCycle, usePercentage } from '../../hooks';

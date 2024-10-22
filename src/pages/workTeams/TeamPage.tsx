@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { validateTeamData } from '../../utils/validateTeamData';
+import { validateTeamData } from '../../utils/validations/validateTeamData';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { useTeam, usePersonal } from '../../hooks';

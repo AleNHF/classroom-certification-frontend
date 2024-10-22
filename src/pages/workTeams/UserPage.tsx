@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { validateUserForm } from '../../utils/validateUserForm';
+import { validateUserForm } from '../../utils/validations/validateUserForm';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { useUsers } from '../../hooks';

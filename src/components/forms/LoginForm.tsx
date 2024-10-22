@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import logo from '../../assets/logo_certification.png';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
-import { validateLogin } from '../../utils/validateLogin';
+import { validateLogin } from '../../utils/validations/validateLogin';
 
 const LoginForm: React.FC = () => {
     const [username, setUsername] = useState('');

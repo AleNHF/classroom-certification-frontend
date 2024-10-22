@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { validatePersonalForm } from '../../utils/validatePersonalForm';
+import { validatePersonalForm } from '../../utils/validations/validatePersonalForm';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { usePersonal } from '../../hooks';

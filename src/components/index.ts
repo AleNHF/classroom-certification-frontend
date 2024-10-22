@@ -8,6 +8,9 @@ export { default as PageHeaderComponent } from './ui/PageHeader';
 export { default as TableComponent } from './ui/TableComponent';
 export { default as CycleResourceIndicatorList } from './ui/CycleResourceIndicatorList';
 export { SelectInput } from './ui/SelectInput';
+export { FilterSelect } from './ui/FilterSelect';
+export { FilterButtons } from './ui/FilterButtons';
+export { default as SearchButtonComponent } from './ui/SearchButton';
 
 export { default as IndicatorForm } from './forms/IndicatorForm';
 export { default as LoginForm } from './forms/LoginForm';
