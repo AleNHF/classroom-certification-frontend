@@ -41,7 +41,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
                     {onSubmit && (
                         <button
                             type="button"
-                            className="bg-primary-red-color text-white w-auto px-4 py-2 rounded-md"
+                            className="bg-primary-red-color hover:bg-red-400 text-white w-auto px-4 py-2 rounded-md"
                             onClick={onSubmit}
                         >
                             {primaryButtonText}
@@ -49,7 +49,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
                     )}
                     <button
                         type="button"
-                        className="bg-optional-button-color text-white w-auto px-4 py-2 rounded-md"
+                        className="bg-optional-button-color hover:bg-slate-400 text-white w-auto px-4 py-2 rounded-md"
                         onClick={onClose}
                     >
                         {secondaryButtonText}

@@ -1,15 +1,8 @@
-import React, { useState } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import PageHeaderComponent from '../../components/ui/PageHeader';
-import useResource from '../../hooks/indicatorsConfiguration/useResource';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
+import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, ActionButtonComponent, HeaderComponent } from '../../components';
+import { LoadingPage, ErrorPage } from '../utils';
+import { useResource } from '../../hooks';
 
 const headers = ["Nombre del recurso", "Acciones"];
 
@@ -25,6 +18,7 @@ const ResourcePage: React.FC = () => {
     const [newResource, setNewResource] = useState({ id: '', name: '', cycleId: -1 });
     const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const {
         resourceList,
@@ -110,23 +104,31 @@ const ResourcePage: React.FC = () => {
                 <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(resource)}
-                    bgColor='bg-secondary-button-color'
+                    bgColor='bg-secondary-button-color hover:bg-blue-800'
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(resource.id)}
-                    bgColor="bg-primary-red-color"
+                    bgColor="bg-primary-red-color hover:bg-red-400"
                 />
                 <ActionButtonComponent
                     label="CONTENIDO"
                     onClick={() => handleContentsClick(resource.id, resource.name, cycleName)}
-                    bgColor="bg-optional-button-color"
+                    bgColor="bg-optional-button-color hover:bg-slate-400"
                 />
             </div>
         )
     }));
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (

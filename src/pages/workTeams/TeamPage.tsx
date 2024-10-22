@@ -1,10 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
+import React, { useState, useCallback, useEffect } from 'react';
 import { validateTeamData } from '../../utils/validateTeamData';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal } from '../../components/ui';
-import usePersonal from '../../hooks/workTeams/usePersonal';
-import useTeam from '../../hooks/workTeams/useTeam';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
+import { useTeam, usePersonal } from '../../hooks';
 
 const teamHeaders = ["Nombre", "Gestión", "Facultad", "Acciones"];
 const memberHeaders = ["Nombre", "Cargo", "Acciones"];
@@ -24,6 +22,7 @@ const TeamPage: React.FC = () => {
     const [memberData, setMemberData] = useState<number[]>([]);
     const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [isLoading, setIsLoading] = useState(true);
 
     const { teamList, loading, error, addTeam, updateTeam, deleteTeam } = useTeam();
     const { personalList } = usePersonal();
@@ -134,12 +133,12 @@ const TeamPage: React.FC = () => {
                 <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(team)}
-                    bgColor="bg-secondary-button-color"
+                    bgColor="bg-secondary-button-color hover:bg-blue-800"
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(team.id)}
-                    bgColor="bg-primary-red-color"
+                    bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             </div>
         )
@@ -162,7 +161,15 @@ const TeamPage: React.FC = () => {
         )
     }));
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (
@@ -243,7 +250,7 @@ const TeamPage: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={handleAddMember}
-                                className="ml-2 bg-primary-red-color text-white px-4 py-2 rounded-md"
+                                className="ml-2 bg-primary-red-color hover:bg-red-400 text-white px-4 py-2 rounded-md"
                             >
                                 AGREGAR
                             </button>

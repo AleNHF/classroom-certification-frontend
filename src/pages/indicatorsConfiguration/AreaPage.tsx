@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
-import useArea from '../../hooks/indicatorsConfiguration/useArea';
-import { ActionButtonComponent, AddButtonComponent, ConfirmDeleteModal, ModalComponent, PageHeaderComponent, TableComponent } from '../../components/ui';
+import { ActionButtonComponent, AddButtonComponent, ConfirmDeleteModal, HeaderComponent, ModalComponent, PageHeaderComponent, TableComponent } from '../../components';
+import { LoadingPage, ErrorPage } from '../utils';
+import { useArea } from '../../hooks';
 
 const headers = ["Nombre del área", "Acciones"];
 
@@ -15,6 +13,7 @@ const AreaPage: React.FC = () => {
     const [newArea, setNewArea] = useState({ id: '', name: '' });
     const [areaToDelete, setAreaToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const {
         areaList,
@@ -98,23 +97,31 @@ const AreaPage: React.FC = () => {
                 <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(area)}
-                    bgColor="bg-secondary-button-color"
+                    bgColor="bg-secondary-button-color hover:bg-blue-800"
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(area.id)}
-                    bgColor="bg-primary-red-color"
+                    bgColor="bg-primary-red-color hover:bg-red-400"
                 />
                 <ActionButtonComponent
                     label="INDICADORES"
                     onClick={() => handleIndicatorsClick(area.id, area.name)}
-                    bgColor="bg-optional-button-color"
+                    bgColor="bg-optional-button-color hover:bg-slate-400 hover:bg-slate-400"
                 />
             </div>
         )
     }));
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (

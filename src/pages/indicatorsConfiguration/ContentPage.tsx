@@ -1,15 +1,8 @@
-import React, { useState } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import PageHeaderComponent from '../../components/ui/PageHeader';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
-import useContent from '../../hooks/indicatorsConfiguration/useContent';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent } from '../../components';
+import { LoadingPage, ErrorPage } from '../utils';
+import { useContent } from '../../hooks';
 
 const headers = ["Nombre del recurso", "Acciones"];
 
@@ -25,7 +18,7 @@ const ContentPage: React.FC = () => {
     const [newContent, setNewContent] = useState({ id: '', name: '', resourceId: -1 });
     const [contentToDelete, setContentToDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
-
+    const [isLoading, setIsLoading] = useState(true);
     
     const {
         contentList,
@@ -107,18 +100,26 @@ const ContentPage: React.FC = () => {
                 <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(content)}
-                    bgColor='bg-secondary-button-color'
+                    bgColor='bg-secondary-button-color hover:bg-blue-800'
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(content.id)}
-                    bgColor="bg-primary-red-color"
+                    bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             </div>
         )
     }));
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (

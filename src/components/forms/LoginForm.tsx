@@ -80,7 +80,7 @@ const LoginForm: React.FC = () => {
             {/* Botón */}
             <button
                 type="submit"
-                className="w-full bg-primary-red-color text-white font-medium py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                className="w-full bg-primary-red-color text-white font-medium py-2 px-4 rounded-md hover:bg-red-500">
                 Iniciar Sesión
             </button>
         </form>

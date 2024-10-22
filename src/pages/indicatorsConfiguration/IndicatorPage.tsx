@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import HeaderComponent from "../../components/layout/HeaderComponent";
-import useCycle from "../../hooks/indicatorsConfiguration/useCycle";
-import useIndicator from "../../hooks/indicatorsConfiguration/useIndicator";
 import { useLocation, useParams } from "react-router-dom";
-import { AddButtonComponent, ConfirmDeleteModal, CycleResourceIndicatorList, IndicatorForm, ModalComponent, PageHeaderComponent } from "../../components/ui";
+import { AddButtonComponent, ConfirmDeleteModal, CycleResourceIndicatorList, HeaderComponent, IndicatorForm, ModalComponent, PageHeaderComponent } from "../../components";
 import { LoadingPage, ErrorPage } from "../utils";
+import { useCycle, useIndicator } from "../../hooks";
 
 const IndicatorPage: React.FC = () => {
     const { areaId } = useParams<{ areaId: string }>();
@@ -27,6 +25,7 @@ const IndicatorPage: React.FC = () => {
     const [indicatorToDelete, setIndicatorToDelete] = useState<string | null>(null);
 
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [isLoading, setIsLoading] = useState(true);
 
     // Estado para manejar la expansión de ciclos y recursos
     const [expandedCycleId, setExpandedCycleId] = useState<string | null>(null);
@@ -40,7 +39,7 @@ const IndicatorPage: React.FC = () => {
             setExpandedCycleId(cycleId);
             fetchResourceList(cycleId);
         }
-    }; 
+    };
 
     const toggleResourceExpansion = (resourceId: string) => {
         if (expandedResourceId === resourceId) {
@@ -170,7 +169,15 @@ const IndicatorPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (
@@ -213,8 +220,8 @@ const IndicatorPage: React.FC = () => {
                         cycleList={cycleList}
                         resourceList={resourceList}
                         indicatorList={indicatorList}
-                        expandedCycles={expandedCycleId ? { [expandedCycleId]: true } : {}} 
-                        expandedResources={expandedResourceId ? { [expandedResourceId]: true } : {}} 
+                        expandedCycles={expandedCycleId ? { [expandedCycleId]: true } : {}}
+                        expandedResources={expandedResourceId ? { [expandedResourceId]: true } : {}}
                         toggleCycleExpansion={toggleCycleExpansion}
                         toggleResourceExpansion={toggleResourceExpansion}
                         handleEdit={handleEdit}

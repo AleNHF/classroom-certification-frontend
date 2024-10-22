@@ -1,18 +1,8 @@
-import React, { useState } from 'react';
-import HeaderComponent from '../../components/layout/HeaderComponent';
-import TableComponent from '../../components/ui/TableComponent';
-import AddButtonComponent from '../../components/ui/AddButtonComponent';
-import ModalComponent from '../../components/ui/ModalComponent';
-import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal';
-import PageHeaderComponent from '../../components/ui/PageHeader';
-import ActionButtonComponent from '../../components/ui/ActionButtonComponent';
-import LoadingPage from '../utils/LoadingPage';
-import ErrorPage from '../utils/ErrorPage';
-import useArea from '../../hooks/indicatorsConfiguration/useArea';
-import usePercentage from '../../hooks/indicatorsConfiguration/usePercentage';
-import useCycle from '../../hooks/indicatorsConfiguration/useCycle';
-import { SelectInput } from '../../components/ui/SelectInput';
+import React, { useEffect, useState } from 'react';
 import { validatePercentageForm } from '../../utils/validatePercentageForm';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput } from '../../components';
+import { LoadingPage, ErrorPage } from '../utils';
+import { useArea, useCycle, usePercentage } from '../../hooks';
 
 const headers = ["Ciclo", "Área", "Porcentaje", "Acciones"];
 
@@ -22,6 +12,7 @@ const PercentagePage: React.FC = () => {
     const [newPercentage, setNewPercentage] = useState({ id: '', cycleId: '', areaId: '', percentage: '' });
     const [percentageToDelete, setPercentageToDelete] = useState<string | null>(null);
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [isLoading, setIsLoading] = useState(true);
 
     const { cycleList } = useCycle();
     const { areaList } = useArea();
@@ -110,18 +101,26 @@ const PercentagePage: React.FC = () => {
                 <ActionButtonComponent
                     label="EDITAR"
                     onClick={() => handleEdit(percentage)}
-                    bgColor="bg-secondary-button-color"
+                    bgColor="bg-secondary-button-color hover:bg-blue-800"
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
                     onClick={() => handleDelete(percentage.id)}
-                    bgColor="bg-primary-red-color"
+                    bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             </div>
         )
     }));
 
-    if (loading) return <LoadingPage />;
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); 
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (
