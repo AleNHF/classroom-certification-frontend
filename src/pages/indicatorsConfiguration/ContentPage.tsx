@@ -16,7 +16,7 @@ const ContentPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [newContent, setNewContent] = useState({ id: '', name: '', resourceId: -1 });
-    const [contentToDelete, setContentToDelete] = useState<string | null>(null);
+    const [contentToDelete, setContentToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
     const [isLoading, setIsLoading] = useState(true);
     
@@ -66,19 +66,19 @@ const ContentPage: React.FC = () => {
         }
     };
 
-    const handleDelete = (id: string) => {
-        setContentToDelete(id);
+    const handleDelete = (id: string, name: string) => {
+        setContentToDelete({ id, name });
         setIsConfirmDeleteOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (contentToDelete) {
+        if (contentToDelete.id) {
             try {
-                await deleteContent(contentToDelete);
+                await deleteContent(contentToDelete.id);
             } catch (error) {
                 console.error('Error al eliminar contenido:', error);
             } finally {
-                setContentToDelete(null);
+                setContentToDelete({ id: null, name: null});
                 setIsConfirmDeleteOpen(false);
             }
         }
@@ -104,7 +104,7 @@ const ContentPage: React.FC = () => {
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
-                    onClick={() => handleDelete(content.id)}
+                    onClick={() => handleDelete(content.id, content.name)}
                     bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             </div>
@@ -168,6 +168,7 @@ const ContentPage: React.FC = () => {
             </ModalComponent>
 
             <ConfirmDeleteModal 
+                message={`¿Estás seguro de que deseas eliminar el contenido "${contentToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)} 
                 onSubmit={confirmDelete} 

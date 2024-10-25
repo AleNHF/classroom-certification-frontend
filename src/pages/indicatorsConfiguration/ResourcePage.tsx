@@ -16,7 +16,7 @@ const ResourcePage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [newResource, setNewResource] = useState({ id: '', name: '', cycleId: -1 });
-    const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
+    const [resourceToDelete, setResourceToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -66,19 +66,19 @@ const ResourcePage: React.FC = () => {
         }
     };
 
-    const handleDelete = (id: string) => {
-        setResourceToDelete(id);
+    const handleDelete = (id: string, name: string) => {
+        setResourceToDelete({ id, name});
         setIsConfirmDeleteOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (resourceToDelete) {
+        if (resourceToDelete.id) {
             try {
-                await deleteResource(resourceToDelete);
+                await deleteResource(resourceToDelete.id);
             } catch (error) {
                 console.error('Error al eliminar recurso:', error);
             } finally {
-                setResourceToDelete(null);
+                setResourceToDelete({ id: null, name: null});
                 setIsConfirmDeleteOpen(false);
             }
         }
@@ -108,7 +108,7 @@ const ResourcePage: React.FC = () => {
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
-                    onClick={() => handleDelete(resource.id)}
+                    onClick={() => handleDelete(resource.id, resource.name)}
                     bgColor="bg-primary-red-color hover:bg-red-400"
                 />
                 <ActionButtonComponent
@@ -177,6 +177,7 @@ const ResourcePage: React.FC = () => {
             </ModalComponent>
 
             <ConfirmDeleteModal
+                message={`¿Estás seguro de que deseas eliminar el recurso "${resourceToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
                 onSubmit={confirmDelete}

@@ -188,6 +188,7 @@ const PercentagePage: React.FC = () => {
             </ModalComponent>
 
             <ConfirmDeleteModal
+                message="¿Estás seguro de que deseas eliminar el porcentaje?"
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
                 onSubmit={confirmDelete}

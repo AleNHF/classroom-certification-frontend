@@ -11,7 +11,7 @@ const CyclePage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [newCycle, setNewCyle] = useState({ id: '', name: '' });
-    const [cycleToDelete, setCycleToDelete] = useState<string | null>(null);
+    const [cycleToDelete, setCycleToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
     const [isLoading, setIsLoading] = useState(true);
     
@@ -60,19 +60,19 @@ const CyclePage: React.FC = () => {
         }
     };
 
-    const handleDelete = (id: string) => {
-        setCycleToDelete(id);
+    const handleDelete = (id: string, name: string) => {
+        setCycleToDelete({ id, name });
         setIsConfirmDeleteOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (cycleToDelete) {
+        if (cycleToDelete.id) {
             try {
-                await deleteCycle(cycleToDelete);
+                await deleteCycle(cycleToDelete.id);
             } catch (error) {
                 console.error('Error al eliminar ciclo:', error);
             } finally {
-                setCycleToDelete(null);
+                setCycleToDelete({ id: null, name: null});
                 setIsConfirmDeleteOpen(false);
             }
         }
@@ -101,7 +101,7 @@ const CyclePage: React.FC = () => {
                 />
                 <ActionButtonComponent 
                     label="ELIMINAR"
-                    onClick={() => handleDelete(cycle.id)}
+                    onClick={() => handleDelete(cycle.id, cycle.name)}
                     bgColor="bg-primary-red-color hover:bg-red-400"
                 />
                 <ActionButtonComponent 
@@ -170,6 +170,7 @@ const CyclePage: React.FC = () => {
             </ModalComponent>
 
             <ConfirmDeleteModal 
+                message={`¿Estás seguro de que deseas eliminar el ciclo "${cycleToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)} 
                 onSubmit={confirmDelete} 

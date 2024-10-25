@@ -16,7 +16,7 @@ const UserPage: React.FC = () => {
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
     const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
-    const [userToDelete, setUserToDelete] = useState<string | null>(null);
+    const [userToDelete, setUserToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
     const [isLoading, setIsLoading] = useState(true);
     const [userError, setUserError] = useState<string | null>(null);
@@ -75,19 +75,19 @@ const UserPage: React.FC = () => {
         }
     };
 
-    const handleDelete = (id: string) => {
-        setUserToDelete(id);
+    const handleDelete = (id: string, name: string) => {
+        setUserToDelete({ id, name });
         setIsConfirmDeleteOpen(true);
     };
 
     const confirmDeleteUser = async () => {
-        if (userToDelete) {
+        if (userToDelete.id) {
             try {
-                await deleteUser(userToDelete);
+                await deleteUser(userToDelete.id);
             } catch (error) {
                 console.error('Error deleting user:', error);
             } finally {
-                setUserToDelete(null);
+                setUserToDelete({ id: null, name: null });
                 setIsConfirmDeleteOpen(false);
             }
         }
@@ -140,7 +140,7 @@ const UserPage: React.FC = () => {
                     />
                     <ActionButtonComponent
                         label="ELIMINAR"
-                        onClick={() => handleDelete(user.id)}
+                        onClick={() => handleDelete(user.id, user.name)}
                         bgColor="bg-primary-red-color hover:bg-red-400"
                     />
                 </div>
@@ -223,6 +223,7 @@ const UserPage: React.FC = () => {
                 </form>
             </ModalComponent>
             <ConfirmDeleteModal 
+                message={`¿Estás seguro de que deseas eliminar al usuario "${userToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen} 
                 onClose={() => setIsConfirmDeleteOpen(false)} 
                 onSubmit={confirmDeleteUser} 

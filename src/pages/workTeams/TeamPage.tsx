@@ -20,7 +20,7 @@ const TeamPage: React.FC = () => {
     const [selectedPersonalId, setSelectedPersonalId] = useState<string | null>(null);
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     const [memberData, setMemberData] = useState<number[]>([]);
-    const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
+    const [teamToDelete, setTeamToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
     const [isLoading, setIsLoading] = useState(true);
 
@@ -41,7 +41,6 @@ const TeamPage: React.FC = () => {
     }, []);
 
     const handleCloseModal = useCallback(() => {
-        console.log('Cerrando modal');
         setIsModalOpen(false);
         resetTeamData();
     }, [resetTeamData]);
@@ -92,19 +91,19 @@ const TeamPage: React.FC = () => {
         }
     }, [newTeam, memberData, addTeam, updateTeam, handleCloseModal, teamMembers]);
 
-    const handleDelete = useCallback((id: string) => {
-        setTeamToDelete(id);
+    const handleDelete = useCallback((id: string, name: string) => {
+        setTeamToDelete({ id, name });
         setIsConfirmDeleteOpen(true);
     }, []);
 
     const confirmDeleteTeam = useCallback(async () => {
-        if (teamToDelete) {
+        if (teamToDelete.id) {
             try {
-                await deleteTeam(teamToDelete);
+                await deleteTeam(teamToDelete.id);
             } catch (error) {
                 console.error('Error deleting team:', error);
             } finally {
-                setTeamToDelete(null);
+                setTeamToDelete({ id: null, name: null });
                 setIsConfirmDeleteOpen(false);
             }
         }
@@ -137,7 +136,7 @@ const TeamPage: React.FC = () => {
                 />
                 <ActionButtonComponent
                     label="ELIMINAR"
-                    onClick={() => handleDelete(team.id)}
+                    onClick={() => handleDelete(team.id, team.name)}
                     bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             </div>
@@ -264,6 +263,7 @@ const TeamPage: React.FC = () => {
 
             {/* Modal de confirmación de eliminación */}
             <ConfirmDeleteModal
+                message={`¿Estás seguro de que deseas eliminar al equipo "${teamToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
                 onSubmit={confirmDeleteTeam}

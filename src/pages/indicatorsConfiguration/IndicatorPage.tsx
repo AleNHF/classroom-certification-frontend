@@ -22,7 +22,7 @@ const IndicatorPage: React.FC = () => {
 
     const [indicatorName, setIndicatorName] = useState<string>('');
     const [newIndicator, setNewIndicator] = useState({ id: '', name: indicatorName, areaId: safeAreaId, resourceId: selectedResource, contentId: selectedContent ? selectedContent : '' });
-    const [indicatorToDelete, setIndicatorToDelete] = useState<string | null>(null);
+    const [indicatorToDelete, setIndicatorToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
 
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
     const [isLoading, setIsLoading] = useState(true);
@@ -134,19 +134,19 @@ const IndicatorPage: React.FC = () => {
         }
     };
 
-    const handleDelete = (id: string) => {
-        setIndicatorToDelete(id);
+    const handleDelete = (id: string, name: string) => {
+        setIndicatorToDelete({ id, name });
         setIsConfirmDeleteOpen(true);
     }
 
     const confirmDelete = async () => {
-        if (indicatorToDelete) {
+        if (indicatorToDelete.id) {
             try {
-                await deleteIndicator(indicatorToDelete);
+                await deleteIndicator(indicatorToDelete.id);
             } catch (error) {
                 console.error('Error al eliminar indicador:', error);
             } finally {
-                setIndicatorToDelete(null);
+                setIndicatorToDelete({id: null, name: null});
                 setIsConfirmDeleteOpen(false);
             }
         }
@@ -172,7 +172,7 @@ const IndicatorPage: React.FC = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 1000); 
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
@@ -229,6 +229,7 @@ const IndicatorPage: React.FC = () => {
                     />
                 </div>
                 <ConfirmDeleteModal
+                    message={`¿Estás seguro de que deseas eliminar el indicador "${indicatorToDelete.name}"?`}
                     isOpen={isConfirmDeleteOpen}
                     onClose={() => setIsConfirmDeleteOpen(false)}
                     onSubmit={confirmDelete}

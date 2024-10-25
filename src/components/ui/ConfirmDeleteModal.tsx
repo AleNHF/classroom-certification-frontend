@@ -3,12 +3,14 @@ import { ModalComponent } from '..';
 import notifyImage from '../../assets/undraw_notify_re_65on.svg';
 
 export interface ConfirmDeleteModalProps {
+    message: string;
     isOpen: boolean;
     onClose: () => void; 
     onSubmit: () => void; 
 }
 
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
+    message,
     isOpen,
     onClose,
     onSubmit,
@@ -27,7 +29,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
                     alt="Advertencia"
                     className="w-48 h-48 mb-4"
                 />
-                <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+                <p className="text-center">{message}</p>
             </div>
         </ModalComponent>
     );
