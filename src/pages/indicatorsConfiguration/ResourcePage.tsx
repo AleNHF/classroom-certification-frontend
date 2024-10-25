@@ -93,7 +93,7 @@ const ResourcePage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleContentsClick = (resourceId: string, cycleName: string, resourceName: string) => {
+    const handleContentsClick = (resourceId: string, resourceName: string, cycleName: string) => {
         navigate(`/indicators-configuration/contents/${resourceId}`, { state: { cycleName: cycleName, resourceName: resourceName } })
     };
 
