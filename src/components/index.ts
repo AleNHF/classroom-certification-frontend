@@ -11,6 +11,7 @@ export { SelectInput } from './ui/SelectInput';
 export { FilterSelect } from './ui/FilterSelect';
 export { FilterButtons } from './ui/FilterButtons';
 export { default as SearchButtonComponent } from './ui/SearchButton';
+export { default as AlertComponent } from './ui/AlertComponent';
 
 export { default as IndicatorForm } from './forms/IndicatorForm';
 export { default as LoginForm } from './forms/LoginForm';
