@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
-import { ActionButtonComponent, FilterButtons, FilterSelect, PageHeaderComponent, TableComponent } from '../../components';
+import { ActionButtonComponent, FilterButtons, FilterSelect, PageHeaderComponent, PaginationComponent, TableComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { useClassroom } from '../../hooks';
 import { ClassroomStatus } from '../../utils/enums/classroomStatus';
@@ -24,6 +24,7 @@ const mapStatusToText = (status: ClassroomStatus): string => {
 const ClassroomPage: React.FC = () => {
     const [filter, setFilter] = useState<'' | ClassroomStatus>('');
     const [isLoading, setIsLoading] = useState(true);
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     const {
         classroomList,
@@ -36,27 +37,27 @@ const ClassroomPage: React.FC = () => {
     }, [classroomList, filter]);
 
     const rows = useMemo(() => {
-        return filteredClassrooms.map((classroom: any) => ({
+        return paginatedItems.map((classroom: any) => ({
             'Nombre del Aula': classroom.name,
             Estado: mapStatusToText(classroom.status),
             Acciones: (
                 <ActionButtonComponent
                     label="SELECCIONAR"
-                    onClick={() => {} /* manejar navegación */}
+                    onClick={() => { } /* manejar navegación */}
                     bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             )
         }));
-    }, [filteredClassrooms]);
+    }, [paginatedItems]);
 
     const handleClassroomDetail = () => {
-        
+
     };
 
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 1000); 
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
@@ -99,6 +100,11 @@ const ClassroomPage: React.FC = () => {
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={rows} />
                     </div>
+                    <PaginationComponent
+                        items={filteredClassrooms}
+                        onPageItemsChange={setPaginatedItems}
+                        itemsPerPage={3}
+                    />
                 </div>
             </div>
         </>

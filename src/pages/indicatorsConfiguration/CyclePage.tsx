@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent } from '../../components';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useCycle } from '../../hooks';
 
@@ -19,6 +19,8 @@ const CyclePage: React.FC = () => {
 
     // Estados de validación y errores
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
     
     const {
         cycleList,
@@ -100,7 +102,7 @@ const CyclePage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return cycleList.map((cycle: any) => ({
+        return paginatedItems.map((cycle: any) => ({
             Nombre: cycle.name,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
@@ -122,7 +124,7 @@ const CyclePage: React.FC = () => {
                 </div>
             )
         }));
-    }, [cycleList, handleDelete, handleEdit]);
+    }, [paginatedItems, handleDelete, handleEdit]);
 
     /* useEffect(() => {
         const timer = setTimeout(() => {
@@ -163,6 +165,10 @@ const CyclePage: React.FC = () => {
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
+                    <PaginationComponent
+                        items={cycleList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
 

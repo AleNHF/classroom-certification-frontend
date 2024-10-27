@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ActionButtonComponent, AddButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, ModalComponent, PageHeaderComponent, TableComponent } from '../../components';
+import { ActionButtonComponent, AddButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, ModalComponent, PageHeaderComponent, PaginationComponent, TableComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useArea } from '../../hooks';
 
@@ -19,6 +19,8 @@ const AreaPage: React.FC = () => {
 
     // Estados de validación y errores
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     const {
         areaList,
@@ -100,7 +102,7 @@ const AreaPage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return areaList.map((area: any) => ({
+        return paginatedItems.map((area: any) => ({
             Nombre: area.name,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
@@ -122,7 +124,7 @@ const AreaPage: React.FC = () => {
                 </div>
             )
         }));
-    }, [areaList, handleDelete, handleEdit]);
+    }, [paginatedItems, handleDelete, handleEdit]);
 
     /* useEffect(() => {
         const timer = setTimeout(() => {
@@ -163,6 +165,10 @@ const AreaPage: React.FC = () => {
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
+                    <PaginationComponent
+                        items={areaList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
 

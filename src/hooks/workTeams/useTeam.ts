@@ -9,7 +9,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         success: 'Equipo agregado exitosamente',
         error: 'Error al agregar equipo'
     },
-    update: {
+    update: { 
         loading: 'Actualizando equipo...',
         success: 'Equipo actualizado exitosamente',
         error: 'Error al actualizar equipo'
@@ -86,7 +86,8 @@ const useTeam = () => {
             loading: true,
             error: null,
             successMessage: null
-        }));try {
+        }));
+        try {
             switch (action) {
                 case 'add':
                     await apiService.addTeam(teamData!);
