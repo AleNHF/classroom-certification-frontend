@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { AddButtonComponent, ConfirmDeleteModal, CycleResourceIndicatorList, HeaderComponent, IndicatorForm, ModalComponent, PageHeaderComponent } from "../../components";
-import { LoadingPage, ErrorPage } from "../utils";
+import { AddButtonComponent, AlertComponent, ConfirmDeleteModal, CycleResourceIndicatorList, HeaderComponent, IndicatorForm, ModalComponent, PageHeaderComponent } from "../../components";
+import { ErrorPage } from "../utils";
 import { useCycle, useIndicator } from "../../hooks";
 
 const IndicatorPage: React.FC = () => {
@@ -10,7 +10,7 @@ const IndicatorPage: React.FC = () => {
     const areaName = location.state.areaName;
     const safeAreaId = areaId || '';
 
-    const { indicatorList, resourceList, contentList, loading, error, addIndicator, updateIndicator, deleteIndicator, fetchResourceList, fetchContentList } = useIndicator(safeAreaId);
+    const { indicatorList, resourceList, contentList, error, successMessage, addIndicator, updateIndicator, deleteIndicator, fetchResourceList, fetchContentList } = useIndicator(safeAreaId);
     const { cycleList } = useCycle();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +25,6 @@ const IndicatorPage: React.FC = () => {
     const [indicatorToDelete, setIndicatorToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
 
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
-    const [isLoading, setIsLoading] = useState(true);
 
     // Estado para manejar la expansión de ciclos y recursos
     const [expandedCycleId, setExpandedCycleId] = useState<string | null>(null);
@@ -169,15 +168,6 @@ const IndicatorPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1000);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (loading || isLoading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (
@@ -189,6 +179,13 @@ const IndicatorPage: React.FC = () => {
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
                     <PageHeaderComponent title={`ÁREA: ${areaName} - INDICADORES`} />
+                    {successMessage && (
+                        <AlertComponent
+                            type="success"
+                            message={successMessage}
+                            className="mb-4 w-full"
+                        />
+                    )}
                     <AddButtonComponent onClick={handleAddClick} />
 
                     <ModalComponent

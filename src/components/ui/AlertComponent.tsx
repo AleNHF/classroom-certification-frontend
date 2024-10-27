@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 type AlertType = 'success' | 'error' | 'warning' | 'info';
 
@@ -18,9 +18,9 @@ type AlertStyles = {
   closeButton: string;
 }
 
-type AlertStylesMap = {
+/* type AlertStylesMap = {
   [K in AlertType]: AlertStyles;
-}
+} */
 
 const Alert = ({
   type = 'info',

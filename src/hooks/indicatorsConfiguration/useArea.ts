@@ -1,33 +1,92 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Area, FetchState } from '../../types';
+import { Action, ActionMessages, Area, FetchState } from '../../types';
+
+// Definición de tipos específicos para mejor control
+const ACTION_MESSAGES: Record<Action, ActionMessages> = {
+    add: {
+        loading: 'Agregando área...',
+        success: 'Área agregado exitosamente',
+        error: 'Error al agregar área'
+    },
+    update: {
+        loading: 'Actualizando área...',
+        success: 'Área actualizado exitosamente',
+        error: 'Error al actualizar área'
+    },
+    delete: {
+        loading: 'Eliminando área...',
+        success: 'Área eliminado exitosamente',
+        error: 'Error al eliminar área'
+    }
+};
 
 const useArea = () => {
     const [areaList, setAreaList] = useState<Area[]>([]);
-    const [fetchState, setFetchState] = useState<FetchState>({ loading: true, error: null });
+    const [fetchState, setFetchState] = useState<FetchState>({
+        loading: false,
+        error: null,
+        successMessage: null
+    });
 
-    const fetchData = async () => {
-        setFetchState({ loading: true, error: null });
+    // Función para limpiar mensajes después de un tiempo
+    const clearMessages = useCallback(() => {
+        setTimeout(() => {
+            setFetchState(prev => ({
+                ...prev,
+                error: null,
+                successMessage: null
+            }));
+        }, 5000);
+    }, []);
+
+    const fetchData = useCallback(async () => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const areaData = await apiService.getAreas();
             setAreaList(areaData.data.areas);
         } catch (error) {
-            handleFetchError(error);
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al cargar los datos';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching data:', error);
         } finally {
             setFetchState(prevState => ({ ...prevState, loading: false }));
         }
-    };
+    }, []);
 
-    const handleFetchError = (error: unknown) => {
-        console.error('Error fetching data:', error);
-        setFetchState({
-            loading: false,
-            error: 'Error al obtener los datos. Inténtalo de nuevo más tarde.',
-        });
-    };
+    // Efecto inicial con retry
+    useEffect(() => {
+        const initFetch = async () => {
+            try {
+                await fetchData();
+            } catch (error) {
+                // Intenta nuevamente después de 5 segundos en caso de error
+                setTimeout(fetchData, 5000);
+            }
+        };
 
-    const handleAreaAction = async (action: 'add' | 'update' | 'delete', areaData?: { name: string }, id?: string) => {
-        setFetchState(prevState => ({ ...prevState, loading: true, error: null }));
+        initFetch();
+    }, [fetchData]);
+
+    const handleAction = useCallback(async (
+        action: Action,
+        areaData?: { name: string },
+        id?: string
+    ) => {
+        const messages = ACTION_MESSAGES[action];
+
+        setFetchState(prev => ({
+            ...prev,
+            loading: true,
+            error: null,
+            successMessage: null
+        }));
         try {
             switch (action) {
                 case 'add':
@@ -40,33 +99,54 @@ const useArea = () => {
                     await apiService.deleteArea(id!);
                     break;
             }
-            await fetchData(); 
+            await fetchData();
+            setFetchState(prev => ({
+                ...prev,
+                successMessage: messages.success
+            }));
+            clearMessages();
         } catch (error) {
-            handleActionError(action, error);
+            const errorMessage = error instanceof Error
+                ? error.message
+                : messages.error;
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            clearMessages();
+            throw error;
         } finally {
             setFetchState(prevState => ({ ...prevState, loading: false }));
         }
-    };
+    }, [fetchData, clearMessages]);
 
-    const handleActionError = (action: 'add' | 'update' | 'delete', error: unknown) => {
-        console.error(`Error ${action} cycle:`, error);
-        setFetchState({
-            loading: false,
-            error: `Error al ${action} el ciclo.`,
-        });
-    };
+    // Optimización de funciones retornadas con useCallback
+    const addArea = useCallback(
+        (areaData: { name: string }) => handleAction('add', areaData),
+        [handleAction]
+    );
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const updateArea = useCallback(
+        (id: string, areaData: { name: string }) => handleAction('update', areaData, id),
+        [handleAction]
+    );
+
+    const deleteArea = useCallback(
+        (id: string) => handleAction('delete', undefined, id),
+        [handleAction]
+    );
 
     return {
         areaList,
+
         loading: fetchState.loading,
         error: fetchState.error,
-        addArea: (areaData: { name: string }) => handleAreaAction('add', areaData),
-        updateArea: (id: string, areaData: { name: string }) => handleAreaAction('update', areaData, id),
-        deleteArea: (id: string) => handleAreaAction('delete', undefined, id),
+        successMessage: fetchState.successMessage,
+
+        addArea,
+        updateArea,
+        deleteArea,
     };
 };
 

@@ -1,24 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import apiService from '../../services/apiService';
 import authService from '../../services/authService';
-import { UserProps, Role } from '../../types';
+import { UserProps, Role, ActionMessages, FetchState, Action } from '../../types';
 
 // Definición de tipos específicos para mejor control
-interface FetchState {
-    loading: boolean;
-    error: string | null;
-    successMessage: string | null;
-}
-
-type UserAction = 'add' | 'update' | 'delete';
-
-interface ActionMessages {
-    loading: string;
-    success: string;
-    error: string;
-}
-
-const ACTION_MESSAGES: Record<UserAction, ActionMessages> = {
+const ACTION_MESSAGES: Record<Action, ActionMessages> = {
     add: {
         loading: 'Agregando usuario...',
         success: 'Usuario agregado exitosamente',
@@ -101,8 +87,8 @@ const useUsers = () => {
     }, [fetchData]);
 
     // Manejador de acciones mejorado con mensajes específicos
-    const handleUserAction = useCallback(async (
-        action: UserAction,
+    const handleAction = useCallback(async (
+        action: Action,
         userData?: UserProps,
         id?: string
     ) => {
@@ -152,18 +138,18 @@ const useUsers = () => {
 
     // Optimización de funciones retornadas con useCallback
     const addUser = useCallback(
-        (userData: UserProps) => handleUserAction('add', userData),
-        [handleUserAction]
+        (userData: UserProps) => handleAction('add', userData),
+        [handleAction]
     );
 
     const updateUser = useCallback(
-        (id: string, userData: UserProps) => handleUserAction('update', userData, id),
-        [handleUserAction]
+        (id: string, userData: UserProps) => handleAction('update', userData, id),
+        [handleAction]
     );
 
     const deleteUser = useCallback(
-        (id: string) => handleUserAction('delete', undefined, id),
-        [handleUserAction]
+        (id: string) => handleAction('delete', undefined, id),
+        [handleAction]
     );
 
     return {

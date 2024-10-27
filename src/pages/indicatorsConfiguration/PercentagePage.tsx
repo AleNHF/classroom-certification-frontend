@@ -1,31 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { validatePercentageForm } from '../../utils/validations/validatePercentageForm';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput } from '../../components';
-import { LoadingPage, ErrorPage } from '../utils';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent } from '../../components';
+import { ErrorPage } from '../utils';
 import { useArea, useCycle, usePercentage } from '../../hooks';
 
 const headers = ["Ciclo", "Área", "Porcentaje", "Acciones"];
 
 const PercentagePage: React.FC = () => {
+    // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+    // Estados de Datos
     const [newPercentage, setNewPercentage] = useState({ id: '', cycleId: '', areaId: '', percentage: '' });
     const [percentageToDelete, setPercentageToDelete] = useState<string | null>(null);
-    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
-    const [isLoading, setIsLoading] = useState(true);
+
+    // Estados de validación y erroes
+    //const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [errorMessages, setErrorMessages] = useState<Record<string, string>>({});
 
     const { cycleList } = useCycle();
     const { areaList } = useArea();
-
     const {
         percentageList,
-        loading,
         error,
+        successMessage,
         addPercentage,
         updatePercentage,
         deletePercentage
     } = usePercentage();
 
+    // Manejadores de modal
     const resetPercentageForm = () => {
         setNewPercentage({ id: '', cycleId: '', areaId: '', percentage: '' });
         setErrorMessages({});
@@ -41,7 +46,8 @@ const PercentagePage: React.FC = () => {
         resetPercentageForm();
     };
 
-    const handleAddOrUpdate = async () => {
+    // Manejador de submit del formulario
+    const handleSubmit = useCallback(async () => {
         const newErrorMessages = validatePercentageForm(newPercentage);;
         setErrorMessages(newErrorMessages);
 
@@ -62,14 +68,15 @@ const PercentagePage: React.FC = () => {
         } catch (error) {
             console.error('Error al añadir/actualizar el porcentaje:', error);
         }
-    };
+    }, [newPercentage, addPercentage, updatePercentage]);
 
-    const handleDelete = (id: string) => {
+    // Manejadores de eliminación
+    const handleDelete = useCallback((id: string) => {
         setPercentageToDelete(id);
         setIsConfirmDeleteOpen(true);
-    };
+    }, []);
 
-    const confirmDelete = async () => {
+    const handleConfirmDelete = useCallback(async () => {
         if (percentageToDelete) {
             try {
                 await deletePercentage(percentageToDelete);
@@ -80,7 +87,7 @@ const PercentagePage: React.FC = () => {
                 setIsConfirmDeleteOpen(false);
             }
         }
-    };
+    }, [percentageToDelete, deletePercentage]);
 
     const handleEdit = (percentage: any) => {
         setNewPercentage({
@@ -92,35 +99,38 @@ const PercentagePage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const rows = percentageList.map((percentage: any) => ({
-        Ciclo: cycleList.find((cycle: any) => cycle.id === percentage.cycle.id)?.name || 'N/A',
-        Área: areaList.find((area: any) => area.id === percentage.area.id)?.name || 'N/A',
-        Porcentaje: percentage.percentage + '%',
-        Acciones: (
-            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent
-                    label="EDITAR"
-                    onClick={() => handleEdit(percentage)}
-                    bgColor="bg-secondary-button-color hover:bg-blue-800"
-                />
-                <ActionButtonComponent
-                    label="ELIMINAR"
-                    onClick={() => handleDelete(percentage.id)}
-                    bgColor="bg-primary-red-color hover:bg-red-400"
-                />
-            </div>
-        )
-    }));
+    // Renderizado de filas de la tabla
+    const renderTableRows = useCallback(() => {
+        return percentageList.map((percentage: any) => ({
+            Ciclo: cycleList.find((cycle: any) => cycle.id === percentage.cycle.id)?.name || 'N/A',
+            Área: areaList.find((area: any) => area.id === percentage.area.id)?.name || 'N/A',
+            Porcentaje: percentage.percentage + '%',
+            Acciones: (
+                <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                    <ActionButtonComponent
+                        label="EDITAR"
+                        onClick={() => handleEdit(percentage)}
+                        bgColor="bg-secondary-button-color hover:bg-blue-800"
+                    />
+                    <ActionButtonComponent
+                        label="ELIMINAR"
+                        onClick={() => handleDelete(percentage.id)}
+                        bgColor="bg-primary-red-color hover:bg-red-400"
+                    />
+                </div>
+            )
+        }));
+    }, [percentageList, handleDelete, handleEdit]);
 
-    useEffect(() => {
+    /* useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 1000); 
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, []);
 
-    if (loading || isLoading) return <LoadingPage />;
+    if (loading || isLoading) return <LoadingPage />; */
     if (error) return <ErrorPage message={error} />;
 
     return (
@@ -132,14 +142,24 @@ const PercentagePage: React.FC = () => {
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
                     <PageHeaderComponent title='CONFIGURAR PORCENTAJE DE CICLOS Y ÁREAS' />
-                    {error && (
-                        <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
-                            {error}
-                        </div>
+                    {successMessage && (
+                        <AlertComponent
+                            type="success"
+                            message={successMessage}
+                            className="mb-4 w-full"
+                        />
+                    )}
+
+                    {errorMessages.submit && (
+                        <AlertComponent
+                            type="error"
+                            message={errorMessages.submit}
+                            className="mb-4 w-full"
+                        />
                     )}
                     <AddButtonComponent onClick={handleAddClick} />
                     <div className="overflow-x-auto w-full">
-                        <TableComponent headers={headers} rows={rows} />
+                        <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
                 </div>
             </div>
@@ -149,7 +169,7 @@ const PercentagePage: React.FC = () => {
                 onClose={handleCloseModal}
                 title={newPercentage.id ? 'Editar Porcentaje' : 'Nueva Porcentaje'}
                 primaryButtonText={newPercentage.id ? 'ACTUALIZAR' : 'AGREGAR'}
-                onSubmit={handleAddOrUpdate}
+                onSubmit={handleSubmit}
                 size="medium"
             >
                 <form className="space-y-4">
@@ -191,7 +211,7 @@ const PercentagePage: React.FC = () => {
                 message="¿Estás seguro de que deseas eliminar el porcentaje?"
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
-                onSubmit={confirmDelete}
+                onSubmit={handleConfirmDelete}
             />
         </>
     );

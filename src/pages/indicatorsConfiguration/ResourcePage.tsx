@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, ActionButtonComponent, HeaderComponent } from '../../components';
-import { LoadingPage, ErrorPage } from '../utils';
+import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, ActionButtonComponent, HeaderComponent, AlertComponent } from '../../components';
+import { ErrorPage } from '../utils';
 import { useResource } from '../../hooks';
 
 const headers = ["Nombre del recurso", "Acciones"];
@@ -13,22 +13,27 @@ const ResourcePage: React.FC = () => {
     const safeCycleId = cycleId || '';
     const navigate = useNavigate();
 
+    // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+    // Estados de Datos
     const [newResource, setNewResource] = useState({ id: '', name: '', cycleId: -1 });
     const [resourceToDelete, setResourceToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
+    
+    // Estados de validación y errores
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
 
     const {
         resourceList,
-        loading,
         error,
+        successMessage,
         addResource,
         updateResource,
         deleteResource
     } = useResource(safeCycleId);
 
+    // Manejadores de modal
     const resetResourceForm = () => {
         setNewResource({ id: '', name: '', cycleId: -1 });
         setErrorMessage(null);
@@ -44,7 +49,8 @@ const ResourcePage: React.FC = () => {
         resetResourceForm();
     };
 
-    const handleAddOrUpdate = async () => {
+    // Manejador de submit del formulario
+    const handleSubmit = useCallback(async () => {
         if (!newResource.name.trim()) {
             setErrorMessage('El nombre del recurso es obligatorio.');
             return;
@@ -64,14 +70,15 @@ const ResourcePage: React.FC = () => {
         } catch (error) {
             console.error('Error al añadir/actualizar el ciclo:', error);
         }
-    };
+    }, [newResource, addResource, updateResource]);
 
-    const handleDelete = (id: string, name: string) => {
-        setResourceToDelete({ id, name});
+    // Manejadores de eliminación
+    const handleDelete = useCallback((id: string, name: string) => {
+        setResourceToDelete({ id, name });
         setIsConfirmDeleteOpen(true);
-    };
+    }, []);
 
-    const confirmDelete = async () => {
+    const handleConfirmDelete = useCallback(async () => {
         if (resourceToDelete.id) {
             try {
                 await deleteResource(resourceToDelete.id);
@@ -82,7 +89,7 @@ const ResourcePage: React.FC = () => {
                 setIsConfirmDeleteOpen(false);
             }
         }
-    };
+    }, [resourceToDelete.id, deleteResource]);
 
     const handleEdit = (resource: any) => {
         setNewResource({
@@ -97,30 +104,33 @@ const ResourcePage: React.FC = () => {
         navigate(`/indicators-configuration/contents/${resourceId}`, { state: { cycleName: cycleName, resourceName: resourceName } })
     };
 
-    const rows = resourceList.map((resource: any) => ({
-        Nombre: resource.name,
-        Acciones: (
-            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                <ActionButtonComponent
-                    label="EDITAR"
-                    onClick={() => handleEdit(resource)}
-                    bgColor='bg-secondary-button-color hover:bg-blue-800'
-                />
-                <ActionButtonComponent
-                    label="ELIMINAR"
-                    onClick={() => handleDelete(resource.id, resource.name)}
-                    bgColor="bg-primary-red-color hover:bg-red-400"
-                />
-                <ActionButtonComponent
-                    label="CONTENIDO"
-                    onClick={() => handleContentsClick(resource.id, resource.name, cycleName)}
-                    bgColor="bg-optional-button-color hover:bg-slate-400"
-                />
-            </div>
-        )
-    }));
+    // Renderizado de filas de la tabla
+    const renderTableRows = useCallback(() => {
+        return resourceList.map((resource: any) => ({
+            Nombre: resource.name,
+            Acciones: (
+                <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                    <ActionButtonComponent
+                        label="EDITAR"
+                        onClick={() => handleEdit(resource)}
+                        bgColor='bg-secondary-button-color hover:bg-blue-800'
+                    />
+                    <ActionButtonComponent
+                        label="ELIMINAR"
+                        onClick={() => handleDelete(resource.id, resource.name)}
+                        bgColor="bg-primary-red-color hover:bg-red-400"
+                    />
+                    <ActionButtonComponent
+                        label="CONTENIDO"
+                        onClick={() => handleContentsClick(resource.id, resource.name, cycleName)}
+                        bgColor="bg-optional-button-color hover:bg-slate-400"
+                    />
+                </div>
+            )
+        }));
+    }, [resourceList, handleDelete, handleEdit]);
 
-    useEffect(() => {
+    /* useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
         }, 1000); 
@@ -128,7 +138,7 @@ const ResourcePage: React.FC = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    if (loading || isLoading) return <LoadingPage />;
+    if (loading || isLoading) return <LoadingPage />; */
     if (error) return <ErrorPage message={error} />;
 
     return (
@@ -140,14 +150,24 @@ const ResourcePage: React.FC = () => {
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
                     <PageHeaderComponent title={`CICLO: ${cycleName} - RECURSOS`} />
-                    {error && (
-                        <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
-                            {error}
-                        </div>
+                    {successMessage && (
+                        <AlertComponent
+                            type="success"
+                            message={successMessage}
+                            className="mb-4 w-full"
+                        />
+                    )}
+
+                    {errorMessage && (
+                        <AlertComponent
+                            type="error"
+                            message={errorMessage}
+                            className="mb-4 w-full"
+                        />
                     )}
                     <AddButtonComponent onClick={handleAddClick} />
                     <div className="overflow-x-auto w-full">
-                        <TableComponent headers={headers} rows={rows} />
+                        <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
                 </div>
             </div>
@@ -157,7 +177,7 @@ const ResourcePage: React.FC = () => {
                 onClose={handleCloseModal}
                 title={newResource.id ? 'Editar Recurso' : 'Nuevo Recurso'}
                 primaryButtonText={newResource.id ? 'ACTUALIZAR' : 'AGREGAR'}
-                onSubmit={handleAddOrUpdate}
+                onSubmit={handleSubmit}
                 size="medium"
             >
                 <form className="space-y-4">
@@ -180,7 +200,7 @@ const ResourcePage: React.FC = () => {
                 message={`¿Estás seguro de que deseas eliminar el recurso "${resourceToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
-                onSubmit={confirmDelete}
+                onSubmit={handleConfirmDelete}
             />
         </>
     );

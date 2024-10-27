@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { validateTeamData } from '../../utils/validations/validateTeamData';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent } from '../../components';
-import { LoadingPage, ErrorPage } from '../utils';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent } from '../../components';
+import { ErrorPage } from '../utils';
 import { useTeam, usePersonal } from '../../hooks';
 
 const teamHeaders = ["Nombre", "Gestión", "Facultad", "Acciones"];
@@ -13,26 +13,53 @@ interface TeamMember {
     position: string;
 }
 
+interface TeamForm {
+    id: string;
+    name: string;
+    management: string;
+    faculty: string;
+}
+
+const INITIAL_TEAM_FORM: TeamForm = {
+    id: '',
+    name: '',
+    management: '',
+    faculty: ''
+};
+
 const TeamPage: React.FC = () => {
+    // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newTeam, setNewTeam] = useState({ id: '', name: '', management: '', faculty: '' });
+
+    // Estados de Datos
+    const [newTeam, setNewTeam] = useState<TeamForm>(INITIAL_TEAM_FORM);
     const [selectedPersonalId, setSelectedPersonalId] = useState<string | null>(null);
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     const [memberData, setMemberData] = useState<number[]>([]);
     const [teamToDelete, setTeamToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
-    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
-    const [isLoading, setIsLoading] = useState(true);
 
-    const { teamList, loading, error, addTeam, updateTeam, deleteTeam } = useTeam();
+
+    // Estados de validación y errores
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+    const {
+        teamList,
+        error,
+        successMessage,
+        addTeam,
+        updateTeam,
+        deleteTeam
+    } = useTeam();
     const { personalList } = usePersonal();
 
+    // Manejadores de modal
     const resetTeamData = useCallback(() => {
-        setNewTeam({ id: '', name: '', management: '', faculty: '' });
+        setNewTeam(INITIAL_TEAM_FORM);
         setTeamMembers([]);
         setMemberData([]);
         setSelectedPersonalId(null);
-        setErrorMessages({});
+        setFormErrors({});
     }, []);
 
     const handleAddClick = useCallback(() => {
@@ -45,6 +72,7 @@ const TeamPage: React.FC = () => {
         resetTeamData();
     }, [resetTeamData]);
 
+    // Manejadores para agregar personal técnico al equipo
     const handleAddMember = useCallback(() => {
         if (selectedPersonalId) {
             const selectedMember = personalList.find(person => Number(person.id) === Number(selectedPersonalId));
@@ -70,9 +98,10 @@ const TeamPage: React.FC = () => {
         });
     }, []);
 
+    // Manejador de submit del formulario
     const handleSubmitTeam = useCallback(async () => {
         const newErrorMessages = validateTeamData(newTeam, teamMembers);
-        setErrorMessages(newErrorMessages);
+        setFormErrors(newErrorMessages);
 
         if (Object.keys(newErrorMessages).length > 0) return;
 
@@ -91,12 +120,13 @@ const TeamPage: React.FC = () => {
         }
     }, [newTeam, memberData, addTeam, updateTeam, handleCloseModal, teamMembers]);
 
+    // Manejadores de eliminación
     const handleDelete = useCallback((id: string, name: string) => {
         setTeamToDelete({ id, name });
         setIsConfirmDeleteOpen(true);
     }, []);
 
-    const confirmDeleteTeam = useCallback(async () => {
+    const handleConfirmDelete = useCallback(async () => {
         if (teamToDelete.id) {
             try {
                 await deleteTeam(teamToDelete.id);
@@ -123,25 +153,28 @@ const TeamPage: React.FC = () => {
         setIsModalOpen(true);
     }, []);
 
-    const teamRows = teamList.map((team: any) => ({
-        Nombre: team.name,
-        Gestión: team.management,
-        Facultad: team.faculty,
-        Acciones: (
-            <div className="flex space-x-2">
-                <ActionButtonComponent
-                    label="EDITAR"
-                    onClick={() => handleEdit(team)}
-                    bgColor="bg-secondary-button-color hover:bg-blue-800"
-                />
-                <ActionButtonComponent
-                    label="ELIMINAR"
-                    onClick={() => handleDelete(team.id, team.name)}
-                    bgColor="bg-primary-red-color hover:bg-red-400"
-                />
-            </div>
-        )
-    }));
+    // Renderizado de filas de la tabla
+    const renderTableRows = useCallback(() => {
+        return teamList.map((team: any) => ({
+            Nombre: team.name,
+            Gestión: team.management,
+            Facultad: team.faculty,
+            Acciones: (
+                <div className="flex space-x-2">
+                    <ActionButtonComponent
+                        label="EDITAR"
+                        onClick={() => handleEdit(team)}
+                        bgColor="bg-secondary-button-color hover:bg-blue-800"
+                    />
+                    <ActionButtonComponent
+                        label="ELIMINAR"
+                        onClick={() => handleDelete(team.id, team.name)}
+                        bgColor="bg-primary-red-color hover:bg-red-400"
+                    />
+                </div>
+            )
+        }));
+    }, [teamList, handleDelete]);
 
     const memberRows = teamMembers.map((member) => ({
         Nombre: member.name,
@@ -160,15 +193,7 @@ const TeamPage: React.FC = () => {
         )
     }));
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1000); 
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (loading || isLoading) return <LoadingPage />;
+    //if (loading) return <LoadingPage minDisplayTime={1000} />
     if (error) return <ErrorPage message={error} />;
 
     return (
@@ -180,8 +205,23 @@ const TeamPage: React.FC = () => {
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
                     <PageHeaderComponent title='GESTIONAR EQUIPOS' />
+                    {successMessage && (
+                        <AlertComponent
+                            type="success"
+                            message={successMessage}
+                            className="mb-4 w-full"
+                        />
+                    )}
+
+                    {formErrors.submit && (
+                        <AlertComponent
+                            type="error"
+                            message={formErrors.submit}
+                            className="mb-4 w-full"
+                        />
+                    )}
                     <AddButtonComponent onClick={handleAddClick} />
-                    <TableComponent headers={teamHeaders} rows={teamRows} />
+                    <TableComponent headers={teamHeaders} rows={renderTableRows()} />
                 </div>
             </div>
 
@@ -204,7 +244,7 @@ const TeamPage: React.FC = () => {
                                 onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
                                 className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                             />
-                            {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
+                            {formErrors.name && <p className="text-red-600 text-sm">{formErrors.name}</p>}
                         </div>
 
                         <div className="w-1/2">
@@ -215,7 +255,7 @@ const TeamPage: React.FC = () => {
                                 onChange={(e) => setNewTeam({ ...newTeam, management: e.target.value })}
                                 className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                             />
-                            {errorMessages.management && <p className="text-red-600 text-sm">{errorMessages.management}</p>}
+                            {formErrors.management && <p className="text-red-600 text-sm">{formErrors.management}</p>}
                         </div>
                     </div>
 
@@ -227,7 +267,7 @@ const TeamPage: React.FC = () => {
                             onChange={(e) => setNewTeam({ ...newTeam, faculty: e.target.value })}
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
-                        {errorMessages.faculty && <p className="text-red-600 text-sm">{errorMessages.faculty}</p>}
+                        {formErrors.faculty && <p className="text-red-600 text-sm">{formErrors.faculty}</p>}
                     </div>
 
                     {/* Miembros del equipo */}
@@ -266,7 +306,7 @@ const TeamPage: React.FC = () => {
                 message={`¿Estás seguro de que deseas eliminar al equipo "${teamToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen}
                 onClose={() => setIsConfirmDeleteOpen(false)}
-                onSubmit={confirmDeleteTeam}
+                onSubmit={handleConfirmDelete}
             />
         </>
     );
