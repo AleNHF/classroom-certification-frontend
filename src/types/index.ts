@@ -9,3 +9,5 @@ export type { UserProps } from './userProps';
 export type { Area } from './area';
 export type { Percentage } from './percentage';
 export type { Classroom } from './classroom';
+export type { ActionMessages } from './actionMessage';
+export type { Action } from './action';

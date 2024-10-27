@@ -12,7 +12,7 @@ interface CycleResourceIndicatorListProps {
     toggleCycleExpansion: (cycleId: string) => void;
     toggleResourceExpansion: (resourceId: string) => void;
     handleEdit: (indicator: Indicator) => void;
-    handleDelete: (indicatorId: string) => void;
+    handleDelete: (indicatorId: string, indicatorName: string) => void;
 }
 
 const CycleResourceIndicatorList: React.FC<CycleResourceIndicatorListProps> = ({
@@ -78,7 +78,7 @@ const CycleResourceIndicatorList: React.FC<CycleResourceIndicatorListProps> = ({
                                                                         />
                                                                         <ActionButtonComponent
                                                                             label="ELIMINAR"
-                                                                            onClick={() => handleDelete(indicator.id.toString())}
+                                                                            onClick={() => handleDelete(indicator.id.toString(), indicator.name)}
                                                                             bgColor="bg-primary-red-color hover:bg-red-400"
                                                                         />
                                                                     </div>

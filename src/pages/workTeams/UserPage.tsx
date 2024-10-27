@@ -1,55 +1,81 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { validateUserForm } from '../../utils/validations/validateUserForm';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput } from '../../components';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { useUsers } from '../../hooks';
 
+interface UserForm {
+    id: string;
+    name: string;
+    username: string;
+    roleId: string;
+}
+
+const INITIAL_USER_FORM: UserForm = {
+    id: '',
+    name: '',
+    username: '',
+    roleId: '',
+};
+
 const UserPage: React.FC = () => {
+    // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [newUser, setNewUser] = useState<{ id: string; name: string; username: string; roleId: string }>({
-        id: '',
-        name: '',
-        username: '',
-        roleId: '',
-    });
+    const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+
+    // Estados de datos
+    const [newUser, setNewUser] = useState<UserForm>(INITIAL_USER_FORM);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-    const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
-    const [userToDelete, setUserToDelete] = useState<string | null>(null);
-    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
-    const [isLoading, setIsLoading] = useState(true);
-    const [userError, setUserError] = useState<string | null>(null);
+    const [userToDelete, setUserToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
 
-    const { userList, usersMoodleList, roleList, loading, error, addUser, updateUser, deleteUser } = useUsers();
+    // Estados de validación y errores
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+    const {
+        userList,
+        usersMoodleList,
+        roleList,
+        loading,
+        error,
+        successMessage,
+        addUser,
+        updateUser,
+        deleteUser
+    } = useUsers();
+
+    // Efecto para cargar sugerencias de usuarios de Moodle
     useEffect(() => {
         if (!loading && usersMoodleList.length) {
             setSuggestions(usersMoodleList.map((user: any) => user.fullname));
         }
     }, [loading, usersMoodleList]);
 
-    const handleAddClick = () => {
-        resetNewUserState();
+    // Manejadores de modal
+    const handleAddClick = useCallback(() => {
+        setNewUser(INITIAL_USER_FORM);
         setIsModalOpen(true);
-    };
+        setFormErrors({});
+    }, []);
 
-    const handleCloseModal = () => {
+    const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
         resetNewUserState();
-    };
+    }, []);
 
     const resetNewUserState = () => {
-        setNewUser({ id: '', name: '', username: '', roleId: '' });
+        setIsModalOpen(false);
+        setNewUser(INITIAL_USER_FORM);
         setFilteredSuggestions([]);
         setIsSuggestionsOpen(false);
-        setErrorMessages({});
+        setFormErrors({});
     };
 
-    const handleAddOrUpdate = async () => {
+    // Manejador de submit del formulario
+    const handleSubmit = useCallback(async () => {
         const newErrorMessages = validateUserForm(newUser);
-        setErrorMessages(newErrorMessages);
-        setUserError(null);
+        setFormErrors(newErrorMessages);
 
         if (Object.keys(newErrorMessages).length > 0) return;
 
@@ -63,35 +89,35 @@ const UserPage: React.FC = () => {
             newUser.id ? await updateUser(newUser.id, userData) : await addUser(userData);
             handleCloseModal();
         } catch (error) {
-            handleUserActionError(error);
-        }
-    };
-
-    const handleUserActionError = (error: unknown) => {
-        console.error('Error adding/updating user:', error);
-        if (error instanceof Error) {
-            console.log('useError', userError);
-            alert(error.message.includes("User with username") ? `Error: ${error.message}` : 'An unexpected error occurred.');
-        }
-    };
-
-    const handleDelete = (id: string) => {
-        setUserToDelete(id);
-        setIsConfirmDeleteOpen(true);
-    };
-
-    const confirmDeleteUser = async () => {
-        if (userToDelete) {
-            try {
-                await deleteUser(userToDelete);
-            } catch (error) {
-                console.error('Error deleting user:', error);
-            } finally {
-                setUserToDelete(null);
-                setIsConfirmDeleteOpen(false);
+            if (error instanceof Error) {
+                setFormErrors(prev => ({
+                    ...prev,
+                    submit: error.message.includes("User with username")
+                        ? error.message
+                        : 'Ha ocurrido un error inesperado'
+                }));
             }
         }
-    };
+    }, [newUser, addUser, updateUser]);
+
+    // Manejadores de eliminación
+    const handleDelete = useCallback((id: string, name: string) => {
+        setUserToDelete({ id, name });
+        setIsConfirmDeleteOpen(true);
+    }, []);
+
+    const handleConfirmDelete = useCallback(async () => {
+        if (!userToDelete.id) return;
+
+        try {
+            await deleteUser(userToDelete.id);
+            setIsConfirmDeleteOpen(false);
+        } catch (error) {
+            console.error('Error al eliminar usuario:', error);
+        } finally {
+            setUserToDelete({ id: null, name: null });
+        }
+    }, [userToDelete.id, deleteUser]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const userInput = e.target.value;
@@ -121,42 +147,38 @@ const UserPage: React.FC = () => {
         resetFilteredSuggestions();
     };
 
-    const handleEdit = (user: any) => {
-        setNewUser({ id: user.id, name: user.name, username: user.username, roleId: user.rol.id });
-        setIsModalOpen(true);
-    };
-
-    const renderTableRows = () => {
+    // Renderizado de filas de la tabla
+    const renderTableRows = useCallback(() => {
         return userList.map((user: any) => ({
             Nombre: user.name,
             Usuario: user.username,
-            Rol: roleList.find((role: any) => role.id === user.rol.id)?.name || 'N/A',
+            Rol: roleList.find(role => role.id === user.rol.id)?.name || 'N/A',
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                     <ActionButtonComponent
                         label="EDITAR"
-                        onClick={() => handleEdit(user)}
+                        onClick={() => {
+                            setNewUser({
+                                id: user.id,
+                                name: user.name,
+                                username: user.username,
+                                roleId: user.rol.id
+                            });
+                            setIsModalOpen(true);
+                        }}
                         bgColor="bg-secondary-button-color hover:bg-blue-800"
                     />
                     <ActionButtonComponent
                         label="ELIMINAR"
-                        onClick={() => handleDelete(user.id)}
+                        onClick={() => handleDelete(user.id, user.name)}
                         bgColor="bg-primary-red-color hover:bg-red-400"
                     />
                 </div>
             )
         }));
-    };
+    }, [userList, roleList, handleDelete]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1000); 
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (loading || isLoading) return <LoadingPage />;
+    if (loading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
 
     return (
@@ -167,15 +189,27 @@ const UserPage: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
                     <PageHeaderComponent title='GESTIONAR USUARIOS' />
-                    {error && (
-                        <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
-                            {error}
-                        </div>
+                    {successMessage && (
+                        <AlertComponent
+                            type="success"
+                            message={successMessage}
+                            className="mb-4 w-full"
+                        />
+                    )}
+
+                    {formErrors.submit && (
+                        <AlertComponent
+                            type="error"
+                            message={formErrors.submit}
+                            className="mb-4 w-full"
+                        />
                     )}
                     <AddButtonComponent onClick={handleAddClick} />
                     <div className="overflow-x-auto w-full">
-                        <TableComponent headers={["Nombre", "Username", "Rol", "Acciones"]} rows={renderTableRows()} />
-                    </div>
+                        <TableComponent
+                            headers={["Nombre", "Username", "Rol", "Acciones"]}
+                            rows={renderTableRows()}
+                        /></div>
                 </div>
             </div>
             <ModalComponent
@@ -183,7 +217,7 @@ const UserPage: React.FC = () => {
                 onClose={handleCloseModal}
                 title={newUser.id ? 'Editar Usuario' : 'Nuevo Usuario'}
                 primaryButtonText={newUser.id ? 'ACTUALIZAR' : 'AGREGAR'}
-                onSubmit={handleAddOrUpdate}
+                onSubmit={handleSubmit}
                 size='medium'
             >
                 <form className="space-y-4">
@@ -209,7 +243,9 @@ const UserPage: React.FC = () => {
                                 ))}
                             </ul>
                         )}
-                        {errorMessages.name && <p className="text-red-600 text-sm">{errorMessages.name}</p>}
+                        {formErrors.name && (
+                            <p className="text-red-600 text-sm">{formErrors.name}</p>
+                        )}
                     </div>
                     <div>
                         <SelectInput
@@ -217,15 +253,16 @@ const UserPage: React.FC = () => {
                             value={newUser.roleId}
                             options={roleList}
                             onChange={(e) => setNewUser({ ...newUser, roleId: e.target.value })}
-                            error={errorMessages.roleId}
+                            error={formErrors.roleId}
                         />
                     </div>
                 </form>
             </ModalComponent>
-            <ConfirmDeleteModal 
-                isOpen={isConfirmDeleteOpen} 
-                onClose={() => setIsConfirmDeleteOpen(false)} 
-                onSubmit={confirmDeleteUser} 
+            <ConfirmDeleteModal
+                message={`¿Estás seguro de que deseas eliminar al usuario "${userToDelete.name}"?`}
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onSubmit={handleConfirmDelete}
             />
         </>
     );
