@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, ActionButtonComponent, HeaderComponent, AlertComponent } from '../../components';
+import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, ActionButtonComponent, HeaderComponent, AlertComponent, PaginationComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useResource } from '../../hooks';
 
@@ -23,6 +23,8 @@ const ResourcePage: React.FC = () => {
     
     // Estados de validación y errores
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     const {
         resourceList,
@@ -106,7 +108,7 @@ const ResourcePage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return resourceList.map((resource: any) => ({
+        return paginatedItems.map((resource: any) => ({
             Nombre: resource.name,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
@@ -128,7 +130,7 @@ const ResourcePage: React.FC = () => {
                 </div>
             )
         }));
-    }, [resourceList, handleDelete, handleEdit]);
+    }, [paginatedItems, handleDelete, handleEdit]);
 
     /* useEffect(() => {
         const timer = setTimeout(() => {
@@ -169,6 +171,10 @@ const ResourcePage: React.FC = () => {
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
+                    <PaginationComponent
+                        items={resourceList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { validateTeamData } from '../../utils/validations/validateTeamData';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent } from '../../components';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useTeam, usePersonal } from '../../hooks';
 
@@ -39,9 +39,10 @@ const TeamPage: React.FC = () => {
     const [memberData, setMemberData] = useState<number[]>([]);
     const [teamToDelete, setTeamToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
 
-
     // Estados de validación y errores
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     const {
         teamList,
@@ -155,7 +156,7 @@ const TeamPage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return teamList.map((team: any) => ({
+        return paginatedItems.map((team: any) => ({
             Nombre: team.name,
             Gestión: team.management,
             Facultad: team.faculty,
@@ -174,7 +175,7 @@ const TeamPage: React.FC = () => {
                 </div>
             )
         }));
-    }, [teamList, handleDelete]);
+    }, [paginatedItems, handleDelete]);
 
     const memberRows = teamMembers.map((member) => ({
         Nombre: member.name,
@@ -222,6 +223,10 @@ const TeamPage: React.FC = () => {
                     )}
                     <AddButtonComponent onClick={handleAddClick} />
                     <TableComponent headers={teamHeaders} rows={renderTableRows()} />
+                    <PaginationComponent
+                        items={teamList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
 

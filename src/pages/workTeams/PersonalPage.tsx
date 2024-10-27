@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { validatePersonalForm } from '../../utils/validations/validatePersonalForm';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent } from '../../components';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { usePersonal } from '../../hooks';
 
@@ -16,7 +16,7 @@ interface PersonalForm {
 const INITIAL_PERSONAL_FORM: PersonalForm = {
     id: '',
     name: '',
-    position: '', 
+    position: '',
     signature: null as File | null
 };
 
@@ -32,13 +32,15 @@ const PersonalPage: React.FC = () => {
     // Estados de validación y errores
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-    const { 
-        personalList, 
-        error, 
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
+
+    const {
+        personalList,
+        error,
         successMessage,
-        addPersonal, 
-        updatePersonal, 
-        deletePersonal 
+        addPersonal,
+        updatePersonal,
+        deletePersonal
     } = usePersonal();
 
     // Manejadores de modal
@@ -114,12 +116,12 @@ const PersonalPage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return personalList.map((personal: any) => ({
+        return paginatedItems.map((personal: any) => ({
             Nombre: personal.name,
             Cargo: personal.position,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                    <ActionButtonComponent 
+                    <ActionButtonComponent
                         label="EDITAR"
                         onClick={() => {
                             setPersonalForm({
@@ -132,7 +134,7 @@ const PersonalPage: React.FC = () => {
                         }}
                         bgColor="bg-secondary-button-color hover:bg-blue-800"
                     />
-                    <ActionButtonComponent 
+                    <ActionButtonComponent
                         label="ELIMINAR"
                         onClick={() => handleDelete(personal.id, personal.name)}
                         bgColor="bg-primary-red-color hover:bg-red-400"
@@ -141,7 +143,7 @@ const PersonalPage: React.FC = () => {
             )
         }));
 
-    }, [personalList, handleDelete]);
+    }, [paginatedItems, handleDelete]);
 
     //if (loading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
@@ -152,24 +154,28 @@ const PersonalPage: React.FC = () => {
             <div className="flex flex-col items-center w-full max-w-6xl px-4">
                 <PageHeaderComponent title='GESTIONAR PERSONAL TÉCNICO' />
                 {successMessage && (
-                        <AlertComponent
-                            type="success"
-                            message={successMessage}
-                            className="mb-4 w-full"
-                        />
-                    )}
+                    <AlertComponent
+                        type="success"
+                        message={successMessage}
+                        className="mb-4 w-full"
+                    />
+                )}
 
-                    {formErrors.submit && (
-                        <AlertComponent
-                            type="error"
-                            message={formErrors.submit}
-                            className="mb-4 w-full"
-                        />
-                    )}
+                {formErrors.submit && (
+                    <AlertComponent
+                        type="error"
+                        message={formErrors.submit}
+                        className="mb-4 w-full"
+                    />
+                )}
                 <AddButtonComponent onClick={() => handleAddClick()} />
                 <div className="overflow-x-auto w-full">
                     <TableComponent headers={headers} rows={renderTableRows()} />
                 </div>
+                <PaginationComponent
+                    items={personalList}
+                    onPageItemsChange={setPaginatedItems}
+                />
             </div>
 
             <ModalComponent

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { validateUserForm } from '../../utils/validations/validateUserForm';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent } from '../../components';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent, PaginationComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { useUsers } from '../../hooks';
 
@@ -32,6 +32,8 @@ const UserPage: React.FC = () => {
 
     // Estados de validación y errores
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     const {
         userList,
@@ -149,7 +151,7 @@ const UserPage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return userList.map((user: any) => ({
+        return paginatedItems.map((user: any) => ({
             Nombre: user.name,
             Usuario: user.username,
             Rol: roleList.find(role => role.id === user.rol.id)?.name || 'N/A',
@@ -176,7 +178,7 @@ const UserPage: React.FC = () => {
                 </div>
             )
         }));
-    }, [userList, roleList, handleDelete]);
+    }, [paginatedItems, roleList, handleDelete]);
 
     if (loading) return <LoadingPage />;
     if (error) return <ErrorPage message={error} />;
@@ -209,7 +211,12 @@ const UserPage: React.FC = () => {
                         <TableComponent
                             headers={["Nombre", "Username", "Rol", "Acciones"]}
                             rows={renderTableRows()}
-                        /></div>
+                        />
+                    </div>
+                    <PaginationComponent
+                        items={userList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
             <ModalComponent

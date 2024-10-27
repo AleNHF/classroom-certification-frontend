@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent } from '../../components';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useContent } from '../../hooks';
 
@@ -23,6 +23,8 @@ const ContentPage: React.FC = () => {
 
     // Estados de validación y errores
     const [errorMessage, setErrorMessage] = useState<string | null>(null); 
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
     
     const {
         contentList,
@@ -102,7 +104,7 @@ const ContentPage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return contentList.map((content: any) => ({
+        return paginatedItems.map((content: any) => ({
             Nombre: content.name,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
@@ -119,7 +121,7 @@ const ContentPage: React.FC = () => {
                 </div>
             )
         }));
-    }, [contentList, handleDelete, handleEdit]);
+    }, [paginatedItems, handleDelete, handleEdit]);
 
     /* useEffect(() => {
         const timer = setTimeout(() => {
@@ -160,6 +162,10 @@ const ContentPage: React.FC = () => {
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
+                    <PaginationComponent
+                        items={contentList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
 

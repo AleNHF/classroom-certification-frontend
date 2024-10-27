@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { validatePercentageForm } from '../../utils/validations/validatePercentageForm';
-import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent } from '../../components';
+import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent, PaginationComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useArea, useCycle, usePercentage } from '../../hooks';
 
@@ -16,8 +16,9 @@ const PercentagePage: React.FC = () => {
     const [percentageToDelete, setPercentageToDelete] = useState<string | null>(null);
 
     // Estados de validación y erroes
-    //const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
     const [errorMessages, setErrorMessages] = useState<Record<string, string>>({});
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     const { cycleList } = useCycle();
     const { areaList } = useArea();
@@ -101,7 +102,7 @@ const PercentagePage: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return percentageList.map((percentage: any) => ({
+        return paginatedItems.map((percentage: any) => ({
             Ciclo: cycleList.find((cycle: any) => cycle.id === percentage.cycle.id)?.name || 'N/A',
             Área: areaList.find((area: any) => area.id === percentage.area.id)?.name || 'N/A',
             Porcentaje: percentage.percentage + '%',
@@ -120,7 +121,7 @@ const PercentagePage: React.FC = () => {
                 </div>
             )
         }));
-    }, [percentageList, handleDelete, handleEdit]);
+    }, [paginatedItems, handleDelete, handleEdit]);
 
     /* useEffect(() => {
         const timer = setTimeout(() => {
@@ -161,6 +162,10 @@ const PercentagePage: React.FC = () => {
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
+                    <PaginationComponent
+                        items={percentageList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
 
