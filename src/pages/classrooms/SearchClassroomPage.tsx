@@ -25,7 +25,7 @@ const SearchClassroomPage: React.FC = () => {
             .catch(err => {
                 // Manejo específico para error 404
                 if (err.message && err.message.includes('404')) {
-                    setCustomErrorMessage(`No se encontró el aula en Moodle con shortname = [${searchTerm}]`);
+                    setCustomErrorMessage(`No se encontró el aula en Moodle: [${searchTerm}]`);
                 } else {
                     setCustomErrorMessage('Ocurrió un error al buscar el aula. Intenta de nuevo más tarde.');
                 }
