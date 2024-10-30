@@ -267,6 +267,12 @@ class ApiService {
         const moodleToken = AuthService.getTokenMoodle();
         return this.get(`/user/moodle/all?token=${moodleToken}`);
     }
+
+    public getClassroomsInMoodle(searchData: {field: string, value: string}) {
+        const moodleToken = AuthService.getTokenMoodle();
+        const dataWithToken = { ...searchData, token: moodleToken };
+        return this.post('/classroom/moodle-search', dataWithToken);
+    }
 }
 
 export default new ApiService();

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Action, ActionMessages, Classroom, FetchState } from '../../types';
+import { Action, ActionMessages, Classroom, ClassroomMoodle, FetchState } from '../../types';
 
 // Definición de tipos específicos para mejor control
 const ACTION_MESSAGES: Record<Action, ActionMessages> = {
@@ -23,6 +23,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 
 const useClassroom = () => {
     const [classroomList, setClassroomList] = useState<Classroom[]>([]);
+    const [searchClassroomsList, setSearchClassroomsList] = useState<ClassroomMoodle[]>([]);
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
         error: null,
@@ -44,7 +45,6 @@ const useClassroom = () => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const response = await apiService.getClassrooms();
-            console.log('classrooms', response)
             setClassroomList(response.data.classrooms);
         } catch (error) {
             const errorMessage = error instanceof Error
@@ -135,8 +135,33 @@ const useClassroom = () => {
         [handleAction]
     );
 
+    const searchClassrooms = useCallback(async (searchData: { field: string, value: string }) => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.getClassroomsInMoodle(searchData);
+            console.log('response', response)
+            setSearchClassroomsList(response.data.classrooms);
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al cargar los datos';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching data:', error);
+
+            // Lanza el error para ser capturado en handleSearch
+            throw new Error(errorMessage);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, []);
+
     return {
         classroomList,
+        searchClassroomsList,
 
         loading: fetchState.loading,
         error: fetchState.error,
@@ -144,7 +169,9 @@ const useClassroom = () => {
 
         addClassroom,
         updateClassroom,
-        deleteClassroom
+        deleteClassroom,
+
+        searchClassrooms
     };
 };
 

@@ -5,6 +5,7 @@ import { LoadingPage, ErrorPage } from '../utils';
 import { useClassroom } from '../../hooks';
 import { ClassroomStatus } from '../../utils/enums/classroomStatus';
 import SearchButtonComponent from '../../components/ui/SearchButton';
+import { useNavigate } from 'react-router-dom';
 
 const headers = ["Nombre del Aula", "Estado", "Acciones"];
 
@@ -22,6 +23,8 @@ const mapStatusToText = (status: ClassroomStatus): string => {
 }
 
 const ClassroomPage: React.FC = () => {
+    const navigate = useNavigate();
+
     const [filter, setFilter] = useState<'' | ClassroomStatus>('');
     const [isLoading, setIsLoading] = useState(true);
     const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
@@ -50,8 +53,8 @@ const ClassroomPage: React.FC = () => {
         }));
     }, [paginatedItems]);
 
-    const handleClassroomDetail = () => {
-
+    const handleSearchClassroomClick = () => {
+        navigate('search');
     };
 
     useEffect(() => {
@@ -81,7 +84,7 @@ const ClassroomPage: React.FC = () => {
                     )}
 
                     {/* Buscador */}
-                    <SearchButtonComponent label='BUSCAR AULAS A EVALUAR' onClick={handleClassroomDetail} />
+                    <SearchButtonComponent label='BUSCAR AULAS A EVALUAR' onClick={handleSearchClassroomClick} />
 
                     {/* Filtros */}
                     <div className="flex w-full justify-start my-4">
