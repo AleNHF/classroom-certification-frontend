@@ -136,9 +136,9 @@ const SearchClassroomPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <p className="text-justify text-sm font-medium text-gray-700">
+                    {/* <p className="text-justify text-sm font-medium text-gray-700">
                         ¿Deseas continuar?
-                    </p>
+                    </p> */}
                 </div>
             </ModalComponent>
         </>

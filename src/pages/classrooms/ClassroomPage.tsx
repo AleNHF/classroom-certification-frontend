@@ -39,6 +39,11 @@ const ClassroomPage: React.FC = () => {
         return classroomList.filter((classroom: any) => filter === '' || classroom.status === filter);
     }, [classroomList, filter]);
 
+    const handleConfirm = (selectedClassroom: any) => {
+        console.log('handleconfifi')
+        navigate('/classrooms/evaluation-dashboard', { state: { classroom: selectedClassroom } });
+    }
+
     const rows = useMemo(() => {
         return paginatedItems.map((classroom: any) => ({
             'Nombre del Aula': classroom.name,
@@ -46,7 +51,7 @@ const ClassroomPage: React.FC = () => {
             Acciones: (
                 <ActionButtonComponent
                     label="SELECCIONAR"
-                    onClick={() => { } /* manejar navegación */}
+                    onClick={() => handleConfirm(classroom)}
                     bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             )
