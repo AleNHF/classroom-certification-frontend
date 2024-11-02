@@ -5,6 +5,7 @@ import { LoadingPage, ErrorPage } from '../utils';
 import { useClassroom } from '../../hooks';
 import { ClassroomStatus } from '../../utils/enums/classroomStatus';
 import SearchButtonComponent from '../../components/ui/SearchButton';
+import { useNavigate } from 'react-router-dom';
 
 const headers = ["Nombre del Aula", "Estado", "Acciones"];
 
@@ -22,6 +23,8 @@ const mapStatusToText = (status: ClassroomStatus): string => {
 }
 
 const ClassroomPage: React.FC = () => {
+    const navigate = useNavigate();
+
     const [filter, setFilter] = useState<'' | ClassroomStatus>('');
     const [isLoading, setIsLoading] = useState(true);
     const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
@@ -36,6 +39,11 @@ const ClassroomPage: React.FC = () => {
         return classroomList.filter((classroom: any) => filter === '' || classroom.status === filter);
     }, [classroomList, filter]);
 
+    const handleConfirm = (selectedClassroom: any) => {
+        console.log('handleconfifi')
+        navigate('/classrooms/evaluation-dashboard', { state: { classroom: selectedClassroom } });
+    }
+
     const rows = useMemo(() => {
         return paginatedItems.map((classroom: any) => ({
             'Nombre del Aula': classroom.name,
@@ -43,15 +51,15 @@ const ClassroomPage: React.FC = () => {
             Acciones: (
                 <ActionButtonComponent
                     label="SELECCIONAR"
-                    onClick={() => { } /* manejar navegación */}
+                    onClick={() => handleConfirm(classroom)}
                     bgColor="bg-primary-red-color hover:bg-red-400"
                 />
             )
         }));
     }, [paginatedItems]);
 
-    const handleClassroomDetail = () => {
-
+    const handleSearchClassroomClick = () => {
+        navigate('search');
     };
 
     useEffect(() => {
@@ -81,7 +89,7 @@ const ClassroomPage: React.FC = () => {
                     )}
 
                     {/* Buscador */}
-                    <SearchButtonComponent label='BUSCAR AULAS A EVALUAR' onClick={handleClassroomDetail} />
+                    <SearchButtonComponent label='BUSCAR AULAS A EVALUAR' onClick={handleSearchClassroomClick} />
 
                     {/* Filtros */}
                     <div className="flex w-full justify-start my-4">

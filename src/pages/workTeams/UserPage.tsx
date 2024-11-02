@@ -31,7 +31,8 @@ const UserPage: React.FC = () => {
     const [userToDelete, setUserToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
 
     // Estados de validación y errores
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});  
+    const [customErrorMessage, setCustomErrorMessage] = useState<string | null>(null);
 
     const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
@@ -72,6 +73,7 @@ const UserPage: React.FC = () => {
         setFilteredSuggestions([]);
         setIsSuggestionsOpen(false);
         setFormErrors({});
+        setCustomErrorMessage('');
     };
 
     // Manejador de submit del formulario
@@ -92,12 +94,17 @@ const UserPage: React.FC = () => {
             handleCloseModal();
         } catch (error) {
             if (error instanceof Error) {
-                setFormErrors(prev => ({
+                if (error.message && error.message.includes("User with username")) {
+                    setCustomErrorMessage(`El usuario [${newUser.name}] ya existe`);
+                } else {
+                    setCustomErrorMessage('Ocurrió un error al registrar al usuario. Intenta de nuevo más tarde.');
+                }
+                /* setFormErrors(prev => ({
                     ...prev,
                     submit: error.message.includes("User with username")
                         ? error.message
                         : 'Ha ocurrido un error inesperado'
-                }));
+                })); */
             }
         }
     }, [newUser, addUser, updateUser]);
@@ -181,7 +188,9 @@ const UserPage: React.FC = () => {
     }, [paginatedItems, roleList, handleDelete]);
 
     if (loading) return <LoadingPage />;
-    if (error) return <ErrorPage message={error} />;
+    if (error && customErrorMessage === null) {
+        return <ErrorPage message={error} />;
+    }
 
     return (
         <>
@@ -263,6 +272,11 @@ const UserPage: React.FC = () => {
                             error={formErrors.roleId}
                         />
                     </div>
+                    {customErrorMessage && (
+                        <div className="bg-red-100 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
+                            {customErrorMessage}
+                        </div>
+                    )}
                 </form>
             </ModalComponent>
             <ConfirmDeleteModal

@@ -11,3 +11,4 @@ export type { Percentage } from './percentage';
 export type { Classroom } from './classroom';
 export type { ActionMessages } from './actionMessage';
 export type { Action } from './action';
+export type { ClassroomMoodle } from './classroomMoodle';

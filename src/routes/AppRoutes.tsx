@@ -4,7 +4,9 @@ import { useAuthContext } from '../context/AuthContext';
 import { LoginPage, HomePage, WorkTeamsPage, PersonalPage, UserPage, TeamPage, IndicatorConfigurationPage, CyclePage, ResourcePage, ContentPage, AreaPage, IndicatorPage, PercentagePage } from '../pages';
 import { NoAccessPage } from '../pages/utils';
 import RoleProtectedRoute from './RoleProtectedRoute';
-import ClassroomPage from '../pages/classrooms/ClassroomsPage';
+import ClassroomPage from '../pages/classrooms/ClassroomPage';
+import SearchClassroomPage from '../pages/classrooms/SearchClassroomPage';
+import EvaluationDashboard from '../pages/evaluations/EvaluationDashboard';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -65,6 +67,14 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="classrooms"
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<ClassroomPage />} />}
+            />
+            <Route
+                path="classrooms/search"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<SearchClassroomPage />} />}
+            />
+            <Route
+                path="classrooms/evaluation-dashboard"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<EvaluationDashboard />} />}
             />
 
              {/* Ruta para la página de no acceso */}
