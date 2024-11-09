@@ -1,4 +1,5 @@
 export { default as useClassroom } from './classrooms/useClassroom';
+export { default as useEvaluation } from './classrooms/useEvaluation';
 
 export { default as useArea } from './indicatorsConfiguration/useArea';
 export { default as useContent } from './indicatorsConfiguration/useContent';

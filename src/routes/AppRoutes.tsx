@@ -7,6 +7,7 @@ import RoleProtectedRoute from './RoleProtectedRoute';
 import ClassroomPage from '../pages/classrooms/ClassroomPage';
 import SearchClassroomPage from '../pages/classrooms/SearchClassroomPage';
 import EvaluationDashboard from '../pages/evaluations/EvaluationDashboard';
+import CertificationView from '../pages/evaluations/ProcessEvaluationView';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -75,6 +76,10 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="classrooms/evaluation-dashboard"
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<EvaluationDashboard />} />}
+            />
+            <Route
+                path="classrooms/evaluation-progress"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<CertificationView />} />}
             />
 
              {/* Ruta para la página de no acceso */}

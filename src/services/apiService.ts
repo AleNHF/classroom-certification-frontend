@@ -261,6 +261,14 @@ class ApiService {
         return this.delete(`/classroom/${id}`);
     }
 
+    public addEvaluation(evaluationData: {classroomId: number, cycleId: number, areaId: number, result: number}) {
+        return this.post('/evaluation', evaluationData);
+    }
+
+    public updateEvaluation(id: string, updatedData: {classroomId: number, cycleId: number, areaId: number, result: number}) {
+        return this.patch(`/evaluation/${id}`, updatedData);
+    }
+
     /*
      * Otros métodos específicos
      */

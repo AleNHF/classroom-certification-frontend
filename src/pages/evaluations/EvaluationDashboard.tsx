@@ -1,6 +1,8 @@
-import { useLocation } from "react-router-dom";
-import { Card, HeaderComponent, PageHeaderComponent } from "../../components";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Card, HeaderComponent, ModalComponent, PageHeaderComponent, SelectInput } from "../../components";
 import { ClassroomStatus } from "../../utils/enums/classroomStatus";
+import { useArea, useCycle, useEvaluation } from "../../hooks";
+import { useCallback, useState } from "react";
 
 const mapStatusToText = (status: ClassroomStatus): string => {
     switch (status) {
@@ -19,7 +21,110 @@ const mapStatusToText = (status: ClassroomStatus): string => {
 
 const EvaluationDashboard = () => {
     const location = useLocation();
+    const navigation = useNavigate();
     const classroom = location.state?.classroom;
+
+    // Estados de UI
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Estados de Datos
+    const [selectedCycle, setSelectedCycle] = useState<string>('');
+    const [selectedArea, setSelectedArea] = useState<string>('');
+    const [newEvaluation, setNewEvaluation] = useState({ id: '', cycleId: '', areaId: '', classroomId: '' });
+
+    // Estados de validación y errores
+    const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+
+    const { cycleList } = useCycle();
+    const { areaList } = useArea();
+    const { addEvaluation } = useEvaluation();
+
+    // Manejadores de modal
+    const resetEvaluationForm = () => {
+        setNewEvaluation({ id: '', cycleId: '', areaId: '', classroomId: '' });
+        setSelectedCycle('');
+        setSelectedArea('');
+        setErrorMessages({});
+    }
+
+    const handleOpenModal = () => {
+        resetEvaluationForm();
+        setIsModalOpen(true);
+    }
+
+    const handleCloseModal = () => {
+        resetEvaluationForm();
+        setIsModalOpen(false);
+    }
+
+    // Manejadores de cambio para los select
+    const handleCycleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCycle(e.target.value);
+        setNewEvaluation(prev => ({
+            ...prev,
+            cycleId: e.target.value
+        }));
+
+        if (errorMessages.cycleId) {
+            setErrorMessages(prev => ({
+                ...prev,
+                cycleId: ''
+            }));
+        }
+    };
+
+    const handleAreaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedArea(e.target.value);
+        setNewEvaluation(prev => ({
+            ...prev,
+            areaId: e.target.value
+        }));
+
+        if (errorMessages.areaId) {
+            setErrorMessages(prev => ({
+                ...prev,
+                areaId: ''
+            }));
+        }
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors: { [key: string]: string } = {};
+
+        if (!selectedCycle) {
+            newErrors.cycleId = 'Debe seleccionar un ciclo';
+        }
+        if (!selectedArea) {
+            newErrors.areaId = 'Debe seleccionar un área';
+        }
+
+        setErrorMessages(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    // Manejador de submit del formulario
+    const handleSubmitEvaluation = useCallback(async () => {
+        if (!validateForm()) {
+            return;
+        }
+
+        const evaluationData = {
+            classroomId: classroom?.id || '',
+            cycleId: parseInt(newEvaluation.cycleId),
+            areaId: parseInt( newEvaluation.areaId),      
+            result: 0
+        };
+
+        try {
+            // llamar función para registrar evaluación
+            console.log('evaluationData', evaluationData)
+            await addEvaluation(evaluationData);
+            handleCloseModal();
+            navigation('/classrooms/evaluation-progress')
+        } catch (error) {
+            console.error('Error adding evaluation:', error);
+        }
+    }, [newEvaluation, classroom, validateForm])
 
     return (
         <>
@@ -38,7 +143,7 @@ const EvaluationDashboard = () => {
                         </p>
                         <button
                             className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
-                            onClick={() => console.log('Iniciar evaluación')}
+                            onClick={handleOpenModal}
                         >
                             INICIAR EVALUACIÓN
                         </button>
@@ -57,6 +162,41 @@ const EvaluationDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            <ModalComponent
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                title={classroom.name}
+                primaryButtonText="INICIAR"
+                onSubmit={handleSubmitEvaluation}
+                size='medium'
+            >
+                <form className="space-y-4">
+                    <div className="text-justify">
+                        <p className="mt-2 text-sm text-gray-700">
+                            Por favor, selecciona el ciclo y el área con el que deseas iniciar la evaluación
+                        </p>
+                    </div>
+                    <div className="mb-4">
+                        <SelectInput
+                            label="Ciclo"
+                            value={selectedCycle}
+                            options={cycleList}
+                            onChange={handleCycleChange}
+                            error={errorMessages.cycleId}
+                        />
+                        <div className="mb-4">
+                            <SelectInput
+                                label="Área"
+                                value={selectedArea}
+                                options={areaList}
+                                onChange={handleAreaChange}
+                                error={errorMessages.areaId}
+                            />
+                        </div>
+                    </div>
+                </form>
+            </ModalComponent>
         </>
     );
 };
