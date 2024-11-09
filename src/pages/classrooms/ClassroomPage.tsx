@@ -11,6 +11,8 @@ const headers = ["Nombre del Aula", "Estado", "Acciones"];
 
 const mapStatusToText = (status: ClassroomStatus): string => {
     switch (status) {
+        case ClassroomStatus.PENDING:
+            return 'Pendiente';
         case ClassroomStatus.PROCESSING:
             return 'En Proceso';
         case ClassroomStatus.EVALUATED:
