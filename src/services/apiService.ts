@@ -41,7 +41,6 @@ class ApiService {
 
         try {
             const response = await fetch(url, options);
-            console.log('response', response.json)
 
             if (!response.ok) {
                 const errorData = await response.json();

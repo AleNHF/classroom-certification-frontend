@@ -7,6 +7,7 @@ export const FilterSelect: React.FC<{ filter: ClassroomStatus | '', setFilter: (
         onChange={(e) => setFilter(e.target.value as '' | ClassroomStatus)}
     >
         <option value="">Todas</option>
+        <option value={ClassroomStatus.PENDING}>Pendiente</option>
         <option value={ClassroomStatus.PROCESSING}>En Proceso</option>
         <option value={ClassroomStatus.EVALUATED}>Evaluada</option>
         <option value={ClassroomStatus.CERTIFIED}>Certificada</option>

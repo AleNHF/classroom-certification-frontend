@@ -42,7 +42,6 @@ const ClassroomPage: React.FC = () => {
     }, [classroomList, filter]);
 
     const handleConfirm = (selectedClassroom: any) => {
-        console.log('handleconfifi')
         navigate('/classrooms/evaluation-dashboard', { state: { classroom: selectedClassroom } });
     }
 

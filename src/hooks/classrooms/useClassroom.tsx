@@ -139,7 +139,6 @@ const useClassroom = () => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const response = await apiService.getClassroomsInMoodle(searchData);
-            console.log('response', response)
             setSearchClassroomsList(response.data.classrooms);
         } catch (error) {
             const errorMessage = error instanceof Error

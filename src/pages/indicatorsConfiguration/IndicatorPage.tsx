@@ -121,7 +121,6 @@ const IndicatorPage: React.FC = () => {
             resourceId: Number(selectedResource),
             contentId: selectedContent ? Number(selectedContent) : undefined,
         };
-        console.log(indicatorData)
 
         try {
             newIndicator.id
