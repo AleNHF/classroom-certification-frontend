@@ -3,8 +3,9 @@ import HeaderComponent from '../../components/layout/HeaderComponent';
 import { ActionButtonComponent, ModalComponent, PageHeaderComponent, SearchInputComponent, TableComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useClassroom } from '../../hooks';
-import { ClassroomMoodle } from '../../types';
+import { Classroom, ClassroomMoodle } from '../../types';
 import { useNavigate } from 'react-router-dom';
+import { ClassroomStatus } from '../../utils/enums/classroomStatus';
 
 const headers = ["Código", "Nombre", "Acciones"];
 
@@ -13,21 +14,21 @@ const SearchClassroomPage: React.FC = () => {
 
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [fieldTerm, setFieldTerm] = useState<string>("id");
-
     const [customErrorMessage, setCustomErrorMessage] = useState<string | null>(null);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedClassroom, setSelectedClassroom] = useState<ClassroomMoodle | null>(null);
 
     const {
-        searchClassroomsList,
+        searchClassroomsList, 
         error,
-        searchClassrooms
+        searchClassrooms,
+        addClassroom
     } = useClassroom();
 
     // Manejador para la búsqueda
     const handleSearch = useCallback(() => {
-        setCustomErrorMessage(null); // Resetea el mensaje de error antes de buscar
+        setCustomErrorMessage(null); 
         searchClassrooms({ field: fieldTerm, value: searchTerm })
             .catch(err => {
                 // Manejo específico para error 404
@@ -49,9 +50,22 @@ const SearchClassroomPage: React.FC = () => {
         setSelectedClassroom(null);
     };
 
-    const handleConfirm = () => {
-        console.log('handleconfifi')
-        navigate('/classrooms/evaluation-dashboard', { state: {classroom: selectedClassroom}});
+    const handleConfirm = async () => {
+        if (!selectedClassroom) return;
+        
+        const classroomData: Classroom = {
+            name: selectedClassroom.fullname,
+            code: selectedClassroom.shortname,
+            status: ClassroomStatus.PENDING
+        };
+        
+        try {
+            await addClassroom(classroomData);
+            navigate('/classrooms/evaluation-dashboard', { state: {classroom: classroomData}});
+        } catch (error) {
+            console.error('Error al añadir el aula virtual:', error);
+            setCustomErrorMessage('Ocurrió un error al guardar el aula. Por favor, intenta de nuevo.');
+        }
     }
 
     const rows = useMemo(() => {
@@ -135,10 +149,6 @@ const SearchClassroomPage: React.FC = () => {
                             <span className="font-medium text-sm text-gray-800">{selectedClassroom?.categoryname}</span>
                         </div>
                     </div>
-
-                    {/* <p className="text-justify text-sm font-medium text-gray-700">
-                        ¿Deseas continuar?
-                    </p> */}
                 </div>
             </ModalComponent>
         </>

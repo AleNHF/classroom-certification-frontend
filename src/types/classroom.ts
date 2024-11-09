@@ -1,7 +1,8 @@
+import { ClassroomStatus } from "../utils/enums/classroomStatus";
+
 export interface Classroom {
-    id:        number;
+    id?:        number;
     name:      string;
     code:      string;
-    status:    string;
-    createdAt: Date;
+    status:    ClassroomStatus;
 }

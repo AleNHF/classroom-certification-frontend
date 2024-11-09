@@ -2,14 +2,10 @@ import { useLocation } from "react-router-dom";
 import { Card, HeaderComponent, PageHeaderComponent } from "../../components";
 import { ClassroomStatus } from "../../utils/enums/classroomStatus";
 
-interface Course {
-    id: string;
-    name: string;
-    status: 'PENDIENTE' | 'EN PROCESO' | 'EVALUADA' | 'CERTIFICADA';
-}
-
 const mapStatusToText = (status: ClassroomStatus): string => {
     switch (status) {
+        case ClassroomStatus.PENDING:
+            return 'Pendiente';
         case ClassroomStatus.PROCESSING:
             return 'En Proceso';
         case ClassroomStatus.EVALUATED:
@@ -22,12 +18,6 @@ const mapStatusToText = (status: ClassroomStatus): string => {
 }
 
 const EvaluationDashboard = () => {
-    const course: Course = {
-        id: '[1-2021]',
-        name: 'INTRODUCCION A LA SOCIOLOGIA - TV',
-        status: 'PENDIENTE'
-    };
-
     const location = useLocation();
     const classroom = location.state?.classroom;
 
@@ -55,13 +45,13 @@ const EvaluationDashboard = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
-                        {classroom.status === ClassroomStatus.PROCESSING || classroom.status === ClassroomStatus.EVALUATED && (
+                        {(classroom.status === ClassroomStatus.PROCESSING || classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
                             <Card title='INFORMES DE EVALUACIÓN' route='personal' />
                         )}
-                        {classroom.status === ClassroomStatus.EVALUATED && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
                             <Card title='VALORACIÓN DE AULA VIRTUAL' route='teams' />
                         )}
-                        {classroom.status === ClassroomStatus.EVALUATED && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
                             <Card title='CERTIFICADOS' route='users' />
                         )}
                     </div>

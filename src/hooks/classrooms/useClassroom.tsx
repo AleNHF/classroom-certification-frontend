@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
 import { Action, ActionMessages, Classroom, ClassroomMoodle, FetchState } from '../../types';
+import { ClassroomStatus } from '../../utils/enums/classroomStatus';
 
 // Definición de tipos específicos para mejor control
 const ACTION_MESSAGES: Record<Action, ActionMessages> = {
@@ -77,7 +78,7 @@ const useClassroom = () => {
 
     const handleAction = useCallback(async (
         action: Action,
-        classroomData?: { name: string, code: string, status: string },
+        classroomData?: { name: string, code: string, status: ClassroomStatus },
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -96,7 +97,6 @@ const useClassroom = () => {
             } else if (action === 'delete') {
                 await apiService.deleteClassroom(id!);
             }
-            await fetchData();
             await fetchData();
             setFetchState(prev => ({
                 ...prev,
@@ -121,12 +121,12 @@ const useClassroom = () => {
 
     // Optimización de funciones retornadas con useCallback
     const addClassroom = useCallback(
-        (classroomData: { name: string, code: string, status: string }) => handleAction('add', classroomData),
+        (classroomData: { name: string, code: string, status: ClassroomStatus }) => handleAction('add', classroomData),
         [handleAction]
     );
 
     const updateClassroom = useCallback(
-        (id: string, classroomData: { name: string, code: string, status: string }) => handleAction('update', classroomData, id),
+        (id: string, classroomData: { name: string, code: string, status: ClassroomStatus }) => handleAction('update', classroomData, id),
         [handleAction]
     );
 
@@ -139,7 +139,6 @@ const useClassroom = () => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const response = await apiService.getClassroomsInMoodle(searchData);
-            console.log('response', response)
             setSearchClassroomsList(response.data.classrooms);
         } catch (error) {
             const errorMessage = error instanceof Error

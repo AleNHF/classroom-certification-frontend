@@ -1,6 +1,7 @@
 import AuthService from '../services/authService';
 import { Team } from '../types/team';
 import { UserProps } from '../types/userProps';
+import { ClassroomStatus } from '../utils/enums/classroomStatus';
 
 class ApiService {
     private baseUrl: string;
@@ -248,7 +249,7 @@ class ApiService {
         return this.get(`/classroom`);
     }
 
-    public addClassroom(classroomData: {name: string, code: string, status: string}) {
+    public addClassroom(classroomData: {name: string, code: string, status: ClassroomStatus}) {
         return this.post('/classroom', classroomData);
     }
 

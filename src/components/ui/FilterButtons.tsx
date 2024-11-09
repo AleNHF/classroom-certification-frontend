@@ -3,6 +3,7 @@ import { ClassroomStatus } from "../../utils/enums/classroomStatus";
 export const FilterButtons: React.FC<{ filter: ClassroomStatus | '', setFilter: (filter: ClassroomStatus | '') => void }> = ({ filter, setFilter }) => {
     const buttons = [
         { label: 'Todas', value: ClassroomStatus.ALL },
+        { label: 'Pendiente', value: ClassroomStatus.PENDING },
         { label: 'En Proceso', value: ClassroomStatus.PROCESSING },
         { label: 'Evaluada', value: ClassroomStatus.EVALUATED },
         { label: 'Certificada', value: ClassroomStatus.CERTIFIED }
