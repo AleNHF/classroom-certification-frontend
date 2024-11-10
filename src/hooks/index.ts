@@ -1,4 +1,5 @@
 export { default as useClassroom } from './classrooms/useClassroom';
+export { default as useForm } from './classrooms/useForm';
 
 export { default as useArea } from './indicatorsConfiguration/useArea';
 export { default as useContent } from './indicatorsConfiguration/useContent';

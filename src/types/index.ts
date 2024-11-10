@@ -12,3 +12,5 @@ export type { Classroom } from './classroom';
 export type { ActionMessages } from './actionMessage';
 export type { Action } from './action';
 export type { ClassroomMoodle } from './classroomMoodle';
+export type { Form } from './form';
+export type { FormDataProps } from './formData';
