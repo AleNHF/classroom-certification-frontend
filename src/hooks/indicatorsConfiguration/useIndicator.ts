@@ -19,6 +19,11 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando indicador...',
         success: 'Indicador eliminado exitosamente',
         error: 'Error al eliminar indicador'
+    },
+    fetch: {
+        loading: 'Cargando...',
+        success: 'Cargado exitosamente',
+        error: 'Error al cargar'
     }
 };
 

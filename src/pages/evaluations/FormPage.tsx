@@ -132,8 +132,8 @@ const FormPage: React.FC = () => {
         }
     }, [getFormById]);
 
-    const handleResourcesClick = (cycleId: string, cycleName: string) => {
-        navigate(`/indicators-configuration/resources/${cycleId}`, { state: { cycleName: cycleName } })
+    const handleAssessmentClick = (formId: string, formName: string) => {
+        navigate(`/classrooms/evaluation-assessment/${formId}`, { state: { formName: formName } })
     };
 
     // Renderizado de filas de la tabla
@@ -159,7 +159,7 @@ const FormPage: React.FC = () => {
                     />
                     <IconButtonComponent
                         variant="content"
-                        onClick={() => handleResourcesClick(form.id, form.name)}
+                        onClick={() => handleAssessmentClick(form.id, form.name)}
                     />
                 </div>
             )

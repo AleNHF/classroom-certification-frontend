@@ -1,5 +1,5 @@
 import AuthService from '../services/authService';
-import { FormDataProps, Team, UserProps } from '../types';
+import { AssessmentData, FormDataProps, Team, UserProps } from '../types';
 import { ClassroomStatus } from '../utils/enums/classroomStatus';
 
 class ApiService {
@@ -299,6 +299,37 @@ class ApiService {
 
     public deleteForm(id: string) {
         return this.delete(`/form/${id}`);
+    }
+
+    /*
+     * Métodos específicos para administrar valoración de aula virtual
+     */
+    public getAssessment() {
+        return this.get(`/assessment`);
+    }
+
+    public getAssessmentByForm(formId: string) {
+        return this.get(`/assessment/form/${formId}`);
+    }
+
+    public getAssessmentById(assessmentId: string) {
+        return this.get(`/assessment/${assessmentId}`);
+    }
+
+    public addAssessment(assessmentData: AssessmentData) {
+        return this.post('/assessment', assessmentData);
+    }
+
+    public addAssessmentByForm(assessmentData: { formId: string }) {
+        return this.post('/assessment/form', assessmentData);
+    }
+
+    public updateAssessment(id: string, updatedData: AssessmentData) {
+        return this.patch(`/assessment/${id}`, updatedData);
+    }
+
+    public deleteAssessment(id: string) {
+        return this.delete(`/assessment/${id}`);
     }
 }
 

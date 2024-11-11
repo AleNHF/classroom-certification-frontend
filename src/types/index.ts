@@ -14,3 +14,5 @@ export type { Action } from './action';
 export type { ClassroomMoodle } from './classroomMoodle';
 export type { Form } from './form';
 export type { FormDataProps } from './formData';
+export type { AssessmentData } from './assessmentData';
+export type { Assessment } from './assessment';
