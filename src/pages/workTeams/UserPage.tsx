@@ -99,12 +99,6 @@ const UserPage: React.FC = () => {
                 } else {
                     setCustomErrorMessage('Ocurrió un error al registrar al usuario. Intenta de nuevo más tarde.');
                 }
-                /* setFormErrors(prev => ({
-                    ...prev,
-                    submit: error.message.includes("User with username")
-                        ? error.message
-                        : 'Ha ocurrido un error inesperado'
-                })); */
             }
         }
     }, [newUser, addUser, updateUser]);

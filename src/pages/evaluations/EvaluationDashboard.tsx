@@ -21,6 +21,16 @@ const EvaluationDashboard = () => {
     const location = useLocation();
     const classroom = location.state?.classroom;
 
+    if (!classroom || !classroom.id) {
+        return <div>Error: No se encontró información del aula</div>;
+    }
+
+    const routes = {
+        evaluation: `/classrooms/evaluation-personal/${classroom.id}`,
+        form: `/classrooms/evaluation-formulario/${classroom.id}`,
+        certificates: `/classrooms/certificates/${classroom.id}`
+    }
+
     return (
         <>
             <div className="flex flex-col items-center justify-start bg-white min-h-screen">
@@ -46,13 +56,13 @@ const EvaluationDashboard = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
                         {(classroom.status === ClassroomStatus.PROCESSING || classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='INFORMES DE EVALUACIÓN' route='personal' />
+                            <Card title='INFORMES DE EVALUACIÓN' route={routes.evaluation} />
                         )}
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='VALORACIÓN DE AULA VIRTUAL' route='teams' />
+                            <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form}/>
                         )}
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='CERTIFICADOS' route='users' />
+                            <Card title='CERTIFICADOS' route={routes.certificates} />
                         )}
                     </div>
                 </div>

@@ -1,6 +1,5 @@
 import AuthService from '../services/authService';
-import { Team } from '../types/team';
-import { UserProps } from '../types/userProps';
+import { AssessmentData, FormDataProps, Team, UserProps } from '../types';
 import { ClassroomStatus } from '../utils/enums/classroomStatus';
 
 class ApiService {
@@ -273,6 +272,64 @@ class ApiService {
         const moodleToken = AuthService.getTokenMoodle();
         const dataWithToken = { ...searchData, token: moodleToken };
         return this.post('/classroom/moodle-search', dataWithToken);
+    }
+
+    /*
+     * Métodos específicos para administrar formularios
+     */
+    public getForms() {
+        return this.get(`/form`);
+    }
+
+    public getFormsByClassroom(classroomId: string) {
+        return this.get(`/form/classroom/${classroomId}`);
+    }
+
+    public getFormById(formId: string) {
+        return this.get(`/form/${formId}`);
+    }
+
+    public addForm(formData: FormDataProps) {
+        return this.post('/form', formData);
+    }
+
+    public updateForm(id: string, updatedData: FormDataProps) {
+        return this.patch(`/form/${id}`, updatedData);
+    }
+
+    public deleteForm(id: string) {
+        return this.delete(`/form/${id}`);
+    }
+
+    /*
+     * Métodos específicos para administrar valoración de aula virtual
+     */
+    public getAssessment() {
+        return this.get(`/assessment`);
+    }
+
+    public getAssessmentByForm(formId: string) {
+        return this.get(`/assessment/form/${formId}`);
+    }
+
+    public getAssessmentById(assessmentId: string) {
+        return this.get(`/assessment/${assessmentId}`);
+    }
+
+    public addAssessment(assessmentData: AssessmentData) {
+        return this.post('/assessment', assessmentData);
+    }
+
+    public addAssessmentByForm(assessmentData: { formId: string }) {
+        return this.post('/assessment/form', assessmentData);
+    }
+
+    public updateAssessment(id: string, updatedData: AssessmentData) {
+        return this.patch(`/assessment/${id}`, updatedData);
+    }
+
+    public deleteAssessment(id: string) {
+        return this.delete(`/assessment/${id}`);
     }
 }
 
