@@ -50,7 +50,6 @@ const useAssessment = (formId: string) => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const response = await apiService.getAssessmentByForm(formId);
-            console.log('response', response)
             setAssessmentList(response.data.assessments);
         } catch (error) {
             const errorMessage = error instanceof Error

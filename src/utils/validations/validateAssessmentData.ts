@@ -11,9 +11,5 @@ export const validateAssessmentData = (assessment: AssessmentData) => {
         errorMessages.areaId = 'El área es obligatoria.';
     }
 
-    if (!assessment.requerimentName) {
-        errorMessages.requerimentName = 'El nombre del requisito es obligatoria.';
-    }
-
     return errorMessages;
 };

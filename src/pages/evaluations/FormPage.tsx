@@ -74,7 +74,6 @@ const FormPage: React.FC = () => {
             author: newForm.author,
             classroomId: parseInt(safeClassroomId)
         };
-        console.log('formDataRequest', formDataRequest)
 
         try {
             newForm.id

@@ -1,4 +1,4 @@
-import { Area, Form } from ".";
+import { Area, Form, Requeriment } from ".";
 
 export interface Assessment {
     id?:           number;
@@ -8,10 +8,4 @@ export interface Assessment {
     requeriments?: Requeriment[];
     area?:         Area;
     form?:         Form;
-}
-
-export interface Requeriment {
-    id?:         number;
-    name?:       string;
-    url?:        string;
 }
