@@ -13,7 +13,7 @@ import ViewAssessmentModal from './ViewAssessment';
 import { AssessmentForm } from './AssessmentForm';
 import { RequirementsSection } from './RequirementSection';
 
-const headers = ["Nombre de área", "Requisitos", "Valoración", "Acciones"];
+const headers = ["Área", "Requisitos", "Valoración", "Acciones"];
 
 const INITIAL_ASSESSMENT_DATA: AssessmentData = {
     id: '',
@@ -111,7 +111,7 @@ const AssessmentPage: React.FC = () => {
     const handleAddRequirement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setFormState(prev => {
-            if (!prev.newRequirement.name || !prev.newRequirement.url) return prev;
+            if (!prev.newRequirement.name) return prev;
 
             const newReq = {
                 ...prev.newRequirement,
@@ -257,11 +257,20 @@ const AssessmentPage: React.FC = () => {
         return filtered;
     }, [assessmentList, uiState.filter]);
 
+    const listRequirements = (requirements: Requeriment[]) => {
+        let namelist = ''
+        requirements.forEach(element => {
+            namelist += `${element.name}, `
+        });
+
+        return namelist;
+    }
+
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
         return paginatedItems.map((assessment: any) => ({
-            [`${assessment.area?.name ?? 'Unknown Area'}`]: truncateText(assessment.description),
-            Requisitos: assessment.requeriments?.[0]?.name,
+            Área: truncateText(assessment.description),
+            Requisitos: listRequirements(assessment.requeriments) || 'Sin requerimientos',
             Valoración: assessment.assessment,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">

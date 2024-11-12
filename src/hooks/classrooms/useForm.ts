@@ -114,6 +114,15 @@ const useForm = (classroomId: string) => {
         initFetch();
     }, [fetchData]);
 
+    const addAssessmentByForm = useCallback(async (formId: string) => {
+        try {
+            await apiService.addAssessmentByForm({formId: formId});
+        } catch (error) {
+            console.error('Ocurrió un error al registrar las valoraciones para el formulario.')
+            throw error;
+        } 
+    }, []);
+
     const handleAction = useCallback(async (
         action: Action,
         formData?: FormDataProps,
@@ -129,7 +138,8 @@ const useForm = (classroomId: string) => {
         }));
         try {
             if (action === 'add') {
-                await apiService.addForm(formData!);
+                const savedForm = await apiService.addForm(formData!);
+                await addAssessmentByForm(savedForm.data.form.id)
             } else if (action === 'update') {
                 await apiService.updateForm(id!, formData!);
             } else if (action === 'delete') {
@@ -184,7 +194,8 @@ const useForm = (classroomId: string) => {
         getFormById,
         addForm,
         updateForm,
-        deleteForm
+        deleteForm,
+        addAssessmentByForm
     };
 };
 

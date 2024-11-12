@@ -43,7 +43,7 @@ const useAssessment = (formId: string) => {
                 error: null,
                 successMessage: null
             }));
-        }, 5000);
+        }, 3000);
     }, []);
 
     const fetchData = useCallback(async () => {

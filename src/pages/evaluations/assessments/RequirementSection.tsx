@@ -26,7 +26,7 @@ export const RequirementsSection: React.FC<RequirementsSectionProps> = ({
                     placeholder="Nombre"
                     value={newRequirement.name}
                     onChange={onRequirementChange}
-                    className="flex-1 p-2 border rounded"
+                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                 />
                 <input
                     type="text"
@@ -34,13 +34,13 @@ export const RequirementsSection: React.FC<RequirementsSectionProps> = ({
                     placeholder="URL"
                     value={newRequirement.url}
                     onChange={onRequirementChange}
-                    className="flex-1 p-2 border rounded"
+                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                 />
                 <button
                     onClick={onAddRequirement}
-                    className="bg-blue-500 text-white p-2 rounded"
+                    className="ml-2 bg-primary-red-color hover:bg-red-400 text-white p-2 mt-2 rounded-md"
                 >
-                    Agregar
+                    AGREGAR
                 </button>
             </div>
             <RequirementsTable

@@ -7,7 +7,7 @@ import RoleProtectedRoute from './RoleProtectedRoute';
 import ClassroomPage from '../pages/classrooms/ClassroomPage';
 import SearchClassroomPage from '../pages/classrooms/SearchClassroomPage';
 import EvaluationDashboard from '../pages/evaluations/EvaluationDashboard';
-import FormPage from '../pages/evaluations/FormPage';
+import FormPage from '../pages/evaluations/forms/FormPage';
 import AssessmentPage from '../pages/evaluations/assessments/AssessmentPage';
 
 const AppRoutes: React.FC = () => {
