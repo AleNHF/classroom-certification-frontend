@@ -73,8 +73,8 @@ const IndicatorForm: React.FC<IndicatorFormProps> = ({
 
             <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">Nombre del Indicador</label>
-                <input
-                    type="text"
+                <textarea
+                    rows={4}
                     value={indicatorName}
                     onChange={(e) => setIndicatorName(e.target.value)}
                     className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
