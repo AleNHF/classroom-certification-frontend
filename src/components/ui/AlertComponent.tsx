@@ -10,13 +10,13 @@ interface AlertProps {
   dismissible?: boolean;
   onDismiss?: () => void;
 }
-
+/* 
 type AlertStyles = {
   wrapper: string;
   icon: string;
   text: string;
   closeButton: string;
-}
+} */
 
 /* type AlertStylesMap = {
   [K in AlertType]: AlertStyles;
@@ -32,6 +32,7 @@ const Alert = ({
 }: AlertProps): JSX.Element => {
   const [isVisible, setIsVisible] = useState(true);
   const [isLeaving, setIsLeaving] = useState(false);
+  console.log(isVisible)
 
   useEffect(() => {
     if (duration) {

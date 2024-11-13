@@ -2,7 +2,7 @@ export { default as AreaPage } from './indicatorsConfiguration/AreaPage';
 export { default as ContentPage } from './indicatorsConfiguration/ContentPage';
 export { default as CyclePage } from './indicatorsConfiguration/CyclePage';
 export { default as IndicatorConfigurationPage } from './indicatorsConfiguration/IndicatorConfigurationPage';
-export { default as IndicatorPage } from './indicatorsConfiguration/IndicatorPage';
+export { default as IndicatorPage } from './indicatorsConfiguration/indicators/IndicatorPage';
 export { default as PercentagePage } from './indicatorsConfiguration/PercentagePage';
 export { default as ResourcePage } from './indicatorsConfiguration/ResourcePage';
 

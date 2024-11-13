@@ -1,6 +1,7 @@
 export interface Content {
     id: number;
     name: string;
+    resource?: Resource;
 }
 
 export interface Resource {
