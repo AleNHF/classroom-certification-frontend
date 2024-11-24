@@ -1,70 +1,164 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
+import { HeaderComponent, PageHeaderComponent } from "../../components";
+import { useEvaluation } from "../../hooks";
+import { EvaluationResult } from '../../types';
 
-interface CourseProgressProps {
-    courseName: string;
-    cycleInfo: string;
+interface ProgressBarProps {
     progress: number;
-    labels: string[];
 }
 
-const CourseProgress: React.FC<CourseProgressProps> = ({
-    courseName,
-    cycleInfo,
-    progress,
-    labels
-}) => {
+interface EvaluationData {
+    classroomId: number;
+    cycleId: number;
+    areaId: number;
+    evaluationId: number;
+    token: string;
+}
+
+interface LocationState {
+    evaluationData: EvaluationData;
+    cycleName: string;
+    areaName: string;
+    classroom: any
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            {/* Header */}
-            <div className="bg-gray-900 text-white p-4 mb-6">
-                <h1 className="text-xl font-medium">CERTIFICACIÓN DE AULAS</h1>
+        <div className="w-full bg-gray-200 rounded-full h-4">
+            <div
+                className="bg-primary-red-color h-4 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+            />
+        </div>
+    );
+};
+
+const EvaluationProgress = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { evaluationData, cycleName, areaName, classroom } = (location.state as LocationState) || {};
+    const { analizeCompliance } = useEvaluation();
+
+    const [progress, setProgress] = useState<number>(0);
+    const [analysisResult, setAnalysisResult] = useState<EvaluationResult | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const startAnalysis = async () => {
+            try {
+                // Iniciamos la barra de progreso
+                const progressInterval = setInterval(() => {
+                    setProgress(prev => prev < 90 ? prev + 5 : prev);
+                }, 300);
+                console.log('evaluationData', evaluationData)
+
+                // Realizamos el análisis
+                const result = await analizeCompliance(
+                    evaluationData.classroomId,
+                    evaluationData.token,
+                    evaluationData.cycleId,
+                    evaluationData.areaId,
+                    evaluationData.evaluationId
+                );
+                console.log('result view', result)
+
+                // Limpiamos el intervalo y completamos la barra
+                clearInterval(progressInterval);
+                setProgress(100);
+                setAnalysisResult(result.data);
+
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'Error al analizar el cumplimiento';
+                setError(errorMessage);
+                setProgress(0);
+            }
+        };
+
+        if (evaluationData) {
+            startAnalysis();
+        } else {
+            navigate('/classrooms');
+        }
+    }, [evaluationData, analizeCompliance, navigate]);
+
+    if (!evaluationData) {
+        return null;
+    }
+
+    return (
+        <div className="flex flex-col items-center justify-start bg-white min-h-screen">
+            <div className="w-full flex-shrink-0">
+                <HeaderComponent />
             </div>
 
-            {/* Course Card */}
-            <div className="bg-white rounded-lg shadow-sm p-6 max-w-4xl mx-auto">
-                {/* Course Title */}
-                <h2 className="text-gray-800 text-lg mb-4">{courseName}</h2>
+            <div className="flex flex-col items-center w-full max-w-6xl px-4">
+                <PageHeaderComponent title={`${classroom.code} - ${classroom.name}`} />
 
-                {/* Cycle Info */}
-                <p className="text-sm text-gray-600 mb-6">{cycleInfo}</p>
-
-                {/* Progress Bar Container */}
-                <div className="mb-6">
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                            className="h-full bg-green-500 rounded-full"
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                </div>
-
-                {/* Labels */}
-                <div className="space-y-2">
-                    {labels.map((label, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                            <span className="text-sm text-gray-600">{label}</span>
+                <div className="w-full bg-white rounded-lg shadow-md p-6 mt-6">
+                    <h2 className="text-xl font-semibold mb-2">
+                        {`${cycleName} - ${areaName}`}  </h2>
+                    <div className="space-y-6">
+                        {/* Estado del análisis */}
+                        <div className="text-center mb-8">
+                            <h2 className="text-xl font-semibold mb-2">
+                                {progress < 100
+                                    ? 'Analizando cumplimiento de indicadores...'
+                                    : 'Análisis completado'}
+                            </h2>
+                            <p className="text-gray-600">
+                                {progress < 100
+                                    ? 'Por favor, espere mientras procesamos la información'
+                                    : 'Se ha completado el análisis de cumplimiento'}
+                            </p>
                         </div>
-                    ))}
+
+                        {/* Barra de progreso */}
+                        <div className="w-full">
+                            <ProgressBar progress={progress} />
+                            <p className="text-center mt-2 text-sm text-gray-600">
+                                {progress}% completado
+                            </p>
+                        </div>
+
+                        {/* Mensaje de error si existe */}
+                        {error && (
+                            <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Resultados del análisis */}
+                        {analysisResult && progress === 100 && (
+                            <div className="mt-8 space-y-4">
+                                <h3 className="text-lg font-semibold">Recursos analizados</h3>
+                                <div className="space-y-3">
+                                    {analysisResult.resourceDetails?.map((result, index) => (
+                                        <div
+                                            key={index}
+                                            className="p-3 bg-green-50 rounded-lg text-sm text-gray-700"
+                                        >
+                                            {result.resourceName}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-center mt-6">
+                                    <button
+                                        onClick={() => navigate('/classrooms/evaluation-dashboard', { state: { classroom: classroom } })
+                                        }
+                                        className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
+                                    >
+                                        FINALIZAR
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-// Example usage component
-const CertificationView = () => {
-    return (
-        <CourseProgress
-            courseName="[1-2021] INTRODUCCIÓN A LA SOCIOLOGÍA - TV"
-            cycleInfo="CICLO I - DISEÑO TÉCNICO"
-            progress={50}
-            labels={[
-                "Etiqueta",
-                "Carpeta Pedagógica - Datos de la asignatura"
-            ]}
-        />
-    );
-};
-
-export default CertificationView;
+export default EvaluationProgress;

@@ -39,6 +39,54 @@ const useEvaluation = () => {
         }, 5000);
     }, []);
 
+    const analizeCompliance = useCallback(async (
+        classroomId: number,
+        token: string,
+        cycleId: number,
+        areaId: number,
+        evaluationId: number
+    ) => {
+        setFetchState(prev => ({
+            ...prev,
+            loading: true,
+            error: null,
+            successMessage: null
+        }));
+
+        try {
+            const result = await apiService.analizeIndicatorsCompliance(
+                classroomId,
+                token,
+                cycleId,
+                areaId,
+                evaluationId
+            );
+            console.log('result',result)
+
+            setFetchState(prev => ({
+                ...prev,
+                successMessage: 'Análisis de cumplimiento completado exitosamente'
+            }));
+
+            clearMessages();
+            return result;
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al analizar el cumplimiento de indicadores';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+
+            clearMessages();
+            throw error;
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, [clearMessages]);
+
     const handleAction = useCallback(async (
         action: Action,
         evaluationData?: { classroomId: number, cycleId: number, areaId: number, result: number },
@@ -55,8 +103,7 @@ const useEvaluation = () => {
         try {
             switch (action) {
                 case 'add':
-                    await apiService.addEvaluation(evaluationData!);
-                    break;
+                    return await apiService.addEvaluation(evaluationData!);
                 case 'update':
                     await apiService.updateEvaluation(id!, evaluationData!);
                     break;
@@ -99,6 +146,7 @@ const useEvaluation = () => {
         error: fetchState.error,
         successMessage: fetchState.successMessage,
 
+        analizeCompliance,
         addEvaluation,
         updateEvaluation,
     };

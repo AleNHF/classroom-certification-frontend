@@ -74,6 +74,27 @@ const useArea = () => {
         initFetch();
     }, [fetchData]);
 
+    const getArea = useCallback(async (id: string) => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.getArea(id);
+            return response.data; // Ajusta esto según la estructura de tu respuesta
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al obtener el área';
+            
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching area:', error);
+            throw error; // Opcional, si deseas manejar errores externamente
+        } finally {
+            setFetchState(prev => ({ ...prev, loading: false }));
+        }
+    }, []);  
+
     const handleAction = useCallback(async (
         action: Action,
         areaData?: { name: string },
@@ -147,6 +168,7 @@ const useArea = () => {
         addArea,
         updateArea,
         deleteArea,
+        getArea
     };
 };
 

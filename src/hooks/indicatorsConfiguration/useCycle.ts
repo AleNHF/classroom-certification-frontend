@@ -74,6 +74,27 @@ const useCycle = () => {
         initFetch();
     }, [fetchData]);
 
+    const getCycle = useCallback(async (id: string) => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.getCycle(id);
+            return response.data; // Ajusta esto según la estructura de tu respuesta
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al obtener el ciclo';
+            
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching cycle:', error);
+            throw error; // Opcional, si deseas manejar errores externamente
+        } finally {
+            setFetchState(prev => ({ ...prev, loading: false }));
+        }
+    }, []);    
+
     const handleAction = useCallback(async (
         action: Action,
         cycleData?: { name: string },
@@ -148,6 +169,7 @@ const useCycle = () => {
         addCycle,
         updateCycle,
         deleteCycle,
+        getCycle
     };
 };
 

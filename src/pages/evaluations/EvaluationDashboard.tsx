@@ -35,9 +35,11 @@ const EvaluationDashboard = () => {
     // Estados de validación y errores
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
 
-    const { cycleList } = useCycle();
-    const { areaList } = useArea();
+    const { cycleList, getCycle } = useCycle();
+    const { areaList, getArea } = useArea();
     const { addEvaluation } = useEvaluation();
+
+    const moodleToken = localStorage.getItem('moodle_token') || '';
 
     // Manejadores de modal
     const resetEvaluationForm = () => {
@@ -108,19 +110,32 @@ const EvaluationDashboard = () => {
             return;
         }
 
-        const evaluationData = {
-            classroomId: classroom?.id || '',
-            cycleId: parseInt(newEvaluation.cycleId),
-            areaId: parseInt( newEvaluation.areaId),      
-            result: 0
-        };
-
         try {
-            // llamar función para registrar evaluación
-            console.log('evaluationData', evaluationData)
-            await addEvaluation(evaluationData);
+            const evaluationData = {
+                classroomId: classroom?.id || '',
+                cycleId: parseInt(newEvaluation.cycleId),
+                areaId: parseInt( newEvaluation.areaId),      
+                result: 0
+            };
+
+            const evaluationResponse = await addEvaluation(evaluationData);
+            const cycle = await getCycle(evaluationData.cycleId.toString());
+            const area = await getArea(evaluationData.areaId.toString());
+            console.log(cycle, area)
+
             handleCloseModal();
-            navigation('/classrooms/evaluation-progress')
+            navigation('/classrooms/evaluation-progress', {
+                state: {
+                    evaluationData: {
+                        ...evaluationData,
+                        evaluationId: evaluationResponse.data.evaluation.id,
+                        token: moodleToken
+                    },
+                    cycleName: cycle.cycle.name,
+                    areaName: area.area.name,
+                    classroom: classroom
+                }
+            });
         } catch (error) {
             console.error('Error adding evaluation:', error);
         }

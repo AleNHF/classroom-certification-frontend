@@ -8,6 +8,7 @@ class ApiService {
 
     constructor() {
         this.baseUrl = 'http://localhost:3000/api';
+        //this.baseUrl = 'https://classroom-certification-api-production.up.railway.app/api';
     }
 
     private async request(
@@ -41,6 +42,7 @@ class ApiService {
 
         try {
             const response = await fetch(url, options);
+            console.log(response)
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -59,7 +61,7 @@ class ApiService {
         return this.request(endpoint, 'GET');
     }
 
-    private post(endpoint: string, data: any) {
+    private post(endpoint: string, data?: any) {
         return this.request(endpoint, 'POST', data);
     }
 
@@ -147,6 +149,10 @@ class ApiService {
         return this.delete(`/cycle/${id}`);
     }
 
+    public getCycle(id: string) {
+        return this.get(`/cycle/${id}`);
+    }
+
     /*
      * Métodos específicos para recursos
      */
@@ -202,6 +208,10 @@ class ApiService {
 
     public deleteArea(id: string) {
         return this.delete(`/area/${id}`);
+    }
+
+    public getArea(id: string) {
+        return this.get(`/area/${id}`);
     }
 
     /*
@@ -261,12 +271,20 @@ class ApiService {
         return this.delete(`/classroom/${id}`);
     }
 
-    public addEvaluation(evaluationData: {classroomId: number, cycleId: number, areaId: number, result: number}) {
+    public getEvaluationsByClassroom(classroomId: number) {
+        return this.get(`/evaluation/classroom/${classroomId}`);
+    }
+
+    public addEvaluation(evaluationData: {classroomId: number, cycleId: number, areaId: number}) {
         return this.post('/evaluation', evaluationData);
     }
 
     public updateEvaluation(id: string, updatedData: {classroomId: number, cycleId: number, areaId: number, result: number}) {
         return this.patch(`/evaluation/${id}`, updatedData);
+    }
+
+    public analizeIndicatorsCompliance(moodleCourseId: number, token: string, cycleId: number, areaId: number, evaluationId: number) {
+        return this.post(`/evaluation/analyze-compliance?moodleCourseId=${moodleCourseId}&token=${token}&cycleId=${cycleId}&areaId=${areaId}&evaluationId=${evaluationId}`);
     }
 
     /*

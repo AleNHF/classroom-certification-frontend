@@ -12,3 +12,4 @@ export type { Classroom } from './classroom';
 export type { ActionMessages } from './actionMessage';
 export type { Action } from './action';
 export type { ClassroomMoodle } from './classroomMoodle';
+export type { EvaluationResult } from './EvaluationResult';
