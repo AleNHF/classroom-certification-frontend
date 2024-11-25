@@ -6,7 +6,7 @@ import { HeaderComponent, PageHeaderComponent } from '../../../components';
 
 const EvaluationView: React.FC = () => {
     const { evaluationId } = useParams<{ evaluationId: string }>();
-    const { fetchEvaluationById, updateEvaluatedIndicator } = useEvaluation();
+    const { fetchEvaluationById, updateEvaluatedIndicator, updateEvaluation } = useEvaluation();
     const [evaluationData, setEvaluationData] = useState<EvaluationData | null>(null);
     const [evaluatedIndicators, setEvaluatedIndicators] = useState<EvaluatedIndicator[]>([]);
     const [editedIndicators, setEditedIndicators] = useState<Record<number, Partial<EvaluatedIndicator>>>({});
@@ -29,15 +29,14 @@ const EvaluationView: React.FC = () => {
     }, [evaluationId, fetchEvaluationById]);
 
     const handleEdit = (id: number, field: keyof EvaluatedIndicator, value: any) => {
-        setEvaluatedIndicators((prev) =>
-            prev.map((indicator) =>
-                indicator.id === id && indicator[field] !== value
-                    ? { ...indicator, [field]: value || '' } // Si el valor es vacío, establece como cadena vacía
-                    : indicator
-            )
-        );
+        setEditedIndicators((prev) => ({
+            ...prev,
+            [id]: {
+                ...prev[id],
+                [field]: value
+            }
+        }));
     };
-    
 
     const handleSave = async (id: number) => {
         const editedIndicator = editedIndicators[id];
@@ -45,21 +44,28 @@ const EvaluationView: React.FC = () => {
 
         setLoading(true);
         try {
+            // Actualiza el indicador
             await updateEvaluatedIndicator(id.toString(), {
                 result: editedIndicator.result!,
                 observation: editedIndicator.observation || '',
             });
 
-            setEvaluatedIndicators((prev) =>
-                prev.map((indicator) =>
-                    indicator.id === id
-                        ? {
-                            ...indicator,
-                            ...editedIndicator,
-                        }
-                        : indicator
-                )
+            // Calcula el nuevo resultado de la evaluación
+            const updatedIndicators = evaluatedIndicators.map((indicator) =>
+                indicator.id === id ? { ...indicator, ...editedIndicator } : indicator
             );
+            const fulfilledCount = updatedIndicators.filter(item => item.result === 1).length;
+
+            // Actualiza la evaluación con el nuevo resultado
+            await updateEvaluation(evaluationId!, {
+                classroomId: evaluationData?.classroom.id!,
+                cycleId: evaluationData?.cycleId!,
+                areaId: evaluationData?.areaId!,
+                result: fulfilledCount
+            });
+
+            setEvaluatedIndicators(updatedIndicators);
+            setEvaluationData((prev) => prev && { ...prev, result: fulfilledCount })
 
             setEditedIndicators((prev) => {
                 const updated = { ...prev };
@@ -177,7 +183,7 @@ const EvaluationView: React.FC = () => {
                                 <div className="mt-4">
                                     <label className="block font-medium text-gray-700">Observación:</label>
                                     <textarea
-                                        value={indicator.observation || ''}
+                                        value={(editedIndicators[indicator.id]?.observation ?? indicator.observation) || '' }
                                         onChange={(e) =>
                                             handleEdit(indicator.id, 'observation', e.target.value)
                                         }

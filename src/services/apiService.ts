@@ -278,7 +278,7 @@ class ApiService {
         return this.post('/evaluation', evaluationData);
     }
 
-    public updateEvaluation(id: string, updatedData: {classroomId: number, cycleId: number, areaId: number, result: number}) {
+    public updateEvaluation(id: string, updatedData: {classroomId?: number, cycleId?: number, areaId?: number, result?: number}) {
         return this.patch(`/evaluation/${id}`, updatedData);
     }
 
