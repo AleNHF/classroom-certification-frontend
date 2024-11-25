@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Action, ActionMessages, FetchState } from '../../types';
+import { Action, ActionMessages, Evaluation, FetchState } from '../../types';
 
 // Definición de tipos específicos para mejor control
 const ACTION_MESSAGES: Record<Action, ActionMessages> = {
@@ -22,6 +22,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 };
 
 const useEvaluation = () => {
+    const [evaluationList, setEvaluationList] = useState<Evaluation[]>([]);
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
         error: null,
@@ -38,6 +39,53 @@ const useEvaluation = () => {
             }));
         }, 5000);
     }, []);
+
+    const fetchData = useCallback(async (classroomId: number) => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.getEvaluationsByClassroom(classroomId);
+            setEvaluationList(response.data.evaluations);
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al cargar los datos';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching data:', error);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, []);
+
+    const fetchEvaluationById = useCallback(async (id: string) => {
+        setFetchState(prev => ({
+            ...prev,
+            loading: true,
+            error: null,
+            successMessage: null
+        }));
+    
+        try {
+            const response = await apiService.getEvaluationById(id);
+            return response;
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al obtener la evaluación';
+    
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching evaluation by ID:', error);
+            throw error;
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, []);    
 
     const analizeCompliance = useCallback(async (
         classroomId: number,
@@ -61,8 +109,6 @@ const useEvaluation = () => {
                 areaId,
                 evaluationId
             );
-            console.log('result',result)
-
             setFetchState(prev => ({
                 ...prev,
                 successMessage: 'Análisis de cumplimiento completado exitosamente'
@@ -107,6 +153,9 @@ const useEvaluation = () => {
                 case 'update':
                     await apiService.updateEvaluation(id!, evaluationData!);
                     break;
+                case 'delete':
+                    await apiService.deleteEvaluation(id!);
+                    break;
             }
 
             setFetchState(prev => ({
@@ -141,7 +190,27 @@ const useEvaluation = () => {
         [handleAction]
     );
 
+    const deleteEvaluation = useCallback(
+        (id: string) => handleAction('delete', undefined, id),
+        [handleAction]
+    );
+
+    // Función para actualizar un indicador evaluado
+    const updateEvaluatedIndicator = useCallback(async (id: string, updatedData: { result: number, observation: string }) => {
+        try {
+            await apiService.updateEvaluatedIndicator(id, updatedData);
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                    ? error.message
+                    : 'Error al actualizar el indicador evaluado';
+            console.error(errorMessage);
+            throw error;
+        } 
+    }, []);
+
     return {
+        evaluationList,
+
         loading: fetchState.loading,
         error: fetchState.error,
         successMessage: fetchState.successMessage,
@@ -149,6 +218,11 @@ const useEvaluation = () => {
         analizeCompliance,
         addEvaluation,
         updateEvaluation,
+        deleteEvaluation,
+        fetchData,
+        fetchEvaluationById,
+
+        updateEvaluatedIndicator
     };
 };
 

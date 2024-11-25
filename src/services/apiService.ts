@@ -42,7 +42,6 @@ class ApiService {
 
         try {
             const response = await fetch(url, options);
-            console.log(response)
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -283,8 +282,20 @@ class ApiService {
         return this.patch(`/evaluation/${id}`, updatedData);
     }
 
+    public deleteEvaluation(id: string) {
+        return this.delete(`/evaluation/${id}`);
+    }
+
+    public getEvaluationById(id: string) {
+        return this.get(`/evaluation/${id}`);
+    }
+
     public analizeIndicatorsCompliance(moodleCourseId: number, token: string, cycleId: number, areaId: number, evaluationId: number) {
         return this.post(`/evaluation/analyze-compliance?moodleCourseId=${moodleCourseId}&token=${token}&cycleId=${cycleId}&areaId=${areaId}&evaluationId=${evaluationId}`);
+    }
+
+    public updateEvaluatedIndicator(id: string, updatedData: { result: number, observation?: string }) {
+        return this.patch(`/evaluated-indicator/${id}`, updatedData);
     }
 
     /*

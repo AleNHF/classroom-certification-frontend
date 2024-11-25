@@ -51,17 +51,14 @@ const EvaluationProgress = () => {
                 const progressInterval = setInterval(() => {
                     setProgress(prev => prev < 90 ? prev + 5 : prev);
                 }, 300);
-                console.log('evaluationData', evaluationData)
 
-                // Realizamos el análisis
                 const result = await analizeCompliance(
-                    evaluationData.classroomId,
+                    classroom.moodleCourseId,
                     evaluationData.token,
                     evaluationData.cycleId,
                     evaluationData.areaId,
                     evaluationData.evaluationId
                 );
-                console.log('result view', result)
 
                 // Limpiamos el intervalo y completamos la barra
                 clearInterval(progressInterval);

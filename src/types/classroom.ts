@@ -5,4 +5,5 @@ export interface Classroom {
     name:      string;
     code:      string;
     status:    ClassroomStatus;
+    moodleCourseId: number;
 }

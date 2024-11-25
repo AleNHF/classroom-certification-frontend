@@ -1,16 +1,21 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 interface CardProps {
     title: string;
     route: string;
+    onClick?: () => void; // Prop opcional para manejar clics personalizados
 }
 
-const Card: React.FC<CardProps> = ({ title, route }) => {
+
+const Card: React.FC<CardProps> = ({ title, route, onClick }) => {
     const navigate = useNavigate();
 
     const handleRedirect = () => {
-        navigate(route);
+        if (onClick) {
+            onClick(); // Ejecutar la función personalizada si está definida
+        } else {
+            navigate(route); // Redirigir usando el route predeterminado
+        }
     };
 
     return (
