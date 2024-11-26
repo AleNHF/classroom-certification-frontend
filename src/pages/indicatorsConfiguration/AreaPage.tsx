@@ -126,15 +126,6 @@ const AreaPage: React.FC = () => {
         }));
     }, [paginatedItems, handleDelete, handleEdit]);
 
-    /* useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1000); 
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (loading || isLoading) return <LoadingPage />; */
     if (error) return <ErrorPage message={error} />;
 
     return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { HeaderComponent, PageHeaderComponent } from "../../components";
 import { useEvaluation } from "../../hooks";
@@ -43,13 +43,20 @@ const EvaluationProgress = () => {
     const [progress, setProgress] = useState<number>(0);
     const [analysisResult, setAnalysisResult] = useState<EvaluationResult | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const analysisStarted = useRef(false);
 
     useEffect(() => {
         const startAnalysis = async () => {
+            if (analysisStarted.current || isLoading) return;
+            analysisStarted.current = true;
+            setIsLoading(true);
+            setError(null);
+
             try {
-                // Iniciamos la barra de progreso
                 const progressInterval = setInterval(() => {
-                    setProgress(prev => prev < 90 ? prev + 5 : prev);
+                    setProgress(prev => (prev < 90 ? prev + 5 : prev));
                 }, 300);
 
                 const result = await analizeCompliance(
@@ -60,24 +67,35 @@ const EvaluationProgress = () => {
                     evaluationData.evaluationId
                 );
 
-                // Limpiamos el intervalo y completamos la barra
                 clearInterval(progressInterval);
                 setProgress(100);
                 setAnalysisResult(result.data);
-
             } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'Error al analizar el cumplimiento';
+                const errorMessage =
+                    err instanceof Error ? err.message : "Error al analizar el cumplimiento";
                 setError(errorMessage);
                 setProgress(0);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        if (evaluationData) {
+        if (evaluationData && !analysisStarted.current) {
             startAnalysis();
-        } else {
-            navigate('/classrooms');
+        } else if (!evaluationData) {
+            navigate("/classrooms/evaluations", { state: { classroom } });
         }
     }, [evaluationData, analizeCompliance, navigate]);
+
+
+    const handleRetry = () => {
+        setProgress(0);
+        setError(null);
+    }
+
+    const handleFinish = () => {
+        navigate('/classrooms/evaluations', { state: { classroom } });
+    };
 
     if (!evaluationData) {
         return null;
@@ -101,22 +119,28 @@ const EvaluationProgress = () => {
                             <h2 className="text-xl font-semibold mb-2">
                                 {progress < 100
                                     ? 'Analizando cumplimiento de indicadores...'
-                                    : 'Análisis completado'}
+                                    : error
+                                        ? 'Error en el análisis'
+                                        : 'Análisis completado'}
                             </h2>
                             <p className="text-gray-600">
                                 {progress < 100
                                     ? 'Por favor, espere mientras procesamos la información'
-                                    : 'Se ha completado el análisis de cumplimiento'}
+                                    : error
+                                        ? 'No se pudo completar el análisis'
+                                        : 'Se ha completado el análisis de cumplimiento'}
                             </p>
                         </div>
 
                         {/* Barra de progreso */}
-                        <div className="w-full">
-                            <ProgressBar progress={progress} />
-                            <p className="text-center mt-2 text-sm text-gray-600">
-                                {progress}% completado
-                            </p>
-                        </div>
+                        {!error && (
+                            <div className="w-full">
+                                <ProgressBar progress={progress} />
+                                <p className="text-center mt-2 text-sm text-gray-600">
+                                    {progress}% completado
+                                </p>
+                            </div>
+                        )}
 
                         {/* Mensaje de error si existe */}
                         {error && (
@@ -124,6 +148,27 @@ const EvaluationProgress = () => {
                                 {error}
                             </div>
                         )}
+
+                        {/* Botones de acción */}
+                        <div className="flex justify-center space-x-4 mt-6">
+                            {error && (
+                                <button
+                                    onClick={handleRetry}
+                                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-md transition-colors duration-200"
+                                >
+                                    REINTENTAR
+                                </button>
+                            )}
+
+                            {(progress === 100 || error) && (
+                                <button
+                                    onClick={handleFinish}
+                                    className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
+                                >
+                                    FINALIZAR
+                                </button>
+                            )}
+                        </div>
 
                         {/* Resultados del análisis */}
                         {analysisResult && progress === 100 && (
@@ -138,16 +183,6 @@ const EvaluationProgress = () => {
                                             {result.resourceName}
                                         </div>
                                     ))}
-                                </div>
-
-                                <div className="flex justify-center mt-6">
-                                    <button
-                                        onClick={() => navigate('/classrooms/evaluation-dashboard', { state: { classroom: classroom } })
-                                        }
-                                        className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
-                                    >
-                                        FINALIZAR
-                                    </button>
                                 </div>
                             </div>
                         )}

@@ -37,9 +37,12 @@ const EvaluationDashboard = () => {
 
     const { cycleList, getCycle } = useCycle();
     const { areaList, getArea } = useArea();
-    const { addEvaluation } = useEvaluation();
+    const { addEvaluation, analizeCompliance } = useEvaluation();
 
     const moodleToken = localStorage.getItem('moodle_token') || '';
+    const filteredAreaList = areaList.filter(area =>
+        !area.name.toLowerCase().includes('calidad académica')
+    );
 
     // Manejadores de modal
     const resetEvaluationForm = () => {
@@ -121,20 +124,31 @@ const EvaluationDashboard = () => {
             const evaluationResponse = await addEvaluation(evaluationData);
             const cycle = await getCycle(evaluationData.cycleId.toString());
             const area = await getArea(evaluationData.areaId.toString());
-            
+
             handleCloseModal();
-            navigation('/classrooms/evaluation-progress', {
-                state: {
-                    evaluationData: {
-                        ...evaluationData,
-                        evaluationId: evaluationResponse.data.evaluation.id,
-                        token: moodleToken
-                    },
-                    cycleName: cycle.cycle.name,
-                    areaName: area.area.name,
-                    classroom: classroom
-                }
-            });
+            if (area.area.name !== 'Diseño gráfico') {
+                navigation('/classrooms/evaluation-progress', {
+                    state: {
+                        evaluationData: {
+                            ...evaluationData,
+                            evaluationId: evaluationResponse.data.evaluation.id,
+                            token: moodleToken
+                        },
+                        cycleName: cycle.cycle.name,
+                        areaName: area.area.name,
+                        classroom: classroom
+                    }
+                });
+            } else {
+                const result = await analizeCompliance(
+                    classroom.moodleCourseId,
+                    moodleToken,
+                    evaluationData.cycleId,
+                    evaluationData.areaId,
+                    evaluationResponse.data.evaluation.id
+                );
+                navigation('/classrooms/evaluations', { state: { classroom } })
+            }
         } catch (error) {
             console.error('Error adding evaluation:', error);
         }
@@ -149,18 +163,20 @@ const EvaluationDashboard = () => {
 
                 {/* Main Content */}
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title={`${classroom.code}: ${classroom.name}`} />
+                    <PageHeaderComponent title={`${classroom.code}: ${classroom.name}`} onBack={() => navigation('/classrooms')} />
 
                     <div className="flex justify-between items-center w-full my-4">
                         <p className="text-gray-700">
                             ESTADO: <span className="font-medium">{mapStatusToText(classroom.status)}</span>
                         </p>
-                        <button
-                            className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
-                            onClick={handleOpenModal}
-                        >
-                            INICIAR EVALUACIÓN
-                        </button>
+                        {classroom.status !== ClassroomStatus.EVALUATED && (
+                            <button
+                                className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
+                                onClick={handleOpenModal}
+                            >
+                                INICIAR EVALUACIÓN
+                            </button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
@@ -208,7 +224,7 @@ const EvaluationDashboard = () => {
                             <SelectInput
                                 label="Área"
                                 value={selectedArea}
-                                options={areaList}
+                                options={filteredAreaList}
                                 onChange={handleAreaChange}
                                 error={errorMessages.areaId}
                             />

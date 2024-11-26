@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useEvaluation } from "../../../hooks";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ActionButtonComponent, ConfirmDeleteModal, HeaderComponent, PageHeaderComponent, TableComponent } from "../../../components";
+import { ActionButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, PageHeaderComponent, PaginationComponent, TableComponent } from "../../../components";
 
 const headers = ["Ciclo", "Área", "Resultado", "Acciones"];
 
@@ -22,6 +22,8 @@ const EvaluationList: React.FC = () => {
     const [evaluationToDelete, setEvaluationToDelete] = useState<{ id: string | null }>({ id: null });
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false); // Estado de carga al eliminar
+
+    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     useEffect(() => {
         const loadEvaluations = async () => {
@@ -63,7 +65,7 @@ const EvaluationList: React.FC = () => {
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
-        return evaluationList.map((evaluation: any) => ({
+        return paginatedItems.map((evaluation: any) => ({
             Ciclo: evaluation.cycle.name,
             'Área': evaluation.area.name,
             Resultado: evaluation.result,
@@ -82,7 +84,7 @@ const EvaluationList: React.FC = () => {
                 </div>
             )
         }));
-    }, [evaluationList, handleDelete]);
+    }, [paginatedItems, handleDelete]);
 
     return (
         <>
@@ -92,16 +94,23 @@ const EvaluationList: React.FC = () => {
                 </div>
                 {/* Main Content */}
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title={`${classroom.name}`} />
+                    <PageHeaderComponent title={`${classroom.name}`} onBack={() => navigate('/classrooms/evaluation-dashboard', { state: {classroom: classroom}})} />
 
                     {/* Mensajes de estado */}
-                    {(loading || isDeleting) && <p className="text-blue-500">Cargando...</p>}
+                    {/* {(loading || isDeleting) && <p className="text-blue-500">Cargando...</p>}
                     {error && <p className="text-red-500">Error: {error}</p>}
-                    {successMessage && <p className="text-green-500">{successMessage}</p>}
+                    {successMessage && <p className="text-green-500">{successMessage}</p>} */}
+                    {(loading || isDeleting) && <AlertComponent type="info" message={"Cargando..."} className="mb-4 w-full" />}
+                    {error && <AlertComponent type="error" message={`Error: ${error}`} className="mb-4 w-full" />}
+                    {successMessage && <AlertComponent type="success" message={successMessage} className="mb-4 w-full" />}
 
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
+                    <PaginationComponent
+                        items={evaluationList}
+                        onPageItemsChange={setPaginatedItems}
+                    />
                 </div>
             </div>
 
