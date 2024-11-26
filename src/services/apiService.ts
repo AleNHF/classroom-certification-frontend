@@ -298,6 +298,10 @@ class ApiService {
         return this.patch(`/evaluated-indicator/${id}`, updatedData);
     }
 
+    public getWeightedAverageAreaByCycle(classroomId: number) {
+        return this.get(`/evaluation/${classroomId}/weighted-averages`);
+    }
+
     /*
      * Otros métodos específicos
      */

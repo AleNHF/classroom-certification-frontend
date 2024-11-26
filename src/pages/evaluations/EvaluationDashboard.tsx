@@ -147,6 +147,7 @@ const EvaluationDashboard = () => {
                     evaluationData.areaId,
                     evaluationResponse.data.evaluation.id
                 );
+                console.info(result)
                 navigation('/classrooms/evaluations', { state: { classroom } })
             }
         } catch (error) {
@@ -169,14 +170,20 @@ const EvaluationDashboard = () => {
                         <p className="text-gray-700">
                             ESTADO: <span className="font-medium">{mapStatusToText(classroom.status)}</span>
                         </p>
-                        {classroom.status !== ClassroomStatus.EVALUATED && (
+                        {/* {classroom.status !== ClassroomStatus.EVALUATED && (
                             <button
                                 className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
                                 onClick={handleOpenModal}
                             >
                                 INICIAR EVALUACIÓN
                             </button>
-                        )}
+                        )} */}
+                        <button
+                            className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
+                            onClick={handleOpenModal}
+                        >
+                            INICIAR EVALUACIÓN
+                        </button>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">

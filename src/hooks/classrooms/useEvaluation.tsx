@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Action, ActionMessages, Evaluation, FetchState } from '../../types';
+import { Action, ActionMessages, Evaluation, FetchState, WeightedAverageAreaCycle } from '../../types';
 
 // Definición de tipos específicos para mejor control
 const ACTION_MESSAGES: Record<Action, ActionMessages> = {
@@ -23,6 +23,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 
 const useEvaluation = () => {
     const [evaluationList, setEvaluationList] = useState<Evaluation[]>([]);
+    const [weightedAverageList, setWeightedAverageList] = useState<WeightedAverageAreaCycle[]>([]);
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
         error: null,
@@ -45,6 +46,26 @@ const useEvaluation = () => {
         try {
             const response = await apiService.getEvaluationsByClassroom(classroomId);
             setEvaluationList(response.data.evaluations);
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al cargar los datos';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching data:', error);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, []);
+
+    const fetchWeightedAverage = useCallback(async (classroomId: number) => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.getWeightedAverageAreaByCycle(classroomId);
+            setWeightedAverageList(response.data);
         } catch (error) {
             const errorMessage = error instanceof Error
                 ? error.message
@@ -210,19 +231,21 @@ const useEvaluation = () => {
 
     return {
         evaluationList,
+        weightedAverageList,
 
         loading: fetchState.loading,
         error: fetchState.error,
         successMessage: fetchState.successMessage,
 
-        analizeCompliance,
         addEvaluation,
         updateEvaluation,
         deleteEvaluation,
         fetchData,
         fetchEvaluationById,
 
-        updateEvaluatedIndicator
+        analizeCompliance,
+        updateEvaluatedIndicator,
+        fetchWeightedAverage
     };
 };
 
