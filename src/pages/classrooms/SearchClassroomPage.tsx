@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
 import { ActionButtonComponent, ModalComponent, PageHeaderComponent, SearchInputComponent, TableComponent } from '../../components';
 import { ErrorPage } from '../utils';
-import { useClassroom } from '../../hooks';
+import { useClassroom, useTeam } from '../../hooks';
 import { Classroom, ClassroomMoodle } from '../../types';
 import { useNavigate } from 'react-router-dom';
 import { ClassroomStatus } from '../../utils/enums/classroomStatus';
@@ -18,9 +18,11 @@ const SearchClassroomPage: React.FC = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedClassroom, setSelectedClassroom] = useState<ClassroomMoodle | null>(null);
+    const [selectedTeam, setSelectedTeam] = useState<string>('');
 
+    const { teamList } = useTeam();
     const {
-        searchClassroomsList, 
+        searchClassroomsList,
         error,
         searchClassrooms,
         addClassroom
@@ -28,7 +30,7 @@ const SearchClassroomPage: React.FC = () => {
 
     // Manejador para la búsqueda
     const handleSearch = useCallback(() => {
-        setCustomErrorMessage(null); 
+        setCustomErrorMessage(null);
         searchClassrooms({ field: fieldTerm, value: searchTerm })
             .catch(err => {
                 // Manejo específico para error 404
@@ -48,21 +50,27 @@ const SearchClassroomPage: React.FC = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedClassroom(null);
+        setSelectedTeam('');
+    };
+
+    const handleTeamChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedTeam(e.target.value);
     };
 
     const handleConfirm = async () => {
         if (!selectedClassroom) return;
-        
+
         const classroomData: Classroom = {
             name: selectedClassroom.fullname,
             code: selectedClassroom.shortname,
             status: ClassroomStatus.PENDING,
-            moodleCourseId: selectedClassroom.id
+            moodleCourseId: selectedClassroom.id,
+            teamId: parseInt(selectedTeam)
         };
-        
+
         try {
             const classroom = await addClassroom(classroomData);
-            navigate('/classrooms/evaluation-dashboard', { state: {classroom: classroom.data.classroom}});
+            navigate('/classrooms/evaluation-dashboard', { state: { classroom: classroom.data.classroom } });
         } catch (error) {
             console.error('Error al añadir el aula virtual:', error);
             setCustomErrorMessage('Ocurrió un error al guardar el aula. Por favor, intenta de nuevo.');
@@ -149,6 +157,28 @@ const SearchClassroomPage: React.FC = () => {
                             <span className="text-gray-600 w-32">Categoría:</span>
                             <span className="font-medium text-sm text-gray-800">{selectedClassroom?.categoryname}</span>
                         </div>
+                    </div>
+
+                    {/* Selector de equipo */}
+                    <div className="space-y-3">
+                        <label htmlFor="team-select" className="block text-sm font-medium text-gray-700">
+                            Equipo responsable del aula:
+                        </label>
+                        <select
+                            id="team-select"
+                            value={selectedTeam}
+                            onChange={handleTeamChange}
+                            className="w-full border border-gray-300 rounded-lg p-2 text-gray-700 focus:ring focus:ring-blue-200"
+                        >
+                            <option value="" disabled>
+                                Selecciona un equipo
+                            </option>
+                            {teamList.map((team) => (
+                                <option key={team.id} value={team.id}>
+                                    {team.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             </ModalComponent>

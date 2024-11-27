@@ -78,7 +78,7 @@ const useClassroom = () => {
 
     const handleAction = useCallback(async (
         action: Action,
-        classroomData?: { name: string, code: string, status: ClassroomStatus },
+        classroomData?: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number },
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -121,12 +121,12 @@ const useClassroom = () => {
 
     // Optimización de funciones retornadas con useCallback
     const addClassroom = useCallback(
-        (classroomData: { name: string, code: string, status: ClassroomStatus }) => handleAction('add', classroomData),
+        (classroomData: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number }) => handleAction('add', classroomData),
         [handleAction]
     );
 
     const updateClassroom = useCallback(
-        (id: string, classroomData: { name: string, code: string, status: ClassroomStatus }) => handleAction('update', classroomData, id),
+        (id: string, classroomData: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number }) => handleAction('update', classroomData, id),
         [handleAction]
     );
 
