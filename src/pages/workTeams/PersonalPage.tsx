@@ -206,9 +206,9 @@ const PersonalPage: React.FC = () => {
                         >
                             <option value="">Selecciona un cargo</option>
                             <option value="Editor Audiovisual">Editor Audiovisual</option>
-                            <option value="Integrador">Integrador</option>
-                            <option value="Diseñador">Diseñador</option>
-                            <option value="Diseñador instruccional">Diseñador instruccional</option>
+                            <option value="Editor Gráfico">Editor Gráfico</option>
+                            <option value="Integrador TIC">Integrador TIC</option>
+                            <option value="Diseñador Instruccional">Diseñador Instruccional</option>
                         </select>
                         {formErrors.position && <p className="text-red-600 text-sm">{formErrors.position}</p>}
                     </div>

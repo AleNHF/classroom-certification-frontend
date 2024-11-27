@@ -6,4 +6,5 @@ export interface Classroom {
     code:      string;
     status:    ClassroomStatus;
     moodleCourseId: number;
+    teamId: number;
 }
