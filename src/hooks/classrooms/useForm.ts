@@ -18,11 +18,6 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando formulario...',
         success: 'Formulario eliminado exitosamente',
         error: 'Error al eliminar formulario'
-    },
-    fetch: {
-        loading: 'Cargando formulario...',
-        success: 'Formulario cargado exitosamente',
-        error: 'Error al cargar formulario'
     }
 };
 
@@ -67,27 +62,14 @@ const useForm = (classroomId: string) => {
     }, [classroomId]);
 
     const getFormById = useCallback(async (formId: string) => {
-        const messages = ACTION_MESSAGES.fetch;
-        setFetchState(prev => ({
-            ...prev,
-            loading: true,
-            error: null,
-            successMessage: null
-        }));
-
         try {
             const response = await apiService.getFormById(formId);
             setCurrentForm(response.data.form);
-            setFetchState(prev => ({
-                ...prev,
-                successMessage: messages.success
-            }));
-            clearMessages();
             return response.data.form;
         } catch (error) {
             const errorMessage = error instanceof Error
                 ? error.message
-                : messages.error;
+                : 'Ha ocurrido un problema al cargar la información';
 
             setFetchState(prev => ({
                 ...prev,
