@@ -1,11 +1,14 @@
 import AuthService from '../services/authService';
-import { AssessmentData, FormDataProps, Team, UserProps } from '../types';
+import { UserProps, Team } from '../types';
+import { AssessmentData } from '../types/assessmentData';
+import { FormDataProps } from '../types/formData';
 import { ClassroomStatus } from '../utils/enums/classroomStatus';
 
 class ApiService {
     private baseUrl: string;
 
     constructor() {
+        //this.baseUrl = 'http://localhost:3000/api';
         this.baseUrl = 'https://classroom-certification-api-production.up.railway.app/api';
     }
 
@@ -58,7 +61,7 @@ class ApiService {
         return this.request(endpoint, 'GET');
     }
 
-    private post(endpoint: string, data: any) {
+    private post(endpoint: string, data?: any) {
         return this.request(endpoint, 'POST', data);
     }
 
@@ -146,6 +149,10 @@ class ApiService {
         return this.delete(`/cycle/${id}`);
     }
 
+    public getCycle(id: string) {
+        return this.get(`/cycle/${id}`);
+    }
+
     /*
      * Métodos específicos para recursos
      */
@@ -203,6 +210,10 @@ class ApiService {
         return this.delete(`/area/${id}`);
     }
 
+    public getArea(id: string) {
+        return this.get(`/area/${id}`);
+    }
+
     /*
      * Métodos específicos para indicadores
      */
@@ -258,6 +269,38 @@ class ApiService {
 
     public deleteClassroom(id: string) {
         return this.delete(`/classroom/${id}`);
+    }
+
+    public getEvaluationsByClassroom(classroomId: number) {
+        return this.get(`/evaluation/classroom/${classroomId}`);
+    }
+
+    public addEvaluation(evaluationData: {classroomId: number, cycleId: number, areaId: number}) {
+        return this.post('/evaluation', evaluationData);
+    }
+
+    public updateEvaluation(id: string, updatedData: {classroomId?: number, cycleId?: number, areaId?: number, result?: number}) {
+        return this.patch(`/evaluation/${id}`, updatedData);
+    }
+
+    public deleteEvaluation(id: string) {
+        return this.delete(`/evaluation/${id}`);
+    }
+
+    public getEvaluationById(id: string) {
+        return this.get(`/evaluation/${id}`);
+    }
+
+    public analizeIndicatorsCompliance(moodleCourseId: number, token: string, cycleId: number, areaId: number, evaluationId: number) {
+        return this.post(`/evaluation/analyze-compliance?moodleCourseId=${moodleCourseId}&token=${token}&cycleId=${cycleId}&areaId=${areaId}&evaluationId=${evaluationId}`);
+    }
+
+    public updateEvaluatedIndicator(id: string, updatedData: { result: number, observation?: string }) {
+        return this.patch(`/evaluated-indicator/${id}`, updatedData);
+    }
+
+    public getWeightedAverageAreaByCycle(classroomId: number) {
+        return this.get(`/evaluation/${classroomId}/weighted-averages`);
     }
 
     /*

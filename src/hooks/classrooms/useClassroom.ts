@@ -96,7 +96,7 @@ const useClassroom = () => {
         }));
         try {
             if (action === 'add') {
-                await apiService.addClassroom(classroomData!);
+                return await apiService.addClassroom(classroomData!);
             } else if (action === 'update') {
                 await apiService.updateClassroom(id!, classroomData!);
             } else if (action === 'delete') {

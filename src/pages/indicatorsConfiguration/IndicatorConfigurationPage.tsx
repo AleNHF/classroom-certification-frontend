@@ -24,7 +24,6 @@ const IndicatorConfigurationPage: React.FC = () => {
                                 <Card title='CICLOS' route='cycles' />
                                 <Card title='ÁREAS' route='areas' />
                                 <Card title='PORCENTAJES' route='percentages' />
-                                <Card title='VERSIONES' route='users' />
                             </>
                         )}
                     </div>

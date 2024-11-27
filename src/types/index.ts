@@ -17,3 +17,6 @@ export type { FormDataProps } from './formData';
 export type { AssessmentData } from './assessmentData';
 export type { Assessment } from './assessment';
 export type { Requeriment } from './requeriment';
+export type { EvaluationResult } from './evaluationResult';
+export type { Evaluation } from './evaluation';
+export type { WeightedAverageAreaCycle } from './weightedAverageAreaCycle';

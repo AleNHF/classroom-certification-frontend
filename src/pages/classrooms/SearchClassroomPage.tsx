@@ -56,12 +56,13 @@ const SearchClassroomPage: React.FC = () => {
         const classroomData: Classroom = {
             name: selectedClassroom.fullname,
             code: selectedClassroom.shortname,
-            status: ClassroomStatus.PENDING
+            status: ClassroomStatus.PENDING,
+            moodleCourseId: selectedClassroom.id
         };
         
         try {
-            await addClassroom(classroomData);
-            navigate('/classrooms/evaluation-dashboard', { state: {classroom: classroomData}});
+            const classroom = await addClassroom(classroomData);
+            navigate('/classrooms/evaluation-dashboard', { state: {classroom: classroom.data.classroom}});
         } catch (error) {
             console.error('Error al añadir el aula virtual:', error);
             setCustomErrorMessage('Ocurrió un error al guardar el aula. Por favor, intenta de nuevo.');

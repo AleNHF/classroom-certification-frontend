@@ -82,7 +82,7 @@ const ClassroomPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                    <PageHeaderComponent title="AULAS VIRTUALES" />
+                    <PageHeaderComponent title="AULAS VIRTUALES" onBack={() => navigate('/')} />
                     {error && (
                         <div className="bg-red-200 text-red-600 border border-red-400 rounded-md p-3 mb-4 w-full">
                             {error}
