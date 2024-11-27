@@ -99,11 +99,11 @@ class ApiService {
         return this.get('/personal');
     }
 
-    public addPersonal(personalData: FormData) {
+    public addPersonal(personalData: {name: string, position: string}) {
         return this.post('/personal', personalData);
     }
 
-    public updatePersonal(id: string, updatedData: FormData) {
+    public updatePersonal(id: string, updatedData: {name: string, position: string}) {
         return this.patch(`/personal/${id}`, updatedData);
     }
 
