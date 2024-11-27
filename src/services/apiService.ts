@@ -316,16 +316,18 @@ class ApiService {
         return this.get(`/assessment/${assessmentId}`);
     }
 
-    public addAssessment(assessmentData: AssessmentData) {
-        return this.post('/assessment', assessmentData);
+    public addAssessment(assessmentData: FormData | AssessmentData) {
+        const isFormData = assessmentData instanceof FormData; 
+        return this.request('/assessment', 'POST', assessmentData, isFormData ? undefined : 'application/json');
     }
 
     public addAssessmentByForm(assessmentData: { formId: string }) {
         return this.post('/assessment/form', assessmentData);
     }
 
-    public updateAssessment(id: string, updatedData: AssessmentData) {
-        return this.patch(`/assessment/${id}`, updatedData);
+    public updateAssessment(id: string, updatedData: FormData | AssessmentData) {
+        const isFormData = updatedData instanceof FormData;
+        return this.request(`/assessment/${id}`, 'PATCH', updatedData, isFormData ? undefined : 'application/json');
     }
 
     public deleteAssessment(id: string) {

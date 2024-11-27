@@ -22,7 +22,15 @@ export const RequirementsTable: React.FC<RequirementsTableProps> = ({
                 {requirements.map((req) => (
                     <tr key={req.id}>
                         <td className="py-4 border-b border-gray-300">{req.name}</td>
-                        <td className="py-4 border-b border-gray-300">{req.url}</td>
+                        <td className="py-4 border-b border-gray-300">
+                            {req.url ? (
+                                <a href={req.url} target="_blank" rel="noopener noreferrer">
+                                    Ver Archivo
+                                </a>
+                            ) : (
+                                req.originalFileName
+                            )}
+                        </td>
                         <td className="py-4 border-b border-gray-300">
                             <button
                                 onClick={() => onDeleteRequirement(req.id!)}
