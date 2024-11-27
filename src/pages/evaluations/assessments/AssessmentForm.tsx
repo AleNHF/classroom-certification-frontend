@@ -42,11 +42,11 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">Descripción</label>
-                <input
-                    type="text"
+                <textarea
                     value={newAssessment.description}
                     onChange={(e) => onAssessmentChange({ ...newAssessment, description: e.target.value })}
-                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                    rows={2}
+                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500 resize-y"
                 />
                 {formErrors.description && (
                     <p className="text-red-600 text-sm mt-1">{formErrors.description}</p>

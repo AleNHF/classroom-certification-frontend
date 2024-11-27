@@ -116,7 +116,7 @@ const useAssessment = (formId: string) => {
 
     const handleAction = useCallback(async (
         action: Action,
-        assessmentData?: AssessmentData,
+        assessmentData?: FormData | AssessmentData,
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -129,9 +129,9 @@ const useAssessment = (formId: string) => {
         }));
         try {
             if (action === 'add') {
-                await apiService.addAssessment(assessmentData!);
+                await apiService.addAssessment(assessmentData as FormData);
             } else if (action === 'update') {
-                await apiService.updateAssessment(id!, assessmentData!);
+                await apiService.updateAssessment(id!, assessmentData as FormData);
             } else if (action === 'delete') {
                 await apiService.deleteAssessment(id!);
             }
@@ -159,12 +159,12 @@ const useAssessment = (formId: string) => {
 
     // Optimización de funciones retornadas con useCallback
     const addAssessment = useCallback(
-        (assessmentData: AssessmentData) => handleAction('add', assessmentData),
+        (assessmentData: FormData | AssessmentData) => handleAction('add', assessmentData),
         [handleAction]
     );
 
     const updateAssessment = useCallback(
-        (id: string, assessmentData: AssessmentData) => handleAction('update', assessmentData, id),
+        (id: string, assessmentData: FormData | AssessmentData) => handleAction('update', assessmentData, id),
         [handleAction]
     );
 

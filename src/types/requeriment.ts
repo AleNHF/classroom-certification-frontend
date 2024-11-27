@@ -3,4 +3,6 @@ export interface Requeriment {
     name?:         string;
     url?:          string;
     assessmentId?: number;
+    originalFileName?: string;
+    file?: File | null;
 }

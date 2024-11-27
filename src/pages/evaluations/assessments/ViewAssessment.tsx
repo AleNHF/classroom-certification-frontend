@@ -12,56 +12,60 @@ const ViewAssessmentModal: React.FC<ViewAssessmentModalProps> = ({ isOpen, onClo
     <ModalComponent isOpen={isOpen} onClose={onClose} title="Detalles de la Valoración" size='large'>
         {assessment && (
             <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex justify-between items-center bg-gray-100 p-4 rounded-md">
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Información General</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Área</label>
-                                <p className="mt-1 text-sm text-gray-900 bg-gray-50 rounded-md p-2">
-                                    {assessment.area?.name}
-                                </p>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Descripción</label>
-                                <p className="mt-1 text-sm text-gray-900 bg-gray-50 rounded-md p-2">
-                                    {assessment.description}
-                                </p>
-                            </div>
-                        </div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Área</label>
+                        <p className="text-sm font-semibold text-gray-900">
+                            {assessment.area?.name}
+                        </p>
                     </div>
-                    <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Detalles Adicionales</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Requisitos</label>
-                                {assessment.requeriments && assessment.requeriments.length > 0 ? (
-                                    assessment.requeriments.map((req, index) => (
-                                        <p key={req.id || index} className="mt-1 text-sm text-gray-900 bg-gray-50 rounded-md p-2">
-                                            {req.name}: <a href={req.url}>{req.url}</a> 
-                                        </p>
-                                    ))
-                                ) : (
-                                    <p className="mt-1 text-sm text-gray-900 bg-gray-50 rounded-md p-2">Sin requerimientos</p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Conclusiones/Recomendaciones</label>
-                                <p className="mt-1 text-sm text-gray-900 bg-gray-50 rounded-md p-2">
-                                    {assessment.conclusions || 'No hay conclusiones/recomendaciones'}
-                                </p>
-                            </div>
+                    {assessment.assessment && (
+                        <div className="text-right">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Valoración</label>
+                            <p className="text-lg font-bold text-blue-700">
+                                {assessment.assessment}
+                            </p>
                         </div>
-                    </div>
+                    )}
                 </div>
 
-                {assessment.assessment && (
-                    <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Valoración</h3>
-                        <div className="bg-blue-50 p-4 rounded-md">
-                            <p className="text-lg font-medium text-blue-900">
-                                Resultado: {assessment.assessment}
-                            </p>
+                <div className="bg-white border border-gray-200 rounded-md p-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                    <p className="text-sm text-gray-900 break-words whitespace-pre-wrap">
+                        {assessment.description || 'Sin descripción'}
+                    </p>
+                </div>
+
+                {assessment.conclusions && (
+                    <div className="bg-white border border-gray-200 rounded-md p-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Conclusiones/Recomendaciones</label>
+                        <p className="text-sm text-gray-900 break-words whitespace-pre-wrap">
+                            {assessment.conclusions}
+                        </p>
+                    </div>
+                )}
+
+                {assessment.requeriments && assessment.requeriments.length > 0 && (
+                    <div className="bg-white border border-gray-200 rounded-md">
+                        <div className="p-4 border-b border-gray-200">
+                            <h3 className="text-sm font-medium text-gray-700">Requisitos</h3>
+                        </div>
+                        <div className="divide-y divide-gray-200">
+                            {assessment.requeriments.map((req, index) => (
+                                <div key={req.id || index} className="p-4 flex justify-between items-center">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900">{req.name}</p>
+                                        <a 
+                                            href={req.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-blue-600 hover:underline break-all"
+                                        >
+                                            {req.url}
+                                        </a>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
