@@ -4,6 +4,7 @@ import { RequirementsTable } from "./RequirementTable";
 interface RequirementsSectionProps {
     requirements: Requeriment[];
     newRequirement: Requeriment;
+    onFileChange: (file: File) => void;
     onRequirementChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onAddRequirement: (e: React.MouseEvent<HTMLButtonElement>) => void;
     onDeleteRequirement: (id: string) => void;
@@ -12,10 +13,17 @@ interface RequirementsSectionProps {
 export const RequirementsSection: React.FC<RequirementsSectionProps> = ({
     requirements,
     newRequirement,
+    onFileChange,
     onRequirementChange,
     onAddRequirement,
     onDeleteRequirement,
 }) => {
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            onFileChange(e.target.files[0]);
+        }
+    };
+
     return (
         <div>
             <h3 className="text-lg font-semibold mb-2">Requerimientos</h3>
@@ -29,11 +37,10 @@ export const RequirementsSection: React.FC<RequirementsSectionProps> = ({
                     className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                 />
                 <input
-                    type="text"
-                    name="url"
-                    placeholder="URL"
-                    value={newRequirement.url}
-                    onChange={onRequirementChange}
+                    type="file"
+                    name="file"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx"
+                    onChange={handleFileSelect}
                     className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                 />
                 <button

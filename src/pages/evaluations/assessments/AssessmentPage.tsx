@@ -25,6 +25,7 @@ const INITIAL_REQUIREMENT_DATA: Requeriment = {
     name: '',
     url: '',
     assessmentId: 0,
+    file: null, 
 };
 
 const AssessmentPage: React.FC = () => {
@@ -109,18 +110,22 @@ const AssessmentPage: React.FC = () => {
     const handleAddRequirement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setFormState(prev => {
-            if (!prev.newRequirement.name) return prev;
-
-            const newReq = {
+            const { name, file } = prev.newRequirement;
+            if (!name || !file) return prev; 
+    
+            const newRequirement = {
                 ...prev.newRequirement,
                 id: String(Date.now()),
-                ...(prev.newAssessment.id ? { assessmentId: parseInt(prev.newAssessment.id) } : {})
+                originalFileName: file.name, 
             };
 
             return {
                 ...prev,
-                requirements: [...prev.requirements, newReq],
-                newRequirement: INITIAL_REQUIREMENT_DATA
+                requirements: [...prev.requirements, newRequirement],
+                newRequirement: { 
+                    ...INITIAL_REQUIREMENT_DATA, 
+                    file: null,
+                },
             };
         });
     }, []);
@@ -129,6 +134,13 @@ const AssessmentPage: React.FC = () => {
         setFormState(prev => ({
             ...prev,
             requirements: prev.requirements.filter(req => req.id !== reqId)
+        }));
+    }, []);
+
+    const handleFileChange = useCallback((file: File) => {
+        setFormState((prev) => ({
+            ...prev,
+            newRequirement: { ...prev.newRequirement, file },
         }));
     }, []);
 
@@ -141,29 +153,30 @@ const AssessmentPage: React.FC = () => {
                 return;
             }
 
-            const cleanedRequirements = formState.requirements.map((req) => ({
-                name: req.name,
-                url: req.url,
-                ...(formState.newAssessment.id
-                    ? { assessmentId: parseInt(formState.newAssessment.id) }
-                    : {}),
-            }));
-
-            const assessmentDataRequest = {
-                description: formState.newAssessment.description,
-                assessment: formState.newAssessment.assessment,
-                conclusions: formState.newAssessment.conclusions,
-                areaId: formState.newAssessment.areaId,
-                requeriments: cleanedRequirements,
-                formId: parseInt(safeFormId),
-            };
-
-            if (formState.newAssessment.id) {
-                await updateAssessment(formState.newAssessment.id, assessmentDataRequest);
-            } else {
-                await addAssessment(assessmentDataRequest);
+            if (!safeFormId) {
+                console.error('El ID del formulario (formId) es obligatorio.');
+                return;
             }
 
+            const formData = new FormData();
+            formData.append('description', formState.newAssessment.description ?? '');
+            formData.append('assessment', formState.newAssessment.assessment?.toString() ?? '');
+            formData.append('conclusions', formState.newAssessment.conclusions ?? '');
+            formData.append('areaId', formState.newAssessment.areaId?.toString() ?? '');
+            formData.append('formId', safeFormId.toString());
+
+            formState.requirements.forEach((req) => {
+                if (req.file) {
+                    formData.append(`files`, req.file); 
+                }
+            });
+
+            if (formState.newAssessment.id) {
+                await updateAssessment(formState.newAssessment.id, formData);
+            } else {
+                await addAssessment(formData);
+            }
+    
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar la valoración:', error);
@@ -375,6 +388,7 @@ const AssessmentPage: React.FC = () => {
                         onRequirementChange={handleRequirementChange}
                         onAddRequirement={handleAddRequirement}
                         onDeleteRequirement={handleDeleteRequirement}
+                        onFileChange={handleFileChange}
                     />
                 </form>
             </ModalComponent>
