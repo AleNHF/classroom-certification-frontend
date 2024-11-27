@@ -10,14 +10,14 @@ interface PersonalForm {
     id: string;
     name: string;
     position: string;
-    signature: File | null;
+    //signature: File | null;
 }
 
 const INITIAL_PERSONAL_FORM: PersonalForm = {
     id: '',
     name: '',
     position: '',
-    signature: null as File | null
+    //signature: null as File | null
 };
 
 const PersonalPage: React.FC = () => {
@@ -61,7 +61,7 @@ const PersonalPage: React.FC = () => {
     };
 
     // Manejador de submit del formulario
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    /* const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
         if (file && file.type.startsWith('image/')) {
             setPersonalForm(prev => ({ ...prev, signature: file }));
@@ -69,7 +69,7 @@ const PersonalPage: React.FC = () => {
         } else {
             setFormErrors(prev => ({ ...prev, signature: 'Por favor, sube un archivo de imagen válido.' }));
         }
-    };
+    }; */
 
     const handleSubmit = useCallback(async () => {
         const validation = validatePersonalForm(personalForm);
@@ -78,12 +78,10 @@ const PersonalPage: React.FC = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('name', personalForm.name);
-        formData.append('position', personalForm.position);
-        if (personalForm.signature) {
-            formData.append('signature', personalForm.signature);
-        }
+        const formData = {
+            name: personalForm.name,
+            position: personalForm.position,
+        };
 
         try {
             personalForm.id
@@ -128,7 +126,7 @@ const PersonalPage: React.FC = () => {
                                 id: personal.id,
                                 name: personal.name,
                                 position: personal.position,
-                                signature: personal.signature
+                                //signature: personal.signature
                             });
                             setIsModalOpen(true);
                         }}
@@ -212,7 +210,7 @@ const PersonalPage: React.FC = () => {
                         </select>
                         {formErrors.position && <p className="text-red-600 text-sm">{formErrors.position}</p>}
                     </div>
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Firma (Subir imagen)</label>
                         <input
                             type="file"
@@ -221,7 +219,7 @@ const PersonalPage: React.FC = () => {
                             className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                         />
                         {formErrors.signature && <p className="text-red-600 text-sm">{formErrors.signature}</p>}
-                    </div>
+                    </div> */}
                 </form>
             </ModalComponent>
 

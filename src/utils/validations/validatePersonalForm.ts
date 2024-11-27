@@ -2,7 +2,7 @@ interface PersonalForm {
     id: string;
     name: string;
     position: string;
-    signature: File | null;
+    //signature: File | null;
 }
 
 interface ValidationResult {
@@ -12,7 +12,7 @@ interface ValidationResult {
 
 export const validatePersonalForm = (form: PersonalForm): ValidationResult => {
     const errors: { [key: string]: string } = {};
-    const { name, position, signature } = form;
+    const { name, position } = form;
 
     if (!name) {
         errors.name = 'El nombre es obligatorio.';
@@ -22,10 +22,10 @@ export const validatePersonalForm = (form: PersonalForm): ValidationResult => {
         errors.position = 'El cargo es obligatorio.';
     }
 
-    if (!signature) {
+    /* if (!signature) {
         errors.signature = 'La firma es obligatoria.';
     }
-
+ */
     return {
         isValid: Object.keys(errors).length === 0,
         errors,

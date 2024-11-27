@@ -76,7 +76,7 @@ const usePersonal = () => {
 
     const handleAction = useCallback(async (
         action: Action, 
-        personalData?: FormData, 
+        personalData?: { name: string, position: string }, 
         id?: string
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -125,12 +125,12 @@ const usePersonal = () => {
 
     // Optimización de funciones retornadas con useCallback
     const addPersonal = useCallback(
-        (personalData: FormData) => handleAction('add', personalData),
+        (personalData: { name: string, position: string }) => handleAction('add', personalData),
         [handleAction]
     );
 
     const updatePersonal = useCallback(
-        (id: string, personalData: FormData) => handleAction('update', personalData, id),
+        (id: string, personalData: { name: string, position: string }) => handleAction('update', personalData, id),
         [handleAction]
     );
 
