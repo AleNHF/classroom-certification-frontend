@@ -19,11 +19,6 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando aula virtual...',
         success: 'Aula virtual eliminado exitosamente',
         error: 'Error al eliminar aula virtual'
-    },
-    fetch: {
-        loading: 'Cargando...',
-        success: 'Cargado exitosamente',
-        error: 'Error al cargar'
     }
 };
 

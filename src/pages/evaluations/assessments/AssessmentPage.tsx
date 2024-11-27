@@ -262,12 +262,12 @@ const AssessmentPage: React.FC = () => {
         let filtered = assessmentList;
         if (uiState.filter.toLowerCase() !== AreaNames.ALL.toLowerCase()) {
             filtered = assessmentList.filter(
-                (assessment) => 
+                (assessment) =>
                     assessment.area?.name.toLowerCase() === uiState.filter.toLowerCase()
             );
         }
         return filtered;
-    }, [assessmentList, uiState.filter]);    
+    }, [assessmentList, uiState.filter]);
 
     const listRequirements = (requirements: Requeriment[]) => {
         let namelist = ''
@@ -282,7 +282,7 @@ const AssessmentPage: React.FC = () => {
         const areaName = uiState.filter === AreaNames.ALL ? "Todas" : uiState.filter;
         return [areaName, "Requisitos", "Valoración", "Acciones"];
     }, [uiState.filter]);
-    
+
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
         return paginatedItems.map((assessment: any) => ({
@@ -331,7 +331,16 @@ const AssessmentPage: React.FC = () => {
                         />
                     )}
 
-                    <AddButtonComponent onClick={handleAddClick} />
+                    <div className="flex w-full justify-end mb-4">
+                        <AddButtonComponent onClick={handleAddClick} />
+                        <button
+                            className="bg-black hover:bg-slate-700 text-white text-sm w-40 h-10 p-2 rounded-lg ml-2"
+                            onClick={() => { }}
+                        >
+                            GENERAR ROSETA
+                        </button>
+                    </div>
+
                     {/* Filtros */}
                     <div className="flex w-full justify-start my-4">
                         {/* Select para pantallas pequeñas */}

@@ -19,11 +19,6 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando usuario...',
         success: 'Usuario eliminado exitosamente',
         error: 'Error al eliminar usuario'
-    },
-    fetch: {
-        loading: 'Cargando...',
-        success: 'Cargado exitosamente',
-        error: 'Error al cargar'
     }
 };
 

@@ -18,11 +18,6 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando valoración...',
         success: 'Valoración eliminada exitosamente',
         error: 'Error al eliminar valoración'
-    },
-    fetch: {
-        loading: 'Cargando valoración...',
-        success: 'Valoración cargado exitosamente',
-        error: 'Error al cargar valoración'
     }
 };
 
@@ -67,27 +62,14 @@ const useAssessment = (formId: string) => {
     }, [formId]);
 
     const getAssessmentById = useCallback(async (assessmentId: string) => {
-        const messages = ACTION_MESSAGES.fetch;
-        setFetchState(prev => ({
-            ...prev,
-            loading: true,
-            error: null,
-            successMessage: null
-        }));
-
         try {
             const response = await apiService.getAssessmentById(assessmentId);
             setCurrentAssessment(response.data.assessment);
-            setFetchState(prev => ({
-                ...prev,
-                successMessage: messages.success
-            }));
-            clearMessages();
             return response.data.assessment;
         } catch (error) {
             const errorMessage = error instanceof Error
                 ? error.message
-                : messages.error;
+                : 'Ha ocurrido un problema al cargar la información';
 
             setFetchState(prev => ({
                 ...prev,

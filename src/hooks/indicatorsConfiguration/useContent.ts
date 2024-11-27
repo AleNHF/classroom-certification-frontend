@@ -18,11 +18,6 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando contenido...',
         success: 'Contenido eliminado exitosamente',
         error: 'Error al eliminar contenido'
-    },
-    fetch: {
-        loading: 'Cargando...',
-        success: 'Cargado exitosamente',
-        error: 'Error al cargar'
     }
 };
 

@@ -18,11 +18,6 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando evaluación...',
         success: 'Evaluación eliminado exitosamente',
         error: 'Error al eliminar evaluación'
-    },
-    fetch: {
-        loading: '',
-        success: '',
-        error: ''
     }
 };
 
@@ -87,20 +82,13 @@ const useEvaluation = () => {
     }, []);
 
     const fetchEvaluationById = useCallback(async (id: string) => {
-        setFetchState(prev => ({
-            ...prev,
-            loading: true,
-            error: null,
-            successMessage: null
-        }));
-    
         try {
             const response = await apiService.getEvaluationById(id);
             return response;
         } catch (error) {
             const errorMessage = error instanceof Error
                 ? error.message
-                : 'Error al obtener la evaluación';
+                : 'Ha ocurrido un problema al cargar la información';
     
             setFetchState(prev => ({
                 ...prev,

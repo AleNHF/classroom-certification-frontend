@@ -18,11 +18,6 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando porcentaje de ciclo y área...',
         success: 'Porcentaje de ciclo y área eliminado exitosamente',
         error: 'Error al eliminar porcentaje de ciclo y área'
-    },
-    fetch: {
-        loading: 'Cargando...',
-        success: 'Cargado exitosamente',
-        error: 'Error al cargar'
     }
 };
 
