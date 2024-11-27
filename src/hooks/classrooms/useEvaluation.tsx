@@ -18,6 +18,11 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
         loading: 'Eliminando evaluación...',
         success: 'Evaluación eliminado exitosamente',
         error: 'Error al eliminar evaluación'
+    },
+    fetch: {
+        loading: '',
+        success: '',
+        error: ''
     }
 };
 

@@ -1,5 +1,7 @@
 import AuthService from '../services/authService';
-import { AssessmentData, FormDataProps, Team, UserProps } from '../types';
+import { UserProps, Team } from '../types';
+import { AssessmentData } from '../types/assessmentData';
+import { FormDataProps } from '../types/formData';
 import { ClassroomStatus } from '../utils/enums/classroomStatus';
 
 class ApiService {
