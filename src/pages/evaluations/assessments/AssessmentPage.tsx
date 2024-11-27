@@ -13,8 +13,6 @@ import ViewAssessmentModal from './ViewAssessment';
 import { AssessmentForm } from './AssessmentForm';
 import { RequirementsSection } from './RequirementSection';
 
-const headers = ["Área", "Requisitos", "Valoración", "Acciones"];
-
 const INITIAL_ASSESSMENT_DATA: AssessmentData = {
     id: '',
     description: '',
@@ -249,13 +247,14 @@ const AssessmentPage: React.FC = () => {
     // Filtrado de assessments
     const filteredAssessments = useMemo(() => {
         let filtered = assessmentList;
-        if (uiState.filter !== AreaNames.ALL) {
+        if (uiState.filter.toLowerCase() !== AreaNames.ALL.toLowerCase()) {
             filtered = assessmentList.filter(
-                (assessment) => assessment.area?.name === uiState.filter
+                (assessment) => 
+                    assessment.area?.name.toLowerCase() === uiState.filter.toLowerCase()
             );
         }
         return filtered;
-    }, [assessmentList, uiState.filter]);
+    }, [assessmentList, uiState.filter]);    
 
     const listRequirements = (requirements: Requeriment[]) => {
         let namelist = ''
@@ -266,6 +265,11 @@ const AssessmentPage: React.FC = () => {
         return namelist;
     }
 
+    const dynamicHeaders = useMemo(() => {
+        const areaName = uiState.filter === AreaNames.ALL ? "Todas" : uiState.filter;
+        return [areaName, "Requisitos", "Valoración", "Acciones"];
+    }, [uiState.filter]);
+    
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
         return paginatedItems.map((assessment: any) => ({
@@ -329,7 +333,7 @@ const AssessmentPage: React.FC = () => {
                     </div>
 
                     <div className="overflow-x-auto w-full">
-                        <TableComponent headers={headers} rows={renderTableRows()} />
+                        <TableComponent headers={dynamicHeaders} rows={renderTableRows()} />
                     </div>
                     <PaginationComponent
                         items={filteredAssessments}
