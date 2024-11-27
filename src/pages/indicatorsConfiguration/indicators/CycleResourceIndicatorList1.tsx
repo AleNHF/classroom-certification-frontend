@@ -1,7 +1,7 @@
 import React from 'react';
-import { ActionButtonComponent } from '..';
-import { Indicator, Resource } from '../../types/indicator';
-import { Cycle } from '../../types';
+import { ActionButtonComponent } from '../../../components';
+import { Indicator, Resource } from '../../../types/indicator';
+import { Cycle } from '../../../types';
 
 interface CycleResourceIndicatorListProps {
     cycleList: Cycle[];

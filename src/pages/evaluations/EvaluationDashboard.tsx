@@ -24,6 +24,16 @@ const EvaluationDashboard = () => {
     const navigation = useNavigate();
     const classroom = location.state?.classroom;
 
+    if (!classroom || !classroom.id) {
+        return <div>Error: No se encontró información del aula</div>;
+    }
+
+    const routes = {
+        evaluation: `/classrooms/evaluation-personal/${classroom.id}`,
+        form: `/classrooms/evaluation-formulario/${classroom.id}`,
+        certificates: `/classrooms/certificates/${classroom.id}`
+    }
+
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -196,10 +206,10 @@ const EvaluationDashboard = () => {
                             onClick={() => navigation('/classrooms/evaluations', { state: { classroom } })}
                         />
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='VALORACIÓN DE AULA VIRTUAL' route='teams' />
+                            <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form}/>
                         )}
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='CERTIFICADOS' route='users' />
+                            <Card title='CERTIFICADOS' route={routes.certificates} />
                         )}
                     </div>
                 </div>

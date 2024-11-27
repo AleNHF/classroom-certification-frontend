@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { AddButtonComponent, AlertComponent, ConfirmDeleteModal, CycleResourceIndicatorList, HeaderComponent, IndicatorForm, ModalComponent, PageHeaderComponent } from "../../components";
-import { ErrorPage } from "../utils";
-import { useCycle, useIndicator } from "../../hooks";
+import { AddButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, IndicatorForm, ModalComponent, PageHeaderComponent } from "../../../components";
+import { ErrorPage } from "../../utils";
+import { useCycle, useIndicator } from "../../../hooks";
+import CycleResourceIndicatorList from "./CycleResourceIndicatorList";
 
 const IndicatorPage: React.FC = () => {
     const { areaId } = useParams<{ areaId: string }>();
@@ -29,6 +30,7 @@ const IndicatorPage: React.FC = () => {
     // Estado para manejar la expansión de ciclos y recursos
     const [expandedCycleId, setExpandedCycleId] = useState<string | null>(null);
     const [expandedResourceId, setExpandedResourceId] = useState<string | null>(null);
+    const [expandedContents, setExpandedContents] = useState<{ [key: string]: boolean }>({});
 
     // Funciones para alternar la expansión de ciclos y recursos
     const toggleCycleExpansion = (cycleId: string) => {
@@ -48,6 +50,13 @@ const IndicatorPage: React.FC = () => {
             fetchContentList(resourceId);
         }
     };
+
+    const toggleContentExpansion = (contentId: string) => {
+        setExpandedContents(prev => ({
+            ...prev,
+            [contentId]: !prev[contentId]
+        }));
+    };    
 
     // Cargar recursos cuando se selecciona un ciclo
     useEffect(() => {
@@ -215,11 +224,14 @@ const IndicatorPage: React.FC = () => {
                     <CycleResourceIndicatorList
                         cycleList={cycleList}
                         resourceList={resourceList}
+                        contentList={contentList}
                         indicatorList={indicatorList}
                         expandedCycles={expandedCycleId ? { [expandedCycleId]: true } : {}}
                         expandedResources={expandedResourceId ? { [expandedResourceId]: true } : {}}
+                        expandedContents={expandedContents}
                         toggleCycleExpansion={toggleCycleExpansion}
                         toggleResourceExpansion={toggleResourceExpansion}
+                        toggleContentExpansion={toggleContentExpansion} 
                         handleEdit={handleEdit}
                         handleDelete={handleDelete}
                     />

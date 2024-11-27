@@ -7,6 +7,8 @@ import RoleProtectedRoute from './RoleProtectedRoute';
 import ClassroomPage from '../pages/classrooms/ClassroomPage';
 import SearchClassroomPage from '../pages/classrooms/SearchClassroomPage';
 import EvaluationDashboard from '../pages/evaluations/EvaluationDashboard';
+import FormPage from '../pages/evaluations/forms/FormPage';
+import AssessmentPage from '../pages/evaluations/assessments/AssessmentPage';
 import CertificationView from '../pages/evaluations/ProcessEvaluationView';
 import EvaluationList from '../pages/evaluations/evaluation/EvaluationList';
 import EvaluationView from '../pages/evaluations/evaluation/EvaluatedIndicatorsPage';
@@ -79,6 +81,14 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="classrooms/evaluation-dashboard"
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<EvaluationDashboard />} />}
+            />
+            <Route
+                path="classrooms/evaluation-formulario/:classroomId"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<FormPage />} />}
+            />
+            <Route
+                path="classrooms/evaluation-assessment/:formId"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<AssessmentPage />} />}
             />
             <Route
                 path="classrooms/evaluation-progress"
