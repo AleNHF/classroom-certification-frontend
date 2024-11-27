@@ -18,7 +18,7 @@ export const useAuth = () => {
             setIsAuthenticated(true);
         } catch (error) {
             setIsAuthenticated(false);
-            console.log('Authenticated failed', error)
+            console.error('Authenticated failed', error)
             throw error;
         }
     };
