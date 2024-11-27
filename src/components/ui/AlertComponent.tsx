@@ -32,7 +32,7 @@ const Alert = ({
 }: AlertProps): JSX.Element => {
   const [isVisible, setIsVisible] = useState(true);
   const [isLeaving, setIsLeaving] = useState(false);
-  console.log(isVisible)
+  console.info(isVisible)
 
   useEffect(() => {
     if (duration) {
