@@ -376,6 +376,17 @@ class ApiService {
     public deleteAssessment(id: string) {
         return this.delete(`/assessment/${id}`);
     }
+
+    /**
+     * Métodos especificos para la creación del cuadro resumen
+     */
+    public addSummary(formId: number) {
+        return this.post(`/summary/calculate/form/${formId}`);
+    }
+
+    public getSummaries(formId: number) {
+        return this.get(`/summary/form/${formId}`);
+    }
 }
 
 export default new ApiService();
