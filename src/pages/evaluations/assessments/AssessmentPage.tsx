@@ -339,10 +339,10 @@ const AssessmentPage: React.FC = () => {
                     <div className="flex w-full justify-end mb-4">
                         <AddButtonComponent onClick={handleAddClick} />
                         <button
-                            className="bg-black hover:bg-slate-700 text-white text-sm w-40 h-10 p-2 rounded-lg ml-2"
+                            className="bg-black hover:bg-slate-700 text-white text-sm w-44 h-9 p-2 rounded-lg ml-2"
                             onClick={() => handleNavigateRosseta()}
                         >
-                            GENERAR ROSETA
+                            VISUALIZAR ROSETA
                         </button>
                     </div>
 
