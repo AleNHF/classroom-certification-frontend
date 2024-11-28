@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../../components';
 import { ErrorPage } from '../../utils';
 import { Assessment, AssessmentData, Requeriment } from '../../../types';
@@ -31,6 +31,7 @@ const INITIAL_REQUIREMENT_DATA: Requeriment = {
 const AssessmentPage: React.FC = () => {
     const { formId } = useParams<{ formId: string }>();
     const safeFormId = formId || '';
+    const navigate = useNavigate();
 
     const [uiState, setUiState] = useState({
         isModalOpen: false,
@@ -278,6 +279,10 @@ const AssessmentPage: React.FC = () => {
         return namelist;
     }
 
+    const handleNavigateRosseta = () => {
+        navigate('/classrooms/evaluation-summary', { state: { formId: safeFormId } });
+    }
+
     const dynamicHeaders = useMemo(() => {
         const areaName = uiState.filter === AreaNames.ALL ? "Todas" : uiState.filter;
         return [areaName, "Requisitos", "Valoración", "Acciones"];
@@ -335,7 +340,7 @@ const AssessmentPage: React.FC = () => {
                         <AddButtonComponent onClick={handleAddClick} />
                         <button
                             className="bg-black hover:bg-slate-700 text-white text-sm w-40 h-10 p-2 rounded-lg ml-2"
-                            onClick={() => { }}
+                            onClick={() => handleNavigateRosseta()}
                         >
                             GENERAR ROSETA
                         </button>
