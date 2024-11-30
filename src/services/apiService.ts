@@ -387,6 +387,25 @@ class ApiService {
     public getSummaries(formId: number) {
         return this.get(`/summary/form/${formId}`);
     }
+
+    /*
+     * Métodos específicos para autoridades
+     */
+    public getAuthorities() {
+        return this.get('/authority');
+    }
+
+    public addAuthority(authorityData: FormData) {
+        return this.post('/authority', authorityData);
+    }
+
+    public updateAuthority(id: string, updatedData: FormData) {
+        return this.patch(`/authority/${id}`, updatedData);
+    }
+
+    public deleteAuthority(id: string) {
+        return this.delete(`/authority/${id}`);
+    }
 }
 
 export default new ApiService();

@@ -14,6 +14,7 @@ import EvaluationList from '../pages/evaluations/evaluation/EvaluationList';
 import EvaluationView from '../pages/evaluations/evaluation/EvaluatedIndicatorsPage';
 import EvaluationResults from '../pages/evaluations/evaluation/EvaluationResults';
 import SummaryPage from '../pages/evaluations/summary/SummaryPage';
+import AuthoritiesPage from '../pages/workTeams/AuthoritiesPage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -110,6 +111,10 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="classrooms/evaluation-summary"
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<SummaryPage />} />}
+            />
+            <Route
+                path="work-teams/authorities"
+                element={<RoleProtectedRoute allowedRoles={['Administrador']} element={<AuthoritiesPage />} />}
             />
 
              {/* Ruta para la página de no acceso */}
