@@ -197,19 +197,16 @@ const EvaluationDashboard = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
-                        {/* {(classroom.status === ClassroomStatus.PROCESSING || classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='INFORMES DE EVALUACIÓN' route='personal' />
-                        )} */}
                         <Card
                             title="EVALUACIONES"
                             route="/classrooms/evaluations"
                             onClick={() => navigation('/classrooms/evaluations', { state: { classroom } })}
                         />
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form}/>
+                            <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form} />
                         )}
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
-                            <Card title='CERTIFICADOS' route={routes.certificates} />
+                            <Card title='CERTIFICADOS' route={routes.certificates} onClick={() => navigation(`/classrooms/certificates/${classroom.id}`, { state: { classroom } })} />
                         )}
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import AuthService from '../services/authService';
-import { UserProps, Team } from '../types';
+import { UserProps, Team, CertificationFormData } from '../types';
 import { AssessmentData } from '../types/assessmentData';
 import { FormDataProps } from '../types/formData';
 import { ClassroomStatus } from '../utils/enums/classroomStatus';
@@ -8,8 +8,8 @@ class ApiService {
     private baseUrl: string;
 
     constructor() {
-        //this.baseUrl = 'http://localhost:3000/api';
-        this.baseUrl = 'https://classroom-certification-api-production.up.railway.app/api';
+        this.baseUrl = 'http://localhost:3000/api';
+        //this.baseUrl = 'https://classroom-certification-api-production.up.railway.app/api';
     }
 
     private async request(
@@ -405,6 +405,25 @@ class ApiService {
 
     public deleteAuthority(id: string) {
         return this.delete(`/authority/${id}`);
+    }
+
+    /*
+     * Métodos específicos para certificaciones
+     */
+    public getCertificationsByClassroom(classroomId: string) {
+        return this.get(`/certification/classroom/${classroomId}`);
+    }
+
+    public addCertification(certificationData: CertificationFormData) {
+        return this.post('/certification', certificationData);
+    }
+
+    public updateCertification(id: string, updatedData: CertificationFormData) {
+        return this.patch(`/certification/${id}`, updatedData);
+    }
+
+    public getCertificationById(id: string) {
+        return this.delete(`/certification/${id}`);
     }
 }
 
