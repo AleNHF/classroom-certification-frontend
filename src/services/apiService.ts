@@ -406,6 +406,17 @@ class ApiService {
     public deleteAuthority(id: string) {
         return this.delete(`/authority/${id}`);
     }
+
+    /**
+     * Métodos específicos para gestionar servidor
+     */ 
+    public getPlatforms() {
+        return this.get('/platform');
+    }
+
+    public selectPlatform(id: string) {
+        return this.post(`/platform/${id}/set-environment`);
+    }
 }
 
 export default new ApiService();
