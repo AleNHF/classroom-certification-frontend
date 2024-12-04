@@ -64,6 +64,7 @@ const useCertification = (classroomId: string) => {
     const getCertificationById = useCallback(async (certificationId: string) => {
         try {
             const response = await apiService.getCertificationById(certificationId);
+            console.log(response)
             setCurrentCertification(response.data.certification);
             return response.data.certification;
         } catch (error) {

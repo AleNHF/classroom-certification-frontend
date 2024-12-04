@@ -9,6 +9,7 @@ export interface Certification {
   modality?:      string;
   teacher?:       string;
   teacherCode?:   string;
+  responsible?:   string;
   classroom?:     Classroom;
   authorities?:   Authority[];
   updatedAt?:     Date;

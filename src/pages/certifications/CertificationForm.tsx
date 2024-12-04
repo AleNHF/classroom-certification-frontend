@@ -53,6 +53,7 @@ const CertificationForm: React.FC = () => {
             responsibleDedtef: newCertification.responsibleDedtef,
             authorityIds: authorityIds
         };
+        console.log(certificationData)
 
         try {
             const certificate = await addCertification(certificationData);
@@ -68,6 +69,7 @@ const CertificationForm: React.FC = () => {
             setShowModal(true);
         } else {
             const certificate = certificationList[0];
+            console.log(classroom)
             navigate(`/classrooms/certificate-view/${certificate.id}`, { state: { classroom } })
         }
     }, [certificationList]);
@@ -95,7 +97,7 @@ const CertificationForm: React.FC = () => {
                             <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
                                 <div className="bg-white p-6 rounded-lg shadow-lg text-center">
                                     <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                                        Tienes que crear un certificado
+                                        El aula aún no tiene un certificado. Por favor, registra el formulario para poder crearlo
                                     </h2>
                                     <button
                                         onClick={() => setShowModal(false)}

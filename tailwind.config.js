@@ -16,6 +16,8 @@ export default {
         'loaded-color': '#0AC228', 
         'secondary-red': '#FEF2F2',
         'border-red-color': '#FECACA',
+        'text-color-cert': '#1e2b72',
+        'text-color-subt-cert': '#ef7d30'
       },
     },
   },
