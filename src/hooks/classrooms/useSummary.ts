@@ -5,7 +5,7 @@ const useSummary = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Use a ref to track summary creation to prevent multiple simultaneous attempts
   const isCreatingRef = useRef(false);
 
@@ -15,8 +15,10 @@ const useSummary = () => {
     try {
       const response = await apiService.addSummary(formId);
       setData(response.data);
+      return response.data;
     } catch (err: any) {
       setError(err.message || "Ocurrió un error al añadir el resumen");
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -26,24 +28,21 @@ const useSummary = () => {
     setLoading(true);
     setError(null);
     try {
-      let response = await apiService.getSummaries(formId);
+      const response = await apiService.getSummaries(formId);
       const summaryData = response.data?.summary;
 
-      // Check if no summaries exist
       if (
         summaryData &&
         Array.isArray(summaryData.data) &&
         summaryData.data.length === 0 &&
         summaryData.message === "No se encontraron registros para este formulario."
       ) {
-        // Use ref to prevent multiple simultaneous creation attempts
         if (!isCreatingRef.current) {
           try {
             isCreatingRef.current = true;
-            await apiService.addSummary(formId);
-            // Fetch summaries again after creation
-            response = await apiService.getSummaries(formId);
-            setData(response.data);
+            // Add summary and immediately get the newly created summary
+            const newSummary = await addSummary(formId);
+            setData(newSummary);
           } catch (createErr) {
             setError("Error al crear resumen");
             console.error(createErr);
@@ -52,11 +51,28 @@ const useSummary = () => {
           }
         }
       } else {
-        // If summaries already exist, just set the data
-        setData(response.data);
+        // Update summary and use the response directly
+        const updatedResponse = await apiService.updateSummary(formId);
+        setData(updatedResponse.data);
       }
     } catch (err: any) {
       setError(err.message || "Ocurrió un error al obtener los resúmenes");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [addSummary]);
+
+  const updateSummary = useCallback(async (formId: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiService.updateSummary(formId);
+      setData(response.data);
+      return response.data;
+    } catch (err: any) {
+      setError(err.message || "Ocurrió un error al actualizar el resumen");
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -68,6 +84,7 @@ const useSummary = () => {
     error,
     addSummary,
     getSummaries,
+    updateSummary
   };
 };
 

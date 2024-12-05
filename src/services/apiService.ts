@@ -388,6 +388,10 @@ class ApiService {
         return this.get(`/summary/form/${formId}`);
     }
 
+    public updateSummary(formId: number) {
+        return this.post(`/summary/form/${formId}/update`);
+    }
+
     /*
      * Métodos específicos para autoridades
      */

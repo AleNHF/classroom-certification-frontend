@@ -104,7 +104,7 @@ const CertificationPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col items-center w-full max-w-6xl px-4">
-                <PageHeaderComponent title={classroom.name} onBack={() => navigate('/classrooms/evaluation-dashboard')} />
+                <PageHeaderComponent title={classroom.name} onBack={() => navigate('/classrooms/evaluation-dashboard', { state: { classroom: classroom } })} />
 
                 {/* Botones de acción */}
                 <div className="flex justify-between items-center w-full my-4">
@@ -126,7 +126,6 @@ const CertificationPage: React.FC = () => {
 
                 {/* Información del certificado */}
                 <div id="certificate-viewer" className="bg-gray-200 w-full h-96 rounded-md shadow-inner flex flex-col items-center justify-start p-4 overflow-auto">
-
                     {certificationData ? (
                         <div id="certificate-content" className="bg-white rounded-lg shadow-md w-full">
                             {/* Encabezado del certificado con imagen */}
