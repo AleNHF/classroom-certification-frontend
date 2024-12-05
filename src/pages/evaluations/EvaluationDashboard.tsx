@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, HeaderComponent, ModalComponent, PageHeaderComponent, SelectInput } from "../../components";
 import { ClassroomStatus } from "../../utils/enums/classroomStatus";
-import { useArea, useCycle, useEvaluation } from "../../hooks";
+import { useArea, useCycle, useEvaluation, useForm } from "../../hooks";
 import { useCallback, useState } from "react";
+import { Form } from "../../types";
 
 const mapStatusToText = (status: ClassroomStatus): string => {
     switch (status) {
@@ -48,11 +49,25 @@ const EvaluationDashboard = () => {
     const { cycleList, getCycle } = useCycle();
     const { areaList, getArea } = useArea();
     const { addEvaluation, analizeCompliance } = useEvaluation();
+    const { formList } = useForm(classroom.id);
 
     const moodleToken = localStorage.getItem('moodle_token') || '';
     const filteredAreaList = areaList.filter(area =>
         !area.name.toLowerCase().includes('calidad académica')
     );
+
+    const getHighestFinalGrade = (forms: Form[]): number => {
+        if (forms.length === 0) return 0; 
+
+        const grades = forms
+            .map((form) => parseFloat(form.finalGrade as string)) 
+            .filter((grade) => !isNaN(grade)); 
+
+        return grades.length > 0 ? Math.max(...grades) : 0; 
+    };
+
+    const highestGrade = getHighestFinalGrade(formList);
+    console.log(highestGrade)
 
     // Manejadores de modal
     const resetEvaluationForm = () => {
@@ -180,14 +195,6 @@ const EvaluationDashboard = () => {
                         <p className="text-gray-700">
                             ESTADO: <span className="font-medium">{mapStatusToText(classroom.status)}</span>
                         </p>
-                        {/* {classroom.status !== ClassroomStatus.EVALUATED && (
-                            <button
-                                className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
-                                onClick={handleOpenModal}
-                            >
-                                INICIAR EVALUACIÓN
-                            </button>
-                        )} */}
                         <button
                             className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
                             onClick={handleOpenModal}
@@ -205,7 +212,7 @@ const EvaluationDashboard = () => {
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
                             <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form} />
                         )}
-                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED ) && (highestGrade >= 51) && (
                             <Card title='CERTIFICADOS' route={routes.certificates} onClick={() => navigation(`/classrooms/certificates/${classroom.id}`, { state: { classroom } })} />
                         )}
                     </div>
