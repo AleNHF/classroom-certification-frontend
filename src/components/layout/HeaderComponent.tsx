@@ -1,16 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthContext } from "../../context/AuthContext";
+import { Platform } from "../../types";
+import apiService from "../../services/apiService";
 
 const HeaderComponent: React.FC = () => {
     const { isAuthenticated, logout } = useAuthContext();
+    // Obtén el nombre de usuario desde el localStorage
+    const username = localStorage.getItem('name') || '';
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [selectedOptionId, setSelectedOptionId] = useState<string>("");
+    const [selectedOptionName, setSelectedOptionName] = useState<string>("Selecciona un servidor");
+    const [platformList, setPlatformList] = useState<Platform[]>([]);
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev);
     };
 
-    // Obtén el nombre de usuario desde el localStorage
-    const username = localStorage.getItem('name') || '';
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const data = await apiService.getPlatforms();
+                setPlatformList(data.data.platforms)
+            } catch (error) {
+                console.error("Error fetching data:", error)
+            }
+        };
+        loadData();
+    }, [platformList]);
+
+    const handleSelectChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedId = event.target.value;
+        const selectedName = platformList.find((platform) => String(platform.id) === selectedId)?.name || "Selecciona un servidor";
+
+        setSelectedOptionId(selectedId);
+        setSelectedOptionName(selectedName);
+
+        if (selectedId) {
+            try {
+                const platform = await apiService.selectPlatform(selectedId);
+                localStorage.setItem('token_platform', platform.data.token);
+            } catch (error) {
+                console.error("Error selecting platform:", error);
+            }
+        }
+    };
 
     return (
         <header className="w-full bg-primary-black-color text-white font-semibold px-4 sm:px-8 py-4 flex flex-col sm:flex-row items-center justify-between">
@@ -22,6 +55,22 @@ const HeaderComponent: React.FC = () => {
             {/* User Dropdown */}
             {isAuthenticated && (
                 <div className="relative flex items-center">
+                    {/* Select Dropdown */}
+                    <select
+                        value={selectedOptionId}
+                        onChange={handleSelectChange}
+                        className="mr-10 px-2 py-1 bg-transparent text-white text-sm rounded-md focus:outline-none"
+                    >
+                        <option className="text-gray-900" value="">
+                            Selecciona un servidor
+                        </option>
+                        {platformList.map((option) => (
+                            <option className="text-gray-900" key={option.id} value={option.id}>
+                                {option.name}
+                            </option>
+                        ))}
+                    </select>
+
                     <button
                         onClick={toggleDropdown}
                         className="flex items-center text-sm sm:text-base text-white focus:outline-none space-x-2"
@@ -41,16 +90,15 @@ const HeaderComponent: React.FC = () => {
                                 d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                             />
                         </svg>
-
                         <span>{username}</span>
                     </button>
 
                     {/* Dropdown Menu */}
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-10">
+                        <div className="absolute right-7 top-5 mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-10">
                             <button
                                 onClick={logout}
-                                className="flex items-center px-4 py-3 text-sm w-full text-left hover:bg-gray-200 space-x-2"
+                                className="flex items-center px-4 py-3 text-sm w-full text-left rounded-lg hover:bg-gray-200 space-x-2"
                             >
                                 <svg
                                     width="16"

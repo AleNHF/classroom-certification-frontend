@@ -429,6 +429,17 @@ class ApiService {
     public getCertificationById(id: string) {
         return this.get(`/certification/${id}`);
     }
+  
+    /**
+     * Métodos específicos para gestionar servidor
+     */ 
+    public getPlatforms() {
+        return this.get('/platform');
+    }
+
+    public selectPlatform(id: string) {
+        return this.post(`/platform/${id}/set-environment`);
+    }
 }
 
 export default new ApiService();
