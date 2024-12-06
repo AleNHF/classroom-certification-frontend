@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Action, ActionMessages, FetchState, Personal } from '../../types';
+import { Action, ActionMessages, Authority, FetchState, Personal } from '../../types';
 
 // Definición de tipos específicos para mejor control
 const ACTION_MESSAGES: Record<Action, ActionMessages> = {
@@ -23,6 +23,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 
 const useAuthority = () => {
     const [authorityList, setAuthoritylList] = useState<Personal[]>([]);
+    const [currentAuthority, setCurrentAuthority] = useState<Authority>();
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
         error: null,
@@ -59,6 +60,27 @@ const useAuthority = () => {
             setFetchState(prevState => ({ ...prevState, loading: false }));
         }
     }, []);
+
+    const getAuthorityById = useCallback(async (formId: string) => {
+        try {
+            const response = await apiService.getAuthorityById(formId);
+            setCurrentAuthority(response.data.authority);
+            return response.data.authority;
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Ha ocurrido un problema al cargar la información';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            clearMessages();
+            throw error;
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, [clearMessages]);
 
     // Efecto inicial con retry
     useEffect(() => {
@@ -142,6 +164,7 @@ const useAuthority = () => {
     return {
         // Data
         authorityList,
+        currentAuthority,
 
         // Estado
         loading: fetchState.loading,
@@ -152,6 +175,7 @@ const useAuthority = () => {
         addAuthority,
         updateAuthority,
         deleteAuthority,
+        getAuthorityById,
 
         // Utilidades
         refreshData: fetchData

@@ -407,6 +407,10 @@ class ApiService {
         return this.patch(`/authority/${id}`, updatedData);
     }
 
+    public getAuthorityById(id: string) {
+        return this.get(`/authority/${id}`);
+    }
+
     public deleteAuthority(id: string) {
         return this.delete(`/authority/${id}`);
     }

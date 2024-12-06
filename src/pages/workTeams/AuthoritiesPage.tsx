@@ -3,6 +3,7 @@ import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableCo
 import { ErrorPage } from '../utils';
 import { validateAuthorityForm } from '../../utils/validations/validateAuthorityForm';
 import useAuthority from '../../hooks/workTeams/useAuthority';
+import { Authority } from '../../types';
 
 const headers = ["Nombre", "Cargo", "Acciones"];
 
@@ -25,6 +26,9 @@ const AuthoritiesPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [selectedAuthority, setSelectedAuthority] = useState<Authority | null>(null);
+
     // Estados de Datos
     const [authorityForm, setAuthorityForm] = useState<AuthorityForm>(INITIAL_PERSONAL_FORM);
     const [personalToDelete, setPersonalToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
@@ -40,7 +44,8 @@ const AuthoritiesPage: React.FC = () => {
         successMessage,
         addAuthority,
         updateAuthority,
-        deleteAuthority
+        deleteAuthority,
+        getAuthorityById
     } = useAuthority();
 
     // Manejadores de modal
@@ -114,6 +119,21 @@ const AuthoritiesPage: React.FC = () => {
         }
     }, [personalToDelete.id, deleteAuthority]);
 
+    const handleViewAuthority = useCallback(async (id: string) => {
+        try {
+            const authority = await getAuthorityById(id);
+            setSelectedAuthority({
+                id: authority.id,
+                name: authority.name,
+                position: authority.position,
+                signature: authority.signature || null,
+            });
+            setIsViewModalOpen(true);
+        } catch (error) {
+            console.error('Error al cargar los detalles de la autoridad:', error);
+        }
+    }, [getAuthorityById]);
+
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
         return paginatedItems.map((personal: any) => ({
@@ -121,6 +141,11 @@ const AuthoritiesPage: React.FC = () => {
             Cargo: personal.position,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                    <ActionButtonComponent
+                        label="VER"
+                        onClick={() => handleViewAuthority(personal.id)}
+                        bgColor="bg-secondary-button-color hover:bg-blue-800"
+                    />
                     <ActionButtonComponent
                         label="EDITAR"
                         onClick={() => {
@@ -132,7 +157,7 @@ const AuthoritiesPage: React.FC = () => {
                             });
                             setIsModalOpen(true);
                         }}
-                        bgColor="bg-secondary-button-color hover:bg-blue-800"
+                        bgColor="bg-optional-button-color hover:bg-slate-400"
                     />
                     <ActionButtonComponent
                         label="ELIMINAR"
@@ -222,6 +247,56 @@ const AuthoritiesPage: React.FC = () => {
                         {formErrors.signature && <p className="text-red-600 text-sm">{formErrors.signature}</p>}
                     </div>
                 </form>
+            </ModalComponent>
+
+            <ModalComponent
+                isOpen={isViewModalOpen}
+                onClose={() => setIsViewModalOpen(false)}
+                title="Detalles de la Autoridad"
+                size="medium"
+            >
+                {selectedAuthority ? (
+                    <div className="space-y-6">
+                        {/* Cabecera con nombre y cargo */}
+                        <div className="flex items-center space-x-4">
+                            <div>
+                                <h2 className="text-2xl font-semibold text-gray-800">
+                                    {selectedAuthority.name}
+                                </h2>
+                            </div>
+                        </div>
+
+                        {/* Línea divisoria */}
+                        <hr className="border-gray-200" />
+
+                        {/* Detalles adicionales */}
+                        <div className="space-y-4">
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-700">Cargo:</h3>
+                                <p className="text-gray-600">{selectedAuthority.position}</p>
+                            </div>
+
+                            {/* Firma */}
+                            {selectedAuthority.signature && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-700">Firma:</h3>
+                                    <div className="mt-2 flex items-center justify-center">
+                                        <img
+                                            src={selectedAuthority.signature}
+                                            alt="Firma"
+                                            className="border border-gray-300 rounded-lg shadow-md max-w-full h-auto"
+                                            style={{ maxHeight: '200px' }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center min-h-[150px]">
+                        <p className="text-gray-600">Cargando detalles...</p>
+                    </div>
+                )}
             </ModalComponent>
 
             <ConfirmDeleteModal
