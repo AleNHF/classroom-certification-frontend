@@ -14,3 +14,5 @@ export { default as useResource } from './indicatorsConfiguration/useResource';
 export { default as usePersonal } from './workTeams/usePersonal';
 export { default as useTeam } from './workTeams/useTeam';
 export { default as useUsers } from './workTeams/useUser';
+
+export { default as useCertification } from './certifications/useCertification';

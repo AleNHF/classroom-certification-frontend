@@ -20,4 +20,6 @@ export type { Requeriment } from './requeriment';
 export type { EvaluationResult } from './evaluationResult';
 export type { Evaluation } from './evaluation';
 export type { WeightedAverageAreaCycle } from './weightedAverageAreaCycle';
+export type { CertificationFormData } from './certificationFormData';
+export type { Certification } from './certification';
 export type { Platform } from './platform';

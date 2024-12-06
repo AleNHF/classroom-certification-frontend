@@ -1,5 +1,5 @@
 import AuthService from '../services/authService';
-import { UserProps, Team } from '../types';
+import { UserProps, Team, CertificationFormData } from '../types';
 import { AssessmentData } from '../types/assessmentData';
 import { FormDataProps } from '../types/formData';
 import { ClassroomStatus } from '../utils/enums/classroomStatus';
@@ -388,6 +388,10 @@ class ApiService {
         return this.get(`/summary/form/${formId}`);
     }
 
+    public updateSummary(formId: number) {
+        return this.post(`/summary/form/${formId}/update`);
+    }
+
     /*
      * Métodos específicos para autoridades
      */
@@ -407,6 +411,25 @@ class ApiService {
         return this.delete(`/authority/${id}`);
     }
 
+    /*
+     * Métodos específicos para certificaciones
+     */
+    public getCertificationsByClassroom(classroomId: string) {
+        return this.get(`/certification/classroom/${classroomId}`);
+    }
+
+    public addCertification(certificationData: CertificationFormData) {
+        return this.post('/certification', certificationData);
+    }
+
+    public updateCertification(id: string, updatedData: CertificationFormData) {
+        return this.patch(`/certification/${id}`, updatedData);
+    }
+
+    public getCertificationById(id: string) {
+        return this.get(`/certification/${id}`);
+    }
+  
     /**
      * Métodos específicos para gestionar servidor
      */ 

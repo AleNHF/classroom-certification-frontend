@@ -2,8 +2,8 @@ class AuthService {
     private baseUrl: string;
 
     constructor() {
-        //this.baseUrl = 'http://localhost:3000/api';
-        this.baseUrl = 'https://classroom-certification-api-production.up.railway.app/api';
+        this.baseUrl = 'http://localhost:3000/api';
+        //this.baseUrl = 'https://classroom-certification-api-production.up.railway.app/api';
     }
 
     private async request(endpoint: string, options: RequestInit) {
