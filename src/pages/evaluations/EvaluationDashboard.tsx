@@ -67,7 +67,6 @@ const EvaluationDashboard = () => {
     };
 
     const highestGrade = getHighestFinalGrade(formList);
-    console.log(highestGrade)
 
     // Manejadores de modal
     const resetEvaluationForm = () => {

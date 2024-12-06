@@ -64,7 +64,6 @@ const useCertification = (classroomId: string) => {
     const getCertificationById = useCallback(async (certificationId: string) => {
         try {
             const response = await apiService.getCertificationById(certificationId);
-            console.log(response)
             setCurrentCertification(response.data.certification);
             return response.data.certification;
         } catch (error) {
@@ -114,7 +113,7 @@ const useCertification = (classroomId: string) => {
             if (action === 'add') {
                 return await apiService.addCertification(certificationData!)
             } else if (action === 'update') {
-                await apiService.updateCertification(id!, certificationData!);
+                return await apiService.updateCertification(id!, certificationData!);
             } 
             await fetchData();
             setFetchState(prev => ({

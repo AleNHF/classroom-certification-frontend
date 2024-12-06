@@ -13,7 +13,7 @@ export interface Certification {
   classroom?:     Classroom;
   authorities?:   Authority[];
   updatedAt?:     Date;
-  id?:            number;
+  id?:            string;
   createdAt?:     Date;
 }
 
