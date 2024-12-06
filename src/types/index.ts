@@ -23,3 +23,4 @@ export type { WeightedAverageAreaCycle } from './weightedAverageAreaCycle';
 export type { CertificationFormData } from './certificationFormData';
 export type { Certification } from './certification';
 export type { Platform } from './platform';
+export type { Authority } from './authority';
