@@ -23,13 +23,13 @@ const SummaryPage: React.FC = () => {
     const location = useLocation();
     const formId = location.state?.formId;
 
-    const { data, loading, error, getSummaries } = useSummary(); 
+    const { data, loading, error, calculateSummary } = useSummary(); 
 
     useEffect(() => {
         if (formId) {
-            getSummaries(formId); 
+            calculateSummary(formId); 
         }
-    }, [formId, getSummaries]);
+    }, [formId, calculateSummary]);
 
     useEffect(() => {
         if (data && data.summary?.data) {
