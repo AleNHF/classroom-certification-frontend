@@ -3,7 +3,7 @@ import HeaderComponent from '../../components/layout/HeaderComponent';
 import { ActionButtonComponent, ModalComponent, PageHeaderComponent, SearchInputComponent, TableComponent } from '../../components';
 import { ErrorPage } from '../utils';
 import { useClassroom, useTeam } from '../../hooks';
-import { Classroom, ClassroomMoodle } from '../../types';
+import { ClassroomMoodle } from '../../types';
 import { useNavigate } from 'react-router-dom';
 import { ClassroomStatus } from '../../utils/enums/classroomStatus';
 
@@ -60,7 +60,9 @@ const SearchClassroomPage: React.FC = () => {
     const handleConfirm = async () => {
         if (!selectedClassroom) return;
 
-        const classroomData: Classroom = {
+        if (!selectedTeam) return;
+
+        const classroomData = {
             name: selectedClassroom.fullname,
             code: selectedClassroom.shortname,
             status: ClassroomStatus.PENDING,

@@ -433,7 +433,7 @@ class ApiService {
     public getCertificationById(id: string) {
         return this.get(`/certification/${id}`);
     }
-  
+
     /**
      * Métodos específicos para gestionar servidor
      */ 
@@ -443,6 +443,29 @@ class ApiService {
 
     public selectPlatform(id: string) {
         return this.post(`/platform/${id}/set-environment`);
+    }
+
+    /**
+     * Métodos específicos para gestionar anexos de matriz
+     */ 
+    public getAttachmentsByClassroom(classroomId: string) {
+        return this.get(`/attach/classroom/${classroomId}`);
+    }
+
+    public getAttachmentById(id: string) {
+        return this.get(`/attach/${id}`);
+    }
+
+    public deleteAttachment(id: string) {
+        return this.delete(`/attach/${id}`);
+    }
+
+    public updateAttachment(id: string, updateData: { classroomId: number, courseId: number, token: string}) {
+        return this.patch(`/attach/${id}`, updateData);
+    }
+
+    public addAttachment(createData: { classroomId: number, courseId: number, token: string}) {
+        return this.post('/attach', createData);
     }
 }
 

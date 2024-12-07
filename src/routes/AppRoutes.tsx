@@ -1,22 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
-import { LoginPage, HomePage, WorkTeamsPage, PersonalPage, UserPage, TeamPage, IndicatorConfigurationPage, CyclePage, ResourcePage, ContentPage, AreaPage, IndicatorPage, PercentagePage } from '../pages';
+import { LoginPage, HomePage, WorkTeamsPage, PersonalPage, UserPage, TeamPage, IndicatorConfigurationPage, CyclePage, ResourcePage, ContentPage, AreaPage, IndicatorPage, PercentagePage, CertificationForm, CertificationPage, AssessmentPage, AttachmentContentView, AttachmentPage, AuthoritiesPage, CertificationView, ClassroomPage, EvaluationDashboard, EvaluationList, EvaluationResults, EvaluationView, FormPage, SearchClassroomPage, SummaryPage } from '../pages';
 import { NoAccessPage } from '../pages/utils';
 import RoleProtectedRoute from './RoleProtectedRoute';
-import ClassroomPage from '../pages/classrooms/ClassroomPage';
-import SearchClassroomPage from '../pages/classrooms/SearchClassroomPage';
-import EvaluationDashboard from '../pages/evaluations/EvaluationDashboard';
-import FormPage from '../pages/evaluations/forms/FormPage';
-import AssessmentPage from '../pages/evaluations/assessments/AssessmentPage';
-import CertificationView from '../pages/evaluations/ProcessEvaluationView';
-import EvaluationList from '../pages/evaluations/evaluation/EvaluationList';
-import EvaluationView from '../pages/evaluations/evaluation/EvaluatedIndicatorsPage';
-import EvaluationResults from '../pages/evaluations/evaluation/EvaluationResults';
-import SummaryPage from '../pages/evaluations/summary/SummaryPage';
-import AuthoritiesPage from '../pages/workTeams/AuthoritiesPage';
-import CertificationForm from '../pages/certifications/CertificationForm';
-import CertificationPage from '../pages/certifications/CertificationPage';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
@@ -125,6 +112,14 @@ const AppRoutes: React.FC = () => {
             <Route
                 path="classrooms/certificate-view/:certificationId"
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<CertificationPage />} />}
+            />
+            <Route
+                path="classrooms/evaluation-attachments"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<AttachmentPage />} />}
+            />
+            <Route
+                path="classrooms/evaluation-attachments/:attachmentId"
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<AttachmentContentView />} />}
             />
 
              {/* Ruta para la página de no acceso */}
