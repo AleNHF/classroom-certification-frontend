@@ -11,7 +11,7 @@ export const useAuth = () => {
 
             localStorage.setItem('token', user.accessToken)
             localStorage.setItem('username', user.username)
-            localStorage.setItem('moodle_token', user.moodleToken)
+            //localStorage.setItem('moodle_token', user.moodleToken)
             localStorage.setItem('name', user.name)
             localStorage.setItem('role', user.rol.name)
 

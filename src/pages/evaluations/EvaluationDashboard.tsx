@@ -2,8 +2,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, HeaderComponent, ModalComponent, PageHeaderComponent, SelectInput } from "../../components";
 import { ClassroomStatus } from "../../utils/enums/classroomStatus";
 import { useArea, useCycle, useEvaluation, useForm } from "../../hooks";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Form } from "../../types";
+import notifyImage from '../../assets/undraw_notify_re_65on.svg';
 
 const mapStatusToText = (status: ClassroomStatus): string => {
     switch (status) {
@@ -37,6 +38,7 @@ const EvaluationDashboard = () => {
 
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isTokenWarningModalOpen, setIsTokenWarningModalOpen] = useState(false);
 
     // Estados de Datos
     const [selectedCycle, setSelectedCycle] = useState<string>('');
@@ -67,6 +69,12 @@ const EvaluationDashboard = () => {
     };
 
     const highestGrade = getHighestFinalGrade(formList);
+
+    useEffect(() => {
+        if (!moodleToken) {
+            setIsTokenWarningModalOpen(true);
+        }
+    }, [moodleToken]);
 
     // Manejadores de modal
     const resetEvaluationForm = () => {
@@ -130,6 +138,11 @@ const EvaluationDashboard = () => {
         setErrorMessages(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
+    const handleCloseTokenWarningModal = () => {
+        setIsTokenWarningModalOpen(false);
+        //navigation('/settings'); // Redirigir al usuario a la configuración del servidor
+    }
 
     // Manejador de submit del formulario
     const handleSubmitEvaluation = useCallback(async () => {
@@ -251,6 +264,23 @@ const EvaluationDashboard = () => {
                         </div>
                     </div>
                 </form>
+            </ModalComponent>
+
+            <ModalComponent
+                isOpen={isTokenWarningModalOpen}
+                onClose={handleCloseTokenWarningModal}
+                title=""
+                onSubmit={handleCloseTokenWarningModal}
+                size="medium"
+            >
+                <div className="flex flex-col items-center">
+                <img
+                    src={notifyImage}
+                    alt="Advertencia"
+                    className="w-48 h-48 mb-4 object-cover"
+                />
+                <p className="text-center text-lg font-semibold">Selecciona el servidor antes de continuar</p>
+            </div>
             </ModalComponent>
         </>
     );
