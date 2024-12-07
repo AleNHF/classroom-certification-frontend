@@ -67,6 +67,10 @@ const EvaluationList: React.FC = () => {
         navigate(`/classrooms/evaluation-results`, { state: { classroom } })
     };
 
+    const navigateToEvaluationAttachments = () => {
+        navigate(`/classrooms/evaluation-attachments`, { state: { classroom } })
+    };
+
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
         const formatDateTime = (dateTime: string) => {
@@ -111,10 +115,16 @@ const EvaluationList: React.FC = () => {
                         evaluationList.length > 0 &&
                         <div className="flex justify-end items-center w-full">
                             <button
-                                className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 rounded-md transition-colors duration-200"
+                                className="bg-primary-red-color hover:bg-red-400 text-white px-6 py-2 mr-3 rounded-md transition-colors duration-200"
                                 onClick={() => navigateToEvaluationResults()}
                             >
                                 RESULTADOS
+                            </button>
+                            <button
+                                className="bg-black hover:bg-slate-800 text-white px-6 py-2 rounded-md transition-colors duration-200"
+                                onClick={() => navigateToEvaluationAttachments()}
+                            >
+                                ANEXOS
                             </button>
                         </div>
                     }
