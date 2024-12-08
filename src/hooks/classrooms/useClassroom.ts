@@ -135,10 +135,10 @@ const useClassroom = () => {
         [handleAction]
     );
 
-    const searchClassrooms = useCallback(async (searchData: { field: string, value: string }) => {
+    const searchClassrooms = useCallback(async (searchData: { field: string, value: string }, moodleToken: string) => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
-            const response = await apiService.getClassroomsInMoodle(searchData);
+            const response = await apiService.getClassroomsInMoodle(searchData, moodleToken);
             setSearchClassroomsList(response.data.classrooms);
         } catch (error) {
             const errorMessage = error instanceof Error

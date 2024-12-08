@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import HeaderComponent from '../../components/layout/HeaderComponent';
-import { ActionButtonComponent, ModalComponent, PageHeaderComponent, SearchInputComponent, TableComponent } from '../../components';
+import { ActionButtonComponent, ModalComponent, PageHeaderComponent, SearchInputComponent, TableComponent, WarningModal } from '../../components';
 import { ErrorPage } from '../utils';
 import { useClassroom, useTeam } from '../../hooks';
 import { ClassroomMoodle } from '../../types';
@@ -11,7 +11,7 @@ const headers = ["Código", "Nombre", "Acciones"];
 
 const SearchClassroomPage: React.FC = () => {
     const navigate = useNavigate();
-
+    
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [fieldTerm, setFieldTerm] = useState<string>("id");
     const [customErrorMessage, setCustomErrorMessage] = useState<string | null>(null);
@@ -19,6 +19,7 @@ const SearchClassroomPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedClassroom, setSelectedClassroom] = useState<ClassroomMoodle | null>(null);
     const [selectedTeam, setSelectedTeam] = useState<string>('');
+    const [isTokenWarningModalOpen, setIsTokenWarningModalOpen] = useState(false);
 
     const { teamList } = useTeam();
     const {
@@ -28,10 +29,27 @@ const SearchClassroomPage: React.FC = () => {
         addClassroom
     } = useClassroom();
 
+    /* useEffect(() => {
+        if (!moodleToken) {
+            setIsTokenWarningModalOpen(true);
+        }
+    }, [moodleToken]); */
+
+    const handleCloseTokenWarningModal = () => {
+        setIsTokenWarningModalOpen(false);
+    }
+
     // Manejador para la búsqueda
     const handleSearch = useCallback(() => {
+        const moodleToken = localStorage.getItem('moodle_token') || '';
+
+        if (!moodleToken) {
+            setIsTokenWarningModalOpen(true);
+            return;
+        }
+
         setCustomErrorMessage(null);
-        searchClassrooms({ field: fieldTerm, value: searchTerm })
+        searchClassrooms({ field: fieldTerm, value: searchTerm }, moodleToken)
             .catch(err => {
                 // Manejo específico para error 404
                 if (err.message && err.message.includes('404')) {
@@ -184,6 +202,12 @@ const SearchClassroomPage: React.FC = () => {
                     </div>
                 </div>
             </ModalComponent>
+
+            <WarningModal
+                isOpen={isTokenWarningModalOpen}
+                onClose={handleCloseTokenWarningModal}
+                size="medium"
+            />
         </>
     );
 };

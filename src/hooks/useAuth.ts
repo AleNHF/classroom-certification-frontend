@@ -24,7 +24,7 @@ export const useAuth = () => {
     };
 
     const logout = () => {
-        ['token', 'username', 'moodle_token', 'name', 'role'].forEach((key) => localStorage.removeItem(key));
+        ['token', 'username', 'moodle_token', 'name', 'role', 'platform_name', 'platform_id'].forEach((key) => localStorage.removeItem(key));
         setIsAuthenticated(false);
     };
 

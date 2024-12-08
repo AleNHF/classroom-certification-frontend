@@ -12,6 +12,7 @@ export { default as SearchButtonComponent } from './ui/SearchButton';
 export { default as AlertComponent } from './ui/AlertComponent';
 export { default as SearchInputComponent } from './ui/SearchInputComponent';
 export { default as IconButtonComponent } from './ui/IconButtonComponent';
+export { default as WarningModal } from './ui/WarningModal';
 
 export { default as IndicatorForm } from './forms/IndicatorForm';
 export { default as LoginForm } from './forms/LoginForm';
