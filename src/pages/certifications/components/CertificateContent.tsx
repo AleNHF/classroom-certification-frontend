@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import headerImage from "../../../assets/certificate/header_cert.png";
 import ribbonImage from "../../../assets/certificate/ribbon_cert.png";
 import dedteLogo from "../../../assets/certificate/dedte_logo.png";
@@ -32,6 +32,32 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
         "Directora DICAA": signaturetwo,
         "Vicerrectorado": signaturethree,
     };
+
+    const [base64QrUrl, setBase64QrUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const convertImageToBase64 = async () => {
+            try {
+                console.log(certificationData)
+                if (certificationData.qrUrl) {
+                    const response = await fetch(certificationData.qrUrl, { mode: 'cors' });
+                    const blob = await response.blob();
+                    return new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result as string);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                }
+                return null;
+            } catch (error) {
+                console.error('Error converting image to base64:', error);
+                return null;
+            }
+        };
+
+        convertImageToBase64().then(setBase64QrUrl);
+    }, [certificationData]);
 
     if (!certificationData) {
         return <p className="text-gray-500">Cargando certificado...</p>;
@@ -117,6 +143,11 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
             <div className="w-full relative">
                 {certificationData.authorities?.length ? (
                     <div className="absolute bottom-0 left-0 right-0 mx-auto">
+                        <img
+                            src={base64QrUrl || certificationData.qrUrl}
+                            alt={`QR de ${classroom.name}`}
+                            className="absolute bottom-80 right-20 w-auto h-auto object-fill" // Ajusta 'top' y 'right' según lo necesario
+                        />
                         <div className="relative bg-white mt-6 z-10 max-w-3xl mx-auto mb-10">
                             <div className="grid grid-cols-3 gap-8">
                                 {certificationData.authorities.map((authority: any) => (

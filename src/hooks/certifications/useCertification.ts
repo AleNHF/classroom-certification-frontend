@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Action, ActionMessages, Certification, CertificationFormData, FetchState } from '../../types';
+import { Action, ActionMessages, Certification, FetchState } from '../../types';
 
 // Definición de tipos específicos para mejor control
 const ACTION_MESSAGES: Record<Action, ActionMessages> = {
@@ -98,7 +98,7 @@ const useCertification = (classroomId: string) => {
 
     const handleAction = useCallback(async (
         action: Action,
-        certificationData?: CertificationFormData,
+        certificationData?: FormData,
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -111,7 +111,8 @@ const useCertification = (classroomId: string) => {
         }));
         try {
             if (action === 'add') {
-                return await apiService.addCertification(certificationData!)
+                const certification = await apiService.addCertification(certificationData!);
+                return certification;
             } else if (action === 'update') {
                 return await apiService.updateCertification(id!, certificationData!);
             } 
@@ -139,12 +140,12 @@ const useCertification = (classroomId: string) => {
 
     // Optimización de funciones retornadas con useCallback
     const addCertification = useCallback(
-        (certificationData: CertificationFormData) => handleAction('add', certificationData),
+        (certificationData: FormData) => handleAction('add', certificationData),
         [handleAction]
     );
 
     const updateCertification = useCallback(
-        (id: string, certificationData: CertificationFormData) => handleAction('update', certificationData, id),
+        (id: string, certificationData: FormData) => handleAction('update', certificationData, id),
         [handleAction]
     );
 

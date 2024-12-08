@@ -37,19 +37,6 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData }) => {
                     <label
                         className="block text-sm font-medium text-gray-700"
                     >
-                        Carrera:
-                    </label>
-                    <input
-                        type="text"
-                        value={formData.career}
-                        onChange={(e) => setFormData((prev: any) => ({ ...prev, career: e.target.value }))}
-                        className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                    />
-                </div>
-                <div>
-                    <label
-                        className="block text-sm font-medium text-gray-700"
-                    >
                         Facultad:
                     </label>
                     <input

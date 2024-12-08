@@ -8,6 +8,8 @@ import useAuthority from "../../hooks/workTeams/useAuthority";
 import { LoadingPage } from "../utils";
 import ModalCertification from "./components/ModalCerification";
 import GeneralDataSection from "./components/GeneralData";
+import QRCode from "qrcode";
+import EvaluationDataSection from "./components/EvaluationData";
 
 const INITIAL_FORM_DATA: CertificationFormData = {
     id: '',
@@ -43,51 +45,66 @@ const CertificationForm: React.FC = () => {
 
     const handleSubmit = useCallback(
         async () => {
+            if (!newCertification.faculty || !newCertification.evaluatorUsername || !newCertification.plan || !newCertification.modality || !newCertification.teacher || !newCertification.teacherCode) {
+                alert("Por favor, completa todos los campos obligatorios.");
+                return;
+            }
             setIsLoading(true);
-    
-            // Simula un tiempo de carga fijo de 2 segundos
             setTimeout(async () => {
-                const authorityIds = authorityList.map((authority: any) => authority.id);
-    
-                const certificationData = {
-                    career: newCertification.career,
-                    contentAuthor: newCertification.contentAuthor,
-                    faculty: newCertification.faculty,
-                    evaluatorUsername: newCertification.evaluatorUsername,
-                    classroomId: parseInt(safeClassroomId),
-                    plan: newCertification.plan,
-                    modality: newCertification.modality,
-                    teacher: newCertification.teacher,
-                    teacherCode: newCertification.teacherCode,
-                    responsibleDedtef: newCertification.responsibleDedtef,
-                    authorityIds: authorityIds
-                };
-    
                 try {
-                    const certificate = await addCertification(certificationData);
+                    const authorityIds = authorityList.map((authority: any) => authority.id);
+                    // Generar el enlace del certificado
+                    const certificateURL = `${window.location.origin}/classrooms/certificate-view/${safeClassroomId}`;
+
+                    // Generar el código QR como base64
+                    const qrCodeBase64 = await QRCode.toDataURL(certificateURL);
+                    // Convertir base64 a archivo (Blob)
+                    const response = await fetch(qrCodeBase64);
+                    const qrBlob = await response.blob();
+
+                    // Crear un archivo a partir del Blob
+                    const qrFile = new File([qrBlob], `qr-code-${safeClassroomId}.png`, { type: "image/png" });
+
+                    // Crear un FormData para enviar los datos
+                    const formData = new FormData();
+                    formData.append("faculty", newCertification.faculty || "");
+                    formData.append("evaluatorUsername", newCertification.evaluatorUsername || "");
+                    formData.append("classroomId", safeClassroomId || "");
+                    formData.append("plan", newCertification.plan || "");
+                    formData.append("modality", newCertification.modality || "");
+                    formData.append("teacher", newCertification.teacher || "");
+                    formData.append("teacherCode", newCertification.teacherCode || "");
+                    formData.append("qrFile", qrFile);
+                    formData.append("authorityIds", JSON.stringify(authorityIds));
+
+                    // Llamar a la función para crear el certificado
+                    const certificate = await addCertification(formData);
+
                     setIsLoading(false);
-                    navigate(`/classrooms/certificate-view/${certificate.data.certification.id}`, { state: { classroom } });
+                    navigate(`/classrooms/certificate-view/${certificate.data.certification.id}`, {
+                        state: { classroom },
+                    });
                 } catch (error) {
                     setIsLoading(false);
-                    console.error('Error al añadir/actualizar el formulario:', error);
+                    console.error("Error al añadir/actualizar el formulario:", error);
                 }
-            }, 2000); // 2 segundos de espera antes de realizar la acción
+            }, 2000);
         },
         [newCertification, addCertification, authorityList, safeClassroomId, navigate, classroom]
     );
-    
+
     useEffect(() => {
         const timeout = setTimeout(() => {
             if (certificationList.length === 0) {
                 setIsLoading(false);
-                setShowModal(true); // Mostrar el modal si no hay certificaciones
+                setShowModal(true);
             } else {
                 const certificate = certificationList[0];
                 navigate(`/classrooms/certificate-view/${certificate.id}`, { state: { classroom } });
             }
-        }, 1500); // Espera 3 segundos antes de comprobar
+        }, 1500);
 
-        return () => clearTimeout(timeout); // Limpia el timeout si el componente se desmonta
+        return () => clearTimeout(timeout);
     }, [certificationList, navigate, classroom]);
 
     return (
@@ -130,58 +147,11 @@ const CertificationForm: React.FC = () => {
                                     />
 
                                     {/* Datos generales de la evaluación */}
-                                    <div className="w-full">
-                                        <h3 className="font-semibold text-gray-600 mb-2">
-                                            Datos generales de la evaluación
-                                        </h3>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label
-                                                    className="block text-sm font-medium text-gray-700"
-                                                >
-                                                    Autor de contenido:
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={newCertification.contentAuthor}
-                                                    onChange={(e) => setNewCertification(prev => ({ ...prev, contentAuthor: e.target.value }))}
-                                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label
-                                                    className="block text-sm font-medium text-gray-700"
-                                                >
-                                                    Responsable DEDTE-F:
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={newCertification.responsibleDedtef}
-                                                    onChange={(e) => setNewCertification(prev => ({ ...prev, responsibleDedtef: e.target.value }))}
-                                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label
-                                                    className="block text-sm font-medium text-gray-700"
-                                                >
-                                                    Evaluador:
-                                                </label>
-                                                <select
-                                                    value={newCertification.evaluatorUsername}
-                                                    onChange={(e) => setNewCertification(prev => ({ ...prev, evaluatorUsername: e.target.value }))}
-                                                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                                                >
-                                                    <option>Selecciona un evaluador</option>
-                                                    {evaluators.map((evaluator: any) => (
-                                                        <option key={evaluator.id} value={evaluator.name}>
-                                                            {evaluator.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <EvaluationDataSection
+                                        formData={newCertification}
+                                        setFormData={setNewCertification} 
+                                        evaluators={evaluators} 
+                                    />
 
                                     {/* Botones */}
                                     <div className="flex justify-end space-x-4">

@@ -14,32 +14,6 @@ const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluat
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <div>
-                        <label
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Autor de contenido:
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.contentAuthor}
-                            onChange={(e) => setFormData((prev: any) => ({ ...prev, contentAuthor: e.target.value }))}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Responsable DEDTE-F:
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.responsibleDedtef}
-                            onChange={(e) => setFormData((prev: any) => ({ ...prev, responsibleDedtef: e.target.value }))}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                        />
-                    </div>
-                    <div>
                         <label className="block text-sm font-medium text-gray-700">Evaluador:</label>
                         <select
                             value={formData.evaluatorUsername}
