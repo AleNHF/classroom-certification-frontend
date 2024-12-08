@@ -13,7 +13,7 @@ const headers = ["Autor de Cont.", "Servidor", "Carrera", "Resultado", "Acciones
 
 const INITIAL_FORM_DATA: FormDataProps = {
     id: '',
-    name: '',
+    name: 'FEPCAV007',
     server: '',
     career: '',
     director: '',

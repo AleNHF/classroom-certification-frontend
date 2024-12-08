@@ -1,6 +1,7 @@
 // FormModalContent.tsx
-import React from 'react';
-import { FormDataProps } from '../../../types';
+import React, { useEffect, useState } from 'react';
+import { FormDataProps, Platform } from '../../../types';
+import apiService from '../../../services/apiService';
 
 interface FormModalContentProps {
     formData: FormDataProps;
@@ -9,6 +10,22 @@ interface FormModalContentProps {
 }
 
 const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormData, formErrors }) => {
+    const [platformList, setPlatformList] = useState<Platform[]>([]);
+
+    useEffect(() => {
+        // Cargar las plataformas al montar el componente
+        const loadPlatforms = async () => {
+            try {
+                const data = await apiService.getPlatforms();
+                setPlatformList(data.data.platforms);
+            } catch (error) {
+                console.error('Error al cargar las plataformas:', error);
+            }
+        };
+
+        loadPlatforms();
+    }, []);
+
     return (
         <form className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -17,7 +34,8 @@ const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormDa
                     <input
                         type="text"
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        disabled
+                        //onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                     />
                     {formErrors.name && <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>}
@@ -30,8 +48,11 @@ const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormDa
                         className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                     >
                         <option value="">Selecciona un servidor</option>
-                        <option value="Virtual">Virtual</option>
-                        <option value="Presencial">Presencial</option>
+                        {platformList.map((platform) => (
+                            <option key={platform.id} value={platform.id}>
+                                {platform.name}
+                            </option>
+                        ))}
                     </select>
                     {formErrors.server && <p className="text-red-600 text-sm">{formErrors.server}</p>}
                 </div>
