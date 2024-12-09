@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CertificationFormData } from "../../types";
-import { AlertComponent, HeaderComponent, PageHeaderComponent } from "../../components";
+import { AlertComponent, HeaderComponent, PageHeaderComponent, WarningModal } from "../../components";
 import { useCertification, useUsers } from "../../hooks";
 import CertificationPage from "./CertificationPage";
 import useAuthority from "../../hooks/workTeams/useAuthority";
@@ -10,6 +10,7 @@ import ModalCertification from "./components/ModalCerification";
 import GeneralDataSection from "./components/GeneralData";
 import QRCode from "qrcode";
 import EvaluationDataSection from "./components/EvaluationData";
+import { validateCertificationForm } from "../../utils/validations/validateCertificationForm";
 
 const INITIAL_FORM_DATA: CertificationFormData = {
     id: '',
@@ -41,28 +42,44 @@ const CertificationForm: React.FC = () => {
     const { authorityList } = useAuthority();
     const { certificationList, addCertification, successMessage } = useCertification(safeClassroomId);
 
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
     const evaluators = userList.filter((user: any) => user.rol.name === 'Evaluador');
+
+    const moodleToken = localStorage.getItem('moodle_token') || '';
+
+    const [isTokenWarningModalOpen, setIsTokenWarningModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (!moodleToken) {
+            setShowModal(false);
+            setIsTokenWarningModalOpen(true);
+        }
+    }, [moodleToken]);
+
+    const handleCloseTokenWarningModal = () => {
+        setIsTokenWarningModalOpen(false);
+    }
 
     const handleSubmit = useCallback(
         async () => {
-            if (!newCertification.faculty || !newCertification.evaluatorUsername || !newCertification.plan || !newCertification.modality || !newCertification.teacher || !newCertification.teacherCode) {
-                alert("Por favor, completa todos los campos obligatorios.");
-                return;
-            }
+            const newErrorMessages = validateCertificationForm(newCertification);
+            setFormErrors(newErrorMessages);
+            if (Object.keys(newErrorMessages).length > 0) return;
+
             setIsLoading(true);
             setTimeout(async () => {
                 try {
                     const authorityIds = authorityList.map((authority: any) => authority.id);
-                    // Generar el enlace del certificado
-                    const certificateURL = `${window.location.origin}/classrooms/certificate-view/${safeClassroomId}`;
+                    const formattedClassroomCode = classroom.code.replace(/\s+/g, '-');
+                    console.log(window.location.pathname);
+
+                    const certificateURL = `${window.location.origin}/aula-virtual/${formattedClassroomCode}/certificado/${safeClassroomId}`;
 
                     // Generar el código QR como base64
                     const qrCodeBase64 = await QRCode.toDataURL(certificateURL);
-                    // Convertir base64 a archivo (Blob)
                     const response = await fetch(qrCodeBase64);
                     const qrBlob = await response.blob();
-
-                    // Crear un archivo a partir del Blob
                     const qrFile = new File([qrBlob], `qr-code-${safeClassroomId}.png`, { type: "image/png" });
 
                     // Crear un FormData para enviar los datos
@@ -95,7 +112,7 @@ const CertificationForm: React.FC = () => {
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            if (certificationList.length === 0) {
+            if (!certificationList) {
                 setIsLoading(false);
                 setShowModal(true);
             } else {
@@ -112,7 +129,7 @@ const CertificationForm: React.FC = () => {
             {isLoading ? (
                 <LoadingPage />
             ) :
-                certificationList.length > 0 ? (
+                certificationList ? (
                     <CertificationPage />
                 ) : (
                     <div className="flex flex-col items-center justify-start bg-white min-h-screen">
@@ -144,23 +161,19 @@ const CertificationForm: React.FC = () => {
                                     <GeneralDataSection
                                         formData={newCertification}
                                         setFormData={setNewCertification}
+                                        formErrors={formErrors}
                                     />
 
                                     {/* Datos generales de la evaluación */}
                                     <EvaluationDataSection
                                         formData={newCertification}
-                                        setFormData={setNewCertification} 
-                                        evaluators={evaluators} 
+                                        setFormData={setNewCertification}
+                                        evaluators={evaluators}
+                                        formErrors={formErrors}
                                     />
 
                                     {/* Botones */}
                                     <div className="flex justify-end space-x-4">
-                                        <button
-                                            type="button"
-                                            className="px-4 py-2 bg-optional-button-color text-white rounded-md shadow hover:bg-gray-400"
-                                        >
-                                            CANCELAR
-                                        </button>
                                         <button
                                             type="submit"
                                             className="px-4 py-2 bg-primary-red-color text-white rounded-md shadow hover:bg-red-400"
@@ -171,6 +184,11 @@ const CertificationForm: React.FC = () => {
                                 </form>
                             </div>
                         </div>
+                        <WarningModal
+                            isOpen={isTokenWarningModalOpen}
+                            onClose={handleCloseTokenWarningModal}
+                            size="medium"
+                        />
                     </div>
                 )}
         </>

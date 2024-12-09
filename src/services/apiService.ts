@@ -16,7 +16,8 @@ class ApiService {
         endpoint: string,
         method: string,
         body?: any,
-        contentType: string = 'application/json'
+        contentType: string = 'application/json',
+        requiresAuth: boolean = true 
     ) {
         const url = `${this.baseUrl}${endpoint}`;
         const token = AuthService.getToken();
@@ -25,7 +26,7 @@ class ApiService {
         };
 
         // Agregar token de autenticación si está presente
-        if (token) {
+        if (requiresAuth && token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
@@ -57,8 +58,8 @@ class ApiService {
     }
 
     // Métodos genéricos para CRUD
-    private get(endpoint: string) {
-        return this.request(endpoint, 'GET');
+    private get(endpoint: string, requiresAuth: boolean = true) {
+        return this.request(endpoint, 'GET', undefined, 'application/json', requiresAuth);
     }
 
     private post(endpoint: string, data?: any) {
@@ -428,6 +429,14 @@ class ApiService {
 
     public getCertificationById(id: string) {
         return this.get(`/certification/${id}`);
+    }
+
+    public deleteCertification(id: string) {
+        return this.delete(`/certification/${id}`);
+    }
+
+    public getPublicCertificationByClassroom(classroomId: string) {
+        return this.get(`/certification/public/classroom/${classroomId}`, false);
     }
 
     /**

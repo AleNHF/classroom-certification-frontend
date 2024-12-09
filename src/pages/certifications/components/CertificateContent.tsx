@@ -38,7 +38,6 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
     useEffect(() => {
         const convertImageToBase64 = async () => {
             try {
-                console.log(certificationData)
                 if (certificationData.qrUrl) {
                     const response = await fetch(certificationData.qrUrl, { mode: 'cors' });
                     const blob = await response.blob();
@@ -146,7 +145,7 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                         <img
                             src={base64QrUrl || certificationData.qrUrl}
                             alt={`QR de ${classroom.name}`}
-                            className="absolute bottom-80 right-20 w-auto h-auto object-fill" // Ajusta 'top' y 'right' según lo necesario
+                            className="absolute bottom-80 right-20 w-auto h-auto object-fill mb-2" 
                         />
                         <div className="relative bg-white mt-6 z-10 max-w-3xl mx-auto mb-10">
                             <div className="grid grid-cols-3 gap-8">

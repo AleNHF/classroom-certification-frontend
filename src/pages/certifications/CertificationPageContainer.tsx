@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useCertification, useUsers } from "../../hooks";
 import { Certification, CertificationFormData } from "../../types";
@@ -6,6 +6,7 @@ import CertificationEditModal from "./components/CertificationEditModal";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import CertificationPageView from "./components/CertificationPageView";
+import { validateCertificationForm } from "../../utils/validations/validateCertificationForm";
 
 const CertificationPageContainer: React.FC = () => {
     const { certificationId } = useParams<{ certificationId: string }>();
@@ -13,10 +14,16 @@ const CertificationPageContainer: React.FC = () => {
     const location = useLocation();
     const classroom = location.state?.classroom;
 
-    const { getCertificationById, updateCertification } = useCertification(classroom.id);
-    const [certificationData, setCertificationData] = useState<Certification | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+    const { getCertificationById, updateCertification, deleteCertification } = useCertification(classroom.id);
+
+    const [certificationData, setCertificationData] = useState<Certification | null>(null);
     const [editData, setEditData] = useState<CertificationFormData | null>(null);
+    const [certToDelete, setCertToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
+
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
     const { userList } = useUsers();
     const evaluators = userList.filter((user: any) => user.rol.name === 'Evaluador');
@@ -99,6 +106,10 @@ const CertificationPageContainer: React.FC = () => {
             return;
         }
 
+        const newErrorMessages = validateCertificationForm(editData);
+        setFormErrors(newErrorMessages);
+        if (Object.keys(newErrorMessages).length > 0) return;
+
         try {
             const formData = new FormData();
             formData.append("career", editData.career || "");
@@ -121,6 +132,30 @@ const CertificationPageContainer: React.FC = () => {
         }
     };
 
+    const handleDelete = useCallback(() => {
+        if (certificationData) {
+            setCertToDelete({ 
+                id: certificationData.id || '', 
+                name: certificationData.classroom?.code || '' 
+            });
+            setIsConfirmDeleteOpen(true);
+        }
+    }, [certificationData]);
+    
+    const handleConfirmDelete = useCallback(async () => {
+        if (certToDelete.id) {
+            try {
+                await deleteCertification(certToDelete.id);
+                navigate('/classrooms/evaluation-dashboard', { state: { classroom } });
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+            } finally {
+                setCertToDelete({ id: null, name: null });
+                setIsConfirmDeleteOpen(false);
+            }
+        }
+    }, [certToDelete.id, deleteCertification, navigate, classroom]);
+
     if (!classroom) {
         return <div>Error: No se encontró información del aula</div>;
     }
@@ -133,6 +168,10 @@ const CertificationPageContainer: React.FC = () => {
                 onDownloadPDF={handleDownloadPDF}
                 onOpenModal={handleOpenModal}
                 onBackToDashboard={() => navigate('/classrooms/evaluation-dashboard', { state: { classroom: classroom } })}
+                handleDelete={handleDelete}
+                isConfirmDeleteOpen={isConfirmDeleteOpen}
+                handleConfirmDelete={handleConfirmDelete}
+                onCloseConfirmDelete={() => setIsConfirmDeleteOpen(false)}
             />
             {editData && (
                 <CertificationEditModal
@@ -143,6 +182,7 @@ const CertificationPageContainer: React.FC = () => {
                     classroom={classroom}
                     evaluators={evaluators}
                     onSave={handleSaveChanges}
+                    formErrors={formErrors}
                 />
             )}
         </>

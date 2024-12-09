@@ -5,9 +5,10 @@ interface Props {
     formData: CertificationFormData;
     setFormData: React.Dispatch<React.SetStateAction<CertificationFormData>>;
     evaluators: any[];
+    formErrors?: Record<string, string>;
 }
 
-const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluators }) => {
+const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluators, formErrors }) => {
     return (
         <div className="w-full">
             <h3 className="font-semibold text-gray-600 mb-2">Datos generales de la evaluación</h3>
@@ -27,9 +28,9 @@ const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluat
                                 </option>
                             ))}
                         </select>
+                        {formErrors.evaluatorUsername && <p className="text-red-600 text-sm mt-1">{formErrors.evaluatorUsername}</p>}
                     </div>
                 </div>
-                {/* Más campos similares... */}
             </div>
         </div>
     );

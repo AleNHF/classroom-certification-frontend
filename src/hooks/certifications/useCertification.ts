@@ -115,7 +115,10 @@ const useCertification = (classroomId: string) => {
                 return certification;
             } else if (action === 'update') {
                 return await apiService.updateCertification(id!, certificationData!);
+            } else if (action === 'delete') {
+                return await apiService.deleteCertification(id!);
             } 
+
             await fetchData();
             setFetchState(prev => ({
                 ...prev,
@@ -149,6 +152,11 @@ const useCertification = (classroomId: string) => {
         [handleAction]
     );
 
+    const deleteCertification = useCallback(
+        (id: string) => handleAction('delete', undefined, id),
+        [handleAction]
+    );
+
     return {
         certificationList,
         currentCertification,
@@ -159,7 +167,8 @@ const useCertification = (classroomId: string) => {
 
         getCertificationById,
         addCertification,
-        updateCertification
+        updateCertification,
+        deleteCertification
     };
 };
 
