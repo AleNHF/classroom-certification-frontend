@@ -22,7 +22,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 };
 
 const useCertification = (classroomId: string) => {
-    const [certificationList, setCertificationList] = useState<Certification[]>([]);
+    const [certificationList, setCertificationList] = useState<Certification>();
     const [currentCertification, setCurrentCertification] = useState<Certification | null>(null);
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
@@ -45,7 +45,7 @@ const useCertification = (classroomId: string) => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const response = await apiService.getCertificationsByClassroom(classroomId);
-            setCertificationList(response.data.certifications);
+            setCertificationList(response.data.certification);
         } catch (error) {
             const errorMessage = error instanceof Error
                 ? error.message

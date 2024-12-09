@@ -72,7 +72,6 @@ const CertificationForm: React.FC = () => {
                 try {
                     const authorityIds = authorityList.map((authority: any) => authority.id);
                     const formattedClassroomCode = classroom.code.replace(/\s+/g, '-');
-                    console.log(window.location.pathname);
 
                     const certificateURL = `${window.location.origin}/aula-virtual/${formattedClassroomCode}/certificado/${safeClassroomId}`;
 
@@ -116,7 +115,7 @@ const CertificationForm: React.FC = () => {
                 setIsLoading(false);
                 setShowModal(true);
             } else {
-                const certificate = certificationList[0];
+                const certificate = certificationList;
                 navigate(`/classrooms/certificate-view/${certificate.id}`, { state: { classroom } });
             }
         }, 1500);

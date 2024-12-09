@@ -25,11 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         const isPublicRoute = PUBLIC_ROUTE_KEYWORDS.every(keyword => location.pathname.includes(keyword));
 
-        console.log(location.pathname)
-        console.log(isPublicRoute)
-
         if (!isPublicRoute) {
-            console.log('entra a no es publica')
             const token = localStorage.getItem('token');
             if (token) {
                 if (isTokenExpired(token)) {
