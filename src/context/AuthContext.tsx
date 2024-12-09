@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { isTokenExpired } from '../utils/tokenUtils';
 import { useAuth } from '../hooks/useAuth';
+import { useLocation } from 'react-router-dom';
 
 interface AuthContextType {
     isAuthenticated: boolean;
     handleLogin: (username: string, password: string) => Promise<void>;
     logout: () => void;
-    getUserRole: () => string; 
+    getUserRole: () => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,21 +16,28 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
+const PUBLIC_ROUTE_KEYWORDS = ['aula-virtual', 'certificado'];
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const { isAuthenticated, setIsAuthenticated, handleLogin, logout, getUserRole } = useAuth();
+    const location = useLocation();
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            if (isTokenExpired(token)) {
-                setIsAuthenticated(false);
+        const isPublicRoute = PUBLIC_ROUTE_KEYWORDS.every(keyword => location.pathname.includes(keyword));
+
+        if (!isPublicRoute) {
+            const token = localStorage.getItem('token');
+            if (token) {
+                if (isTokenExpired(token)) {
+                    setIsAuthenticated(false);
+                } else {
+                    setIsAuthenticated(true);
+                }
             } else {
-                setIsAuthenticated(true);
+                setIsAuthenticated(false);
             }
-        } else {
-            setIsAuthenticated(false);
         }
-    }, []);
+    }, [location, setIsAuthenticated]);
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, handleLogin, logout, getUserRole }}>

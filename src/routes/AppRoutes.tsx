@@ -4,12 +4,19 @@ import { useAuthContext } from '../context/AuthContext';
 import { LoginPage, HomePage, WorkTeamsPage, PersonalPage, UserPage, TeamPage, IndicatorConfigurationPage, CyclePage, ResourcePage, ContentPage, AreaPage, IndicatorPage, PercentagePage, CertificationForm, CertificationPage, AssessmentPage, AttachmentContentView, AttachmentPage, AuthoritiesPage, CertificationView, ClassroomPage, EvaluationDashboard, EvaluationList, EvaluationResults, EvaluationView, FormPage, SearchClassroomPage, SummaryPage } from '../pages';
 import { NoAccessPage } from '../pages/utils';
 import RoleProtectedRoute from './RoleProtectedRoute';
+import CertificationViewContent from '../pages/certifications/CertificationViewContent';
 
 const AppRoutes: React.FC = () => {
     const { isAuthenticated } = useAuthContext();
 
     return (
         <Routes>
+            {/* Public route for certificate view */}
+            <Route
+                path="/aula-virtual/:classroomCode/certificado/:classroomId"
+                element={<CertificationViewContent />}
+            />
+
             {/* Ruta de login */}
             <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
             {/* Rutas protegidas con roles específicos */}
@@ -122,7 +129,7 @@ const AppRoutes: React.FC = () => {
                 element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<AttachmentContentView />} />}
             />
 
-             {/* Ruta para la página de no acceso */}
+            {/* Ruta para la página de no acceso */}
             <Route path="/no-access" element={<NoAccessPage />} />
 
             {/* Página no encontrada */}

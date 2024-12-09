@@ -186,7 +186,9 @@ const FormPage: React.FC = () => {
                         />
                     )}
 
-                    <AddButtonComponent onClick={handleAddClick} />
+                    {formList.length == 0 && (
+                        <AddButtonComponent onClick={handleAddClick} />
+                    )}
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>

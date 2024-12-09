@@ -22,7 +22,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 };
 
 const useCertification = (classroomId: string) => {
-    const [certificationList, setCertificationList] = useState<Certification[]>([]);
+    const [certificationList, setCertificationList] = useState<Certification>();
     const [currentCertification, setCurrentCertification] = useState<Certification | null>(null);
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
@@ -45,7 +45,7 @@ const useCertification = (classroomId: string) => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const response = await apiService.getCertificationsByClassroom(classroomId);
-            setCertificationList(response.data.certifications);
+            setCertificationList(response.data.certification);
         } catch (error) {
             const errorMessage = error instanceof Error
                 ? error.message
@@ -98,7 +98,8 @@ const useCertification = (classroomId: string) => {
 
     const handleAction = useCallback(async (
         action: Action,
-        certificationData?: CertificationFormData,
+        certificationData?: FormData,
+        updatedData?: CertificationFormData,
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -111,10 +112,14 @@ const useCertification = (classroomId: string) => {
         }));
         try {
             if (action === 'add') {
-                return await apiService.addCertification(certificationData!)
+                const certification = await apiService.addCertification(certificationData!);
+                return certification;
             } else if (action === 'update') {
-                return await apiService.updateCertification(id!, certificationData!);
+                return await apiService.updateCertification(id!, updatedData!);
+            } else if (action === 'delete') {
+                return await apiService.deleteCertification(id!);
             } 
+
             await fetchData();
             setFetchState(prev => ({
                 ...prev,
@@ -139,12 +144,17 @@ const useCertification = (classroomId: string) => {
 
     // Optimización de funciones retornadas con useCallback
     const addCertification = useCallback(
-        (certificationData: CertificationFormData) => handleAction('add', certificationData),
+        (certificationData: FormData) => handleAction('add', certificationData),
         [handleAction]
     );
 
     const updateCertification = useCallback(
-        (id: string, certificationData: CertificationFormData) => handleAction('update', certificationData, id),
+        (id: string, certificationData: CertificationFormData) => handleAction('update', undefined, certificationData, id),
+        [handleAction]
+    );
+
+    const deleteCertification = useCallback(
+        (id: string) => handleAction('delete', undefined, undefined, id),
         [handleAction]
     );
 
@@ -158,7 +168,8 @@ const useCertification = (classroomId: string) => {
 
         getCertificationById,
         addCertification,
-        updateCertification
+        updateCertification,
+        deleteCertification
     };
 };
 

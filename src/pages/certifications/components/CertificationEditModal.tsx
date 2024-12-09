@@ -12,6 +12,7 @@ interface CertificationEditModalProps {
     classroom: any;
     evaluators: any[];
     onSave: () => void;
+    formErrors: Record<string, string>;
 }
 
 const CertificationEditModal: React.FC<CertificationEditModalProps> = ({
@@ -21,7 +22,8 @@ const CertificationEditModal: React.FC<CertificationEditModalProps> = ({
     setEditData,
     classroom,
     evaluators,
-    onSave
+    onSave,
+    formErrors
 }) => {
     return (
         <ModalComponent
@@ -34,8 +36,9 @@ const CertificationEditModal: React.FC<CertificationEditModalProps> = ({
         >
             <form className="space-y-6 w-full">
                 <GeneralDataSection
-                    formData={editData as CertificationFormData}  // Aseguramos que no es null
-                    setFormData={setEditData as React.Dispatch<React.SetStateAction<CertificationFormData>>}  // Aseguramos que setFormData acepta el tipo correcto
+                    formData={editData as CertificationFormData}  
+                    setFormData={setEditData as React.Dispatch<React.SetStateAction<CertificationFormData>>}  
+                    formErrors={formErrors}
                 />
 
                 {/* Datos generales de la evaluación */}
@@ -43,6 +46,7 @@ const CertificationEditModal: React.FC<CertificationEditModalProps> = ({
                     formData={editData as CertificationFormData}
                     setFormData={setEditData as React.Dispatch<React.SetStateAction<CertificationFormData>>}
                     evaluators={evaluators}
+                    formErrors={formErrors}
                 />
             </form>
         </ModalComponent>

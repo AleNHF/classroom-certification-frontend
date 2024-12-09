@@ -5,40 +5,15 @@ interface Props {
     formData: CertificationFormData;
     setFormData: React.Dispatch<React.SetStateAction<CertificationFormData>>;
     evaluators: any[];
+    formErrors?: Record<string, string>;
 }
 
-const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluators }) => {
+const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluators, formErrors }) => {
     return (
         <div className="w-full">
             <h3 className="font-semibold text-gray-600 mb-2">Datos generales de la evaluación</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <div>
-                        <label
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Autor de contenido:
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.contentAuthor}
-                            onChange={(e) => setFormData((prev: any) => ({ ...prev, contentAuthor: e.target.value }))}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Responsable DEDTE-F:
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.responsibleDedtef}
-                            onChange={(e) => setFormData((prev: any) => ({ ...prev, responsibleDedtef: e.target.value }))}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                        />
-                    </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Evaluador:</label>
                         <select
@@ -53,9 +28,9 @@ const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluat
                                 </option>
                             ))}
                         </select>
+                        {formErrors.evaluatorUsername && <p className="text-red-600 text-sm mt-1">{formErrors.evaluatorUsername}</p>}
                     </div>
                 </div>
-                {/* Más campos similares... */}
             </div>
         </div>
     );

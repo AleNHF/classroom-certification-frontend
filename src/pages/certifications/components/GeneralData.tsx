@@ -4,9 +4,10 @@ import { CertificationFormData } from "../../../types";
 interface Props {
     formData: CertificationFormData;
     setFormData: React.Dispatch<React.SetStateAction<CertificationFormData>>;
+    formErrors: Record<string, string>;
 }
 
-const GeneralDataSection: React.FC<Props> = ({ formData, setFormData }) => {
+const GeneralDataSection: React.FC<Props> = ({ formData, setFormData, formErrors }) => {
     return (
         <div className="w-full">
             <h3 className="font-semibold text-gray-600 mb-2">Datos generales del Aula</h3>
@@ -19,6 +20,7 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData }) => {
                         onChange={(e) => setFormData((prev: any) => ({ ...prev, teacher: e.target.value }))}
                         className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                     />
+                    {formErrors.teacher && <p className="text-red-600 text-sm mt-1">{formErrors.teacher}</p>}
                 </div>
                 <div>
                     <label
@@ -32,19 +34,7 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData }) => {
                         onChange={(e) => setFormData((prev: any) => ({ ...prev, teacherCode: e.target.value }))}
                         className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                     />
-                </div>
-                <div>
-                    <label
-                        className="block text-sm font-medium text-gray-700"
-                    >
-                        Carrera:
-                    </label>
-                    <input
-                        type="text"
-                        value={formData.career}
-                        onChange={(e) => setFormData((prev: any) => ({ ...prev, career: e.target.value }))}
-                        className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                    />
+                    {formErrors.teacherCode && <p className="text-red-600 text-sm mt-1">{formErrors.teacherCode}</p>}
                 </div>
                 <div>
                     <label
@@ -58,6 +48,7 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData }) => {
                         onChange={(e) => setFormData((prev: any) => ({ ...prev, faculty: e.target.value }))}
                         className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                     />
+                    {formErrors.faculty && <p className="text-red-600 text-sm mt-1">{formErrors.faculty}</p>}
                 </div>
                 <div>
                     <label
@@ -74,6 +65,7 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData }) => {
                         <option value="Semestral">Semestral</option>
                         <option value="Anual">Anual</option>
                     </select>
+                    {formErrors.plan && <p className="text-red-600 text-sm mt-1">{formErrors.plan}</p>}
                 </div>
                 <div>
                     <label
@@ -90,6 +82,7 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData }) => {
                         <option>Presencial</option>
                         <option>Virtual</option>
                     </select>
+                    {formErrors.modality && <p className="text-red-600 text-sm mt-1">{formErrors.modality}</p>}
                 </div>
             </div>
         </div>
