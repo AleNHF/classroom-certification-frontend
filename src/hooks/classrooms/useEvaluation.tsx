@@ -24,6 +24,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 const useEvaluation = () => {
     const [evaluationList, setEvaluationList] = useState<Evaluation[]>([]);
     const [weightedAverageList, setWeightedAverageList] = useState<WeightedAverageAreaCycle[]>([]);
+    const [globalAverage, setGlobalAverage] = useState<number>();
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
         error: null,
@@ -66,6 +67,27 @@ const useEvaluation = () => {
         try {
             const response = await apiService.getWeightedAverageAreaByCycle(classroomId);
             setWeightedAverageList(response.data);
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al cargar los datos';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching data:', error);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, []);
+
+    const calculateGlobalAverage = useCallback(async (classroomId: number) => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.calculateGlobalAverage(classroomId);
+            setGlobalAverage(response.data.globalAverage);
+            return response.data.globalAverage;
         } catch (error) {
             const errorMessage = error instanceof Error
                 ? error.message
@@ -225,6 +247,7 @@ const useEvaluation = () => {
     return {
         evaluationList,
         weightedAverageList,
+        globalAverage,
 
         loading: fetchState.loading,
         error: fetchState.error,
@@ -238,7 +261,8 @@ const useEvaluation = () => {
 
         analizeCompliance,
         updateEvaluatedIndicator,
-        fetchWeightedAverage
+        fetchWeightedAverage,
+        calculateGlobalAverage
     };
 };
 

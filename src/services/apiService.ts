@@ -304,6 +304,10 @@ class ApiService {
         return this.get(`/evaluation/${classroomId}/weighted-averages`);
     }
 
+    public calculateGlobalAverage(classroomId: number) {
+        return this.get(`/evaluation/${classroomId}/global-average`);
+    }
+
     /*
      * Otros métodos específicos
      */

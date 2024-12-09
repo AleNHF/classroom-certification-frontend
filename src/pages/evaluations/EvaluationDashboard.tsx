@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, HeaderComponent, ModalComponent, PageHeaderComponent, SelectInput, WarningModal } from "../../components";
 import { ClassroomStatus } from "../../utils/enums/classroomStatus";
 import { useArea, useCycle, useEvaluation, useForm } from "../../hooks";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Form } from "../../types";
 
 const mapStatusToText = (status: ClassroomStatus): string => {
@@ -49,7 +49,7 @@ const EvaluationDashboard = () => {
 
     const { cycleList, getCycle } = useCycle();
     const { areaList, getArea } = useArea();
-    const { addEvaluation, analizeCompliance } = useEvaluation();
+    const { addEvaluation, analizeCompliance, calculateGlobalAverage } = useEvaluation();
     const { formList } = useForm(classroom.id);
 
     const moodleToken = localStorage.getItem('moodle_token') || '';
@@ -68,12 +68,19 @@ const EvaluationDashboard = () => {
     };
 
     const highestGrade = getHighestFinalGrade(formList);
+    const [globalAvg, setGlobalAvg] = useState<number>(0);
 
-    /* useEffect(() => {
-        if (!moodleToken) {
-            setIsTokenWarningModalOpen(true);
-        }
-    }, [moodleToken]); */
+    useEffect(() => {
+        const fetchGlobalAverage = async () => {
+            try {
+                const average = await calculateGlobalAverage(classroom.id);
+                setGlobalAvg(average);
+            } catch (error) {
+                console.error('Error al calcular el promedio global:', error);
+            }
+        };
+        fetchGlobalAverage();
+    }, [classroom.id, calculateGlobalAverage]);
 
     // Manejadores de modal
     const resetEvaluationForm = () => {
@@ -225,7 +232,7 @@ const EvaluationDashboard = () => {
                             route="/classrooms/evaluations"
                             onClick={() => navigation('/classrooms/evaluations', { state: { classroom } })}
                         />
-                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (globalAvg >= 51) && (
                             <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form} />
                         )}
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED ) && (highestGrade >= 51) && (
