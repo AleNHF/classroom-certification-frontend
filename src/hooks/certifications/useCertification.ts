@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
-import { Action, ActionMessages, Certification, FetchState } from '../../types';
+import { Action, ActionMessages, Certification, CertificationFormData, FetchState } from '../../types';
 
 // Definición de tipos específicos para mejor control
 const ACTION_MESSAGES: Record<Action, ActionMessages> = {
@@ -99,6 +99,7 @@ const useCertification = (classroomId: string) => {
     const handleAction = useCallback(async (
         action: Action,
         certificationData?: FormData,
+        updatedData?: CertificationFormData,
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -114,7 +115,7 @@ const useCertification = (classroomId: string) => {
                 const certification = await apiService.addCertification(certificationData!);
                 return certification;
             } else if (action === 'update') {
-                return await apiService.updateCertification(id!, certificationData!);
+                return await apiService.updateCertification(id!, updatedData!);
             } else if (action === 'delete') {
                 return await apiService.deleteCertification(id!);
             } 
@@ -148,12 +149,12 @@ const useCertification = (classroomId: string) => {
     );
 
     const updateCertification = useCallback(
-        (id: string, certificationData: FormData) => handleAction('update', certificationData, id),
+        (id: string, certificationData: CertificationFormData) => handleAction('update', undefined, certificationData, id),
         [handleAction]
     );
 
     const deleteCertification = useCallback(
-        (id: string) => handleAction('delete', undefined, id),
+        (id: string) => handleAction('delete', undefined, undefined, id),
         [handleAction]
     );
 

@@ -111,19 +111,19 @@ const CertificationPageContainer: React.FC = () => {
         if (Object.keys(newErrorMessages).length > 0) return;
 
         try {
-            const formData = new FormData();
-            formData.append("career", editData.career || "");
-            formData.append("contentAuthor", editData.contentAuthor || "");
-            formData.append("faculty", editData.faculty || "");
-            formData.append("evaluatorUsername", editData.evaluatorUsername || "");
-            formData.append("classroomId", (classroom?.id || "").toString());
-            formData.append("plan", editData.plan || "");
-            formData.append("modality", editData.modality || "");
-            formData.append("teacher", editData.teacher || "");
-            formData.append("teacherCode", editData.teacherCode || "");
-            formData.append("responsibleDedtef", editData.responsibleDedtef || "");
-
-            const updatedData = await updateCertification(editData.id, formData);
+            const certificationData = {
+                career: editData.career || "",
+                contentAuthor: editData.contentAuthor || "",
+                faculty: editData.faculty || "",
+                evaluatorUsername: editData.evaluatorUsername || "",
+                classroomId: classroom?.id || "",
+                plan: editData.plan || "",
+                modality: editData.modality || "",
+                teacher: editData.teacher || "",
+                teacherCode: editData.teacherCode || "",
+                responsibleDedtef: editData.responsibleDedtef || "",
+            };
+            const updatedData = await updateCertification(editData.id, certificationData);
             setCertificationData(updatedData.data.certification);
             setIsModalOpen(false);
         } catch (error) {

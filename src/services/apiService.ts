@@ -1,5 +1,5 @@
 import AuthService from '../services/authService';
-import { UserProps, Team } from '../types';
+import { UserProps, Team, CertificationFormData } from '../types';
 import { AssessmentData } from '../types/assessmentData';
 import { FormDataProps } from '../types/formData';
 import { ClassroomStatus } from '../utils/enums/classroomStatus';
@@ -423,7 +423,7 @@ class ApiService {
         return this.post('/certification', certificationData);
     }
 
-    public updateCertification(id: string, updatedData: FormData) {
+    public updateCertification(id: string, updatedData: CertificationFormData) {
         return this.patch(`/certification/${id}`, updatedData);
     }
 
