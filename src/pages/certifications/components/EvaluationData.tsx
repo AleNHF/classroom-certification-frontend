@@ -23,12 +23,11 @@ const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluat
                         >
                             <option>Selecciona un evaluador</option>
                             {evaluators.map((evaluator) => (
-                                <option key={evaluator.id} value={evaluator.name}>
+                                <option key={evaluator.id} value={evaluator.username}>
                                     {evaluator.name}
                                 </option>
                             ))}
                         </select>
-                        {formErrors.evaluatorUsername && <p className="text-red-600 text-sm mt-1">{formErrors.evaluatorUsername}</p>}
                     </div>
                 </div>
             </div>
