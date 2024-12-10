@@ -40,20 +40,6 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData, formErrors
                     <label
                         className="block text-sm font-medium text-gray-700"
                     >
-                        Facultad:
-                    </label>
-                    <input
-                        type="text"
-                        value={formData.faculty}
-                        onChange={(e) => setFormData((prev: any) => ({ ...prev, faculty: e.target.value }))}
-                        className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    {formErrors.faculty && <p className="text-red-600 text-sm mt-1">{formErrors.faculty}</p>}
-                </div>
-                <div>
-                    <label
-                        className="block text-sm font-medium text-gray-700"
-                    >
                         Plan:
                     </label>
                     <select
@@ -78,12 +64,30 @@ const GeneralDataSection: React.FC<Props> = ({ formData, setFormData, formErrors
                         onChange={(e) => setFormData((prev: any) => ({ ...prev, modality: e.target.value }))}
                         className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
                     >
-                        <option>Selecciona una modalidad</option>
-                        <option>Presencial</option>
-                        <option>Virtual</option>
+                        <option value="">Selecciona una modalidad</option>
+                        <option value="Presencial">Presencial</option>
+                        <option value="Virtual">Virtual</option>
                     </select>
                     {formErrors.modality && <p className="text-red-600 text-sm mt-1">{formErrors.modality}</p>}
                 </div>
+            </div>
+            <div className="mt-3">
+                <label
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    Facultad:
+                </label>
+                <select
+                    value={formData.faculty}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, faculty: e.target.value }))}
+                    className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                >
+                    <option value="">Selecciona una facultad</option>
+                    <option value="Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones">Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</option>
+                    <option value="Facultad de Ciencias Jurídicas, Políticas, Sociales y Relaciones Internacionales">Facultad de Ciencias Jurídicas, Políticas, Sociales y Relaciones Internacionales</option>
+                    <option value="Facultad de Ciencias Contables, Auditoría, Sistemas de Control de Gestión y Finanzas">Facultad de Ciencias Contables, Auditoría, Sistemas de Control de Gestión y Finanzas</option>
+                </select>
+                {formErrors.faculty && <p className="text-red-600 text-sm mt-1">{formErrors.faculty}</p>}
             </div>
         </div>
     );

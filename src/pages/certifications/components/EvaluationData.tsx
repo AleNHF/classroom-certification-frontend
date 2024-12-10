@@ -8,12 +8,11 @@ interface Props {
     formErrors?: Record<string, string>;
 }
 
-const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluators, formErrors }) => {
+const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluators }) => {
     return (
         <div className="w-full">
             <h3 className="font-semibold text-gray-600 mb-2">Datos generales de la evaluación</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+            <div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Evaluador:</label>
                         <select
@@ -30,7 +29,6 @@ const EvaluationDataSection: React.FC<Props> = ({ formData, setFormData, evaluat
                         </select>
                     </div>
                 </div>
-            </div>
         </div>
     );
 };
