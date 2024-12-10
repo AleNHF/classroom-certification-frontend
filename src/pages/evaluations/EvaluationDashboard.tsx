@@ -58,16 +58,33 @@ const EvaluationDashboard = () => {
     );
 
     const getHighestFinalGrade = (forms: Form[]): number => {
-        if (forms.length === 0) return 0; 
+        if (forms.length === 0) return 0;
 
         const grades = forms
-            .map((form) => parseFloat(form.finalGrade as string)) 
-            .filter((grade) => !isNaN(grade)); 
+            .map((form) => parseFloat(form.finalGrade as string))
+            .filter((grade) => !isNaN(grade));
 
-        return grades.length > 0 ? Math.max(...grades) : 0; 
+        return grades.length > 0 ? Math.max(...grades) : 0;
     };
 
     const highestGrade = getHighestFinalGrade(formList);
+
+    const getConditionByGrade = (grade: number): string => {
+        if (grade >= 0 && grade <= 51) {
+            return "Condiciones inaceptables.";
+        } else if (grade > 51 && grade <= 60) {
+            return "Condiciones de mínimo aceptable.";
+        } else if (grade > 60 && grade <= 70) {
+            return "Condiciones regulares.";
+        } else if (grade > 70 && grade <= 80) {
+            return "Condiciones buenas.";
+        } else if (grade > 80 && grade <= 90) {
+            return "Condiciones óptimas.";
+        } else if (grade > 90 && grade <= 100) {
+            return "Condiciones excepcionales de calidad y excelencia.";
+        }
+        return "Puntaje fuera de rango.";
+    };
 
     /* useEffect(() => {
         if (!moodleToken) {
@@ -219,6 +236,25 @@ const EvaluationDashboard = () => {
                         </button>
                     </div>
 
+                    {/* Mensaje condicional */}
+                    {(classroom.status === ClassroomStatus.EVALUATED) && highestGrade < 51 && (
+                        <div className="w-full p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-md mb-4">
+                            <p className="text-sm">
+                                No puedes certificar el aula porque no cumple con las condiciones mínimas aceptables.
+                                El puntaje obtenido es <span className="font-bold">{highestGrade}</span>,
+                                y debe ser al menos <span className="font-bold">51</span>.
+                            </p>
+                        </div>
+                    )}
+
+                    {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && highestGrade >= 51 && (
+                        <div className="w-full p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-md mb-4">
+                            <p>
+                                El aula tiene un puntaje de <span className="font-bold">{highestGrade}</span>. El aula está en <span className="font-bold">{getConditionByGrade(highestGrade)}</span>
+                            </p>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
                         <Card
                             title="EVALUACIONES"
@@ -228,7 +264,7 @@ const EvaluationDashboard = () => {
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
                             <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form} />
                         )}
-                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED ) && (highestGrade >= 51) && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (highestGrade >= 51) && (
                             <Card title='CERTIFICADOS' route={routes.certificates} onClick={() => navigation(`/classrooms/certificates/${classroom.id}`, { state: { classroom } })} />
                         )}
                     </div>
