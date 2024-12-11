@@ -1,13 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { validateUserForm } from '../../utils/validations/validateUserForm';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent, PaginationComponent } from '../../components';
 import { LoadingPage, ErrorPage } from '../utils';
 import { useUsers } from '../../hooks';
+import PasswordInput from '../../components/forms/PasswordInput';
+import { UserProps } from '../../types';
 
 interface UserForm {
     id: string;
     name: string;
     username: string;
+    password: string;
     roleId: string;
 }
 
@@ -15,6 +18,7 @@ const INITIAL_USER_FORM: UserForm = {
     id: '',
     name: '',
     username: '',
+    password: '',
     roleId: '',
 };
 
@@ -22,23 +26,23 @@ const UserPage: React.FC = () => {
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-    const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+    //const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
 
     // Estados de datos
     const [newUser, setNewUser] = useState<UserForm>(INITIAL_USER_FORM);
-    const [suggestions, setSuggestions] = useState<string[]>([]);
-    const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+    /* const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]); */
     const [userToDelete, setUserToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
 
     // Estados de validación y errores
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});  
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [customErrorMessage, setCustomErrorMessage] = useState<string | null>(null);
 
     const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     const {
         userList,
-        usersMoodleList,
+        //usersMoodleList,
         roleList,
         loading,
         error,
@@ -49,11 +53,11 @@ const UserPage: React.FC = () => {
     } = useUsers();
 
     // Efecto para cargar sugerencias de usuarios de Moodle
-    useEffect(() => {
+    /* useEffect(() => {
         if (!loading && usersMoodleList.length) {
             setSuggestions(usersMoodleList.map((user: any) => user.fullname));
         }
-    }, [loading, usersMoodleList]);
+    }, [loading, usersMoodleList]); */
 
     // Manejadores de modal
     const handleAddClick = useCallback(() => {
@@ -70,8 +74,8 @@ const UserPage: React.FC = () => {
     const resetNewUserState = () => {
         setIsModalOpen(false);
         setNewUser(INITIAL_USER_FORM);
-        setFilteredSuggestions([]);
-        setIsSuggestionsOpen(false);
+        /* setFilteredSuggestions([]);
+        setIsSuggestionsOpen(false); */
         setFormErrors({});
         setCustomErrorMessage('');
     };
@@ -83,11 +87,15 @@ const UserPage: React.FC = () => {
 
         if (Object.keys(newErrorMessages).length > 0) return;
 
-        const userData = {
+        const userData: UserProps = {
             name: newUser.name,
-            username: newUser.username || newUser.name,
+            username: newUser.username,
             roleId: Number(newUser.roleId),
         };
+        
+        if (newUser.password) {
+            userData.password = newUser.password;
+        }
 
         try {
             newUser.id ? await updateUser(newUser.id, userData) : await addUser(userData);
@@ -122,7 +130,7 @@ const UserPage: React.FC = () => {
         }
     }, [userToDelete.id, deleteUser]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    /* const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const userInput = e.target.value;
         setNewUser({ ...newUser, name: userInput });
 
@@ -148,7 +156,7 @@ const UserPage: React.FC = () => {
 
         setNewUser({ ...newUser, name: suggestion, username });
         resetFilteredSuggestions();
-    };
+    }; */
 
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
@@ -165,6 +173,7 @@ const UserPage: React.FC = () => {
                                 id: user.id,
                                 name: user.name,
                                 username: user.username,
+                                password: '',//user.password,
                                 roleId: user.rol.id
                             });
                             setIsModalOpen(true);
@@ -212,7 +221,7 @@ const UserPage: React.FC = () => {
                     <AddButtonComponent onClick={handleAddClick} />
                     <div className="overflow-x-auto w-full">
                         <TableComponent
-                            headers={["Nombre", "Username", "Rol", "Acciones"]}
+                            headers={["Nombre", "Usuario", "Rol", "Acciones"]}
                             rows={renderTableRows()}
                         />
                     </div>
@@ -222,6 +231,7 @@ const UserPage: React.FC = () => {
                     />
                 </div>
             </div>
+
             <ModalComponent
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
@@ -232,8 +242,14 @@ const UserPage: React.FC = () => {
             >
                 <form className="space-y-4">
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">Nombre</label>
+                        <label className="block text-sm font-medium text-gray-700">Nombre completo</label>
                         <input
+                            type="text"
+                            value={newUser.name}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, name: e.target.value }))}
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                        />
+                        {/* <input
                             type="text"
                             value={newUser.name}
                             onChange={handleInputChange}
@@ -252,11 +268,26 @@ const UserPage: React.FC = () => {
                                     </li>
                                 ))}
                             </ul>
-                        )}
+                        )} */}
                         {formErrors.name && (
                             <p className="text-red-600 text-sm">{formErrors.name}</p>
                         )}
                     </div>
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">Usuario</label>
+                        <input
+                            type="text"
+                            value={newUser.username}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, username: e.target.value }))}
+                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                        />
+                        {formErrors.username && (
+                            <p className="text-red-600 text-sm">{formErrors.username}</p>
+                        )}
+                    </div>
+                    {newUser.id && (
+                        <PasswordInput newUser={newUser} setNewUser={setNewUser} />
+                    )}
                     <div>
                         <SelectInput
                             label="Rol"
@@ -273,6 +304,7 @@ const UserPage: React.FC = () => {
                     )}
                 </form>
             </ModalComponent>
+
             <ConfirmDeleteModal
                 message={`¿Estás seguro de que deseas eliminar al usuario "${userToDelete.name}"?`}
                 isOpen={isConfirmDeleteOpen}

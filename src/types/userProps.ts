@@ -1,4 +1,6 @@
 export interface UserProps {
-    name:       string;
-    username:   string;
+    username?: string;
+    name?:     string;
+    password?: string;
+    roleId?:   number;
 }
