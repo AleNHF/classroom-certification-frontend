@@ -11,6 +11,10 @@ export const validateUserForm = (user: UserForm) => {
         errorMessages.name = 'El nombre es obligatorio.';
     }
 
+    if (!user.username) {
+        errorMessages.username = 'El nombre de usuario es obligatorio.';
+    }
+
     if (!user.roleId) {
         errorMessages.roleId = 'El rol es obligatorio.';
     }

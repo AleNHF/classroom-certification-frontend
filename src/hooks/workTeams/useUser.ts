@@ -25,7 +25,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 const useUsers = () => {
     // Estados separados para cada tipo de datos
     const [userList, setUserList] = useState<UserProps[]>([]);
-    const [usersMoodleList, setUsersMoodleList] = useState<UserProps[]>([]);
+    //const [usersMoodleList, setUsersMoodleList] = useState<UserProps[]>([]);
     const [roleList, setRoleList] = useState<Role[]>([]);
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
@@ -48,14 +48,14 @@ const useUsers = () => {
     const fetchData = useCallback(async () => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
-            const [usersResponse, moodleResponse, rolesResponse] = await Promise.all([
+            const [usersResponse, rolesResponse] = await Promise.all([
                 apiService.getUsers(),
-                apiService.getUsersInMoodle(),
+                //apiService.getUsersInMoodle(),
                 authService.getRoles(),
             ]);
 
             setUserList(usersResponse.data.users);
-            setUsersMoodleList(moodleResponse.data.users);
+            //setUsersMoodleList(moodleResponse.data.users);
             setRoleList(rolesResponse.data.roles);
         } catch (error) {
             const errorMessage = error instanceof Error
@@ -155,7 +155,7 @@ const useUsers = () => {
     return {
         // Data
         userList,
-        usersMoodleList,
+        //usersMoodleList,
         roleList,
 
         // Estado
