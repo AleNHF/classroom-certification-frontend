@@ -38,11 +38,13 @@ const AssessmentPage: React.FC = () => {
         isConfirmDeleteOpen: false,
         isViewModalOpen: false,
         filter: '' as '' | AreaNames,
+        isLoading: false,
     });
 
     const [formState, setFormState] = useState({
         newAssessment: INITIAL_ASSESSMENT_DATA,
         requirements: [] as Requeriment[],
+        deletedRequirements: [] as string[],
         newRequirement: INITIAL_REQUIREMENT_DATA,
         selectedArea: '',
         formErrors: {} as Record<string, string>,
@@ -63,7 +65,8 @@ const AssessmentPage: React.FC = () => {
             requirements: [],
             formErrors: {},
             selectedArea: '',
-            newRequirement: INITIAL_REQUIREMENT_DATA
+            newRequirement: INITIAL_REQUIREMENT_DATA,
+            deletedRequirements: []
         }))
     }, [])
 
@@ -111,8 +114,8 @@ const AssessmentPage: React.FC = () => {
     const handleAddRequirement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setFormState(prev => {
-            const { name, file } = prev.newRequirement;
-            if (!name || !file) return prev; 
+            const { file } = prev.newRequirement;
+            if (!file) return prev; 
     
             const newRequirement = {
                 ...prev.newRequirement,
@@ -134,7 +137,8 @@ const AssessmentPage: React.FC = () => {
     const handleDeleteRequirement = useCallback((reqId: string) => {
         setFormState(prev => ({
             ...prev,
-            requirements: prev.requirements.filter(req => req.id !== reqId)
+            requirements: prev.requirements.filter(req => req.id !== reqId),
+            deletedRequirements: [...prev.deletedRequirements, reqId]
         }));
     }, []);
 
@@ -159,35 +163,39 @@ const AssessmentPage: React.FC = () => {
                 return;
             }
 
+            setUiState(prev => ({ ...prev, isLoading: true }));
+
             const formData = new FormData();
             formData.append('description', formState.newAssessment.description ?? '');
             formData.append('assessment', formState.newAssessment.assessment?.toString() ?? '');
             formData.append('conclusions', formState.newAssessment.conclusions ?? '');
             formData.append('areaId', formState.newAssessment.areaId?.toString() ?? '');
             formData.append('formId', safeFormId.toString());
-
             formState.requirements.forEach((req) => {
                 if (req.file) {
-                    formData.append(`files`, req.file); 
+                    formData.append('files', req.file); 
                 }
             });
+            formData.append('deletedRequirements', JSON.stringify(formState.deletedRequirements));
 
             if (formState.newAssessment.id) {
                 await updateAssessment(formState.newAssessment.id, formData);
+                handleCloseModal();
             } else {
                 await addAssessment(formData);
             }
-    
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar la valoración:', error);
+        } finally {
+            setUiState(prev => ({ ...prev, isLoading: false }));
         }
     }, [
         formState,
+        formState.newAssessment,
         safeFormId,
         updateAssessment,
-        addAssessment,
-        handleCloseModal,
+        addAssessment
     ]);
 
     // Handlers para eliminación
@@ -271,13 +279,18 @@ const AssessmentPage: React.FC = () => {
     }, [assessmentList, uiState.filter]);
 
     const listRequirements = (requirements: Requeriment[]) => {
-        let namelist = ''
-        requirements.forEach(element => {
-            namelist += `${element.name}, `
-        });
-
-        return namelist;
-    }
+        if (!requirements || requirements.length === 0) {
+            return <span>Sin requerimientos</span>;
+        }
+    
+        return (
+            <ul className="list-disc list-inside">
+                {requirements.map((element, index) => (
+                    <li key={index}>{element.name}</li>
+                ))}
+            </ul>
+        );
+    };    
 
     const handleNavigateRosseta = () => {
         navigate('/classrooms/evaluation-summary', { state: { formId: safeFormId } });
@@ -374,7 +387,10 @@ const AssessmentPage: React.FC = () => {
                 isOpen={uiState.isModalOpen}
                 onClose={() => setUiState(prev => ({ ...prev, isModalOpen: false }))}
                 title={formState.newAssessment.id ? 'Editar Valoración' : 'Nueva Valoración'}
-                primaryButtonText={formState.newAssessment.id ? 'ACTUALIZAR' : 'AGREGAR'}
+                primaryButtonText={uiState.isLoading 
+                    ? (formState.newAssessment.id ? 'ACTUALIZANDO...' : 'AGREGANDO...') 
+                    : (formState.newAssessment.id ? 'ACTUALIZAR' : 'AGREGAR')
+                }
                 onSubmit={handleSubmit}
                 size="large"
             >
