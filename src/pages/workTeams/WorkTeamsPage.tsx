@@ -23,11 +23,8 @@ const WorkTeamsPage: React.FC = () => {
 
                         <Card title='EQUIPOS' route='teams' />
 
-                        {role !== 'Evaluador' && (
-                            <Card title='GESTIÓN DE USUARIOS' route='users' />
-                        )}
-                        {role !== 'Evaluador' && (
-                            <Card title='AUTORIDADES ADMINISTRATIVAS' route='authorities' />
+                        {((role !== 'Evaluador') && (role !== 'DedteF')) && (
+                            <><Card title='GESTIÓN DE USUARIOS' route='users' /><Card title='AUTORIDADES ADMINISTRATIVAS' route='authorities' /></>
                         )}
                     </div>
                 </div>

@@ -264,7 +264,7 @@ const EvaluationDashboard = () => {
                         {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
                             <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form} />
                         )}
-                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (highestGrade >= 51) && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (highestGrade >= 55) && (
                             <Card title='CERTIFICADOS' route={routes.certificates} onClick={() => navigation(`/classrooms/certificates/${classroom.id}`, { state: { classroom } })} />
                         )}
                     </div>

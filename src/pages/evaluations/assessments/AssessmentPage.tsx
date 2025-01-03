@@ -12,6 +12,7 @@ import { FilterButtonsArea } from '../../../components/ui/FilterButtonsArea';
 import ViewAssessmentModal from './ViewAssessment';
 import { AssessmentForm } from './AssessmentForm';
 import { RequirementsSection } from './RequirementSection';
+import { useAuthContext } from '../../../context/AuthContext';
 
 const INITIAL_ASSESSMENT_DATA: AssessmentData = {
     id: '',
@@ -25,13 +26,16 @@ const INITIAL_REQUIREMENT_DATA: Requeriment = {
     name: '',
     url: '',
     assessmentId: 0,
-    file: null, 
+    file: null,
 };
 
 const AssessmentPage: React.FC = () => {
     const { formId } = useParams<{ formId: string }>();
     const safeFormId = formId || '';
     const navigate = useNavigate();
+
+    const { getUserRole } = useAuthContext();
+    const role = getUserRole();
 
     const [uiState, setUiState] = useState({
         isModalOpen: false,
@@ -115,19 +119,19 @@ const AssessmentPage: React.FC = () => {
         e.preventDefault();
         setFormState(prev => {
             const { file } = prev.newRequirement;
-            if (!file) return prev; 
-    
+            if (!file) return prev;
+
             const newRequirement = {
                 ...prev.newRequirement,
                 id: String(Date.now()),
-                originalFileName: file.name, 
+                originalFileName: file.name,
             };
 
             return {
                 ...prev,
                 requirements: [...prev.requirements, newRequirement],
-                newRequirement: { 
-                    ...INITIAL_REQUIREMENT_DATA, 
+                newRequirement: {
+                    ...INITIAL_REQUIREMENT_DATA,
                     file: null,
                 },
             };
@@ -173,7 +177,7 @@ const AssessmentPage: React.FC = () => {
             formData.append('formId', safeFormId.toString());
             formState.requirements.forEach((req) => {
                 if (req.file) {
-                    formData.append('files', req.file); 
+                    formData.append('files', req.file);
                 }
             });
             formData.append('deletedRequirements', JSON.stringify(formState.deletedRequirements));
@@ -282,7 +286,7 @@ const AssessmentPage: React.FC = () => {
         if (!requirements || requirements.length === 0) {
             return <span>Sin requerimientos</span>;
         }
-    
+
         return (
             <ul className="list-disc list-inside">
                 {requirements.map((element, index) => (
@@ -290,7 +294,7 @@ const AssessmentPage: React.FC = () => {
                 ))}
             </ul>
         );
-    };    
+    };
 
     const handleNavigateRosseta = () => {
         navigate('/classrooms/evaluation-summary', { state: { formId: safeFormId } });
@@ -309,14 +313,18 @@ const AssessmentPage: React.FC = () => {
             Valoración: assessment.assessment,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                    <IconButtonComponent
-                        variant="edit"
-                        onClick={() => handleEdit(assessment)}
-                    />
-                    <IconButtonComponent
-                        variant="delete"
-                        onClick={() => handleDelete(assessment.id.toString(), assessment.description)}
-                    />
+                    {!(role === 'Evaluador' || role === 'DedteF') && (
+                        <>
+                            <IconButtonComponent
+                                variant="edit"
+                                onClick={() => handleEdit(assessment)}
+                            />
+                            <IconButtonComponent
+                                variant="delete"
+                                onClick={() => handleDelete(assessment.id.toString(), assessment.description)}
+                            />
+                        </>
+                    )}
                     <IconButtonComponent
                         variant="view"
                         onClick={() => handleView(assessment.id.toString())}
@@ -350,7 +358,10 @@ const AssessmentPage: React.FC = () => {
                     )}
 
                     <div className="flex w-full justify-end mb-4">
-                        <AddButtonComponent onClick={handleAddClick} />
+                        {((role !== 'Evaluador') && (role !== 'DedteF')) && (
+                            <AddButtonComponent onClick={handleAddClick} />
+                        )}
+
                         <button
                             className="bg-black hover:bg-slate-700 text-white text-sm w-44 h-9 p-2 rounded-lg ml-2"
                             onClick={() => handleNavigateRosseta()}
@@ -387,8 +398,8 @@ const AssessmentPage: React.FC = () => {
                 isOpen={uiState.isModalOpen}
                 onClose={() => setUiState(prev => ({ ...prev, isModalOpen: false }))}
                 title={formState.newAssessment.id ? 'Editar Valoración' : 'Nueva Valoración'}
-                primaryButtonText={uiState.isLoading 
-                    ? (formState.newAssessment.id ? 'ACTUALIZANDO...' : 'AGREGANDO...') 
+                primaryButtonText={uiState.isLoading
+                    ? (formState.newAssessment.id ? 'ACTUALIZANDO...' : 'AGREGANDO...')
                     : (formState.newAssessment.id ? 'ACTUALIZAR' : 'AGREGAR')
                 }
                 onSubmit={handleSubmit}
