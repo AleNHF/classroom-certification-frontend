@@ -20,7 +20,7 @@ const HomePage: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 w-full">
                         <Card title='CERTIFICACIÓN DE AULAS' route='classrooms' />
 
-                        {role !== 'Evaluador' && (
+                        {(role !== 'Evaluador') && (role !== 'DedteF') && (
                             <Card title='CONFIGURACIÓN DE INDICADORES' route='indicators-configuration' />
                         )}
                         
