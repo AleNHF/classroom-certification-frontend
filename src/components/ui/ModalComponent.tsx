@@ -9,6 +9,7 @@ interface ModalComponentProps {
     primaryButtonText?: string;
     secondaryButtonText?: string;
     size?: 'small' | 'medium' | 'large';
+    loading?: boolean;
 }
 
 const ModalComponent: React.FC<ModalComponentProps> = ({
@@ -19,7 +20,8 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
     onSubmit,
     primaryButtonText = "ACEPTAR",
     secondaryButtonText = "CANCELAR",
-    size = 'medium'
+    size = 'medium',
+    loading = false
 }) => {
     if (!isOpen) return null;
 
@@ -42,10 +44,12 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
                     {onSubmit && (
                         <button
                             type="button"
-                            className="bg-primary-red-color text-white w-auto px-4 py-2 rounded-md"
+                            className={`bg-primary-red-color text-white w-auto px-4 py-2 rounded-md hover:bg-red-400 
+                                ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} // Estilos deshabilitados
                             onClick={onSubmit}
+                            disabled={loading}
                         >
-                            {primaryButtonText}
+                            {loading ? 'CARGANDO...' : primaryButtonText}
                         </button>
                     )}
                     <button

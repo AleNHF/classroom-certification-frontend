@@ -31,6 +31,7 @@ const TeamPage: React.FC = () => {
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Estados de Datos
     const [newTeam, setNewTeam] = useState<TeamForm>(INITIAL_TEAM_FORM);
@@ -113,11 +114,14 @@ const TeamPage: React.FC = () => {
             personal: memberData
         };
 
+        setLoading(true);
         try {
             newTeam.id ? await updateTeam(newTeam.id, teamData) : await addTeam(teamData);
             handleCloseModal();
         } catch (error) {
             console.error('Error adding/updating team:', error);
+        } finally {
+            setLoading(false);
         }
     }, [newTeam, memberData, addTeam, updateTeam, handleCloseModal, teamMembers]);
 
@@ -238,6 +242,7 @@ const TeamPage: React.FC = () => {
                 primaryButtonText={newTeam.id ? "ACTUALIZAR" : "GUARDAR"}
                 onSubmit={handleSubmitTeam}
                 size='large'
+                loading={loading}
             >
                 <form className="space-y-4">
                     <div className="flex space-x-4">

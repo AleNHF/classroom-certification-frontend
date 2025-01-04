@@ -46,6 +46,7 @@ const EvaluationDashboard = () => {
 
     // Estados de validación y errores
     const [errorMessages, setErrorMessages] = useState<{ [key: string]: string }>({});
+    const [loading, setLoading] = useState<boolean>(false);
 
     const { cycleList, getCycle } = useCycle();
     const { areaList, getArea } = useArea();
@@ -171,6 +172,7 @@ const EvaluationDashboard = () => {
             return;
         }
 
+        setLoading(true);
         try {
             const evaluationData = {
                 classroomId: classroom?.id || '',
@@ -210,6 +212,8 @@ const EvaluationDashboard = () => {
             }
         } catch (error) {
             console.error('Error adding evaluation:', error);
+        } finally {
+            setLoading(false);
         }
     }, [newEvaluation, classroom, validateForm])
 
@@ -278,6 +282,7 @@ const EvaluationDashboard = () => {
                 primaryButtonText="INICIAR"
                 onSubmit={handleSubmitEvaluation}
                 size='medium'
+                loading={loading}
             >
                 <form className="space-y-4">
                     <div className="text-justify">

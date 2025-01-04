@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { validateUserForm } from '../../utils/validations/validateUserForm';
 import { ActionButtonComponent, PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, SelectInput, AlertComponent, PaginationComponent } from '../../components';
-import { LoadingPage, ErrorPage } from '../utils';
+import { ErrorPage } from '../utils';
 import { useUsers } from '../../hooks';
 import PasswordInput from '../../components/forms/PasswordInput';
 import { UserProps } from '../../types';
@@ -190,7 +190,7 @@ const UserPage: React.FC = () => {
         }));
     }, [paginatedItems, roleList, handleDelete]);
 
-    if (loading) return <LoadingPage />;
+    //if (loading) return <LoadingPage />;
     if (error && customErrorMessage === null) {
         return <ErrorPage message={error} />;
     }
@@ -239,6 +239,7 @@ const UserPage: React.FC = () => {
                 primaryButtonText={newUser.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleSubmit}
                 size='medium'
+                loading={loading}
             >
                 <form className="space-y-4">
                     <div className="mb-4">

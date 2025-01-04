@@ -25,6 +25,7 @@ const AuthoritiesPage: React.FC = () => {
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedAuthority, setSelectedAuthority] = useState<Authority | null>(null);
@@ -90,6 +91,7 @@ const AuthoritiesPage: React.FC = () => {
             formData.append('signature', authorityForm.signature);
         }
 
+        setLoading(true);
         try {
             authorityForm.id
                 ? await updateAuthority(authorityForm.id, formData)
@@ -97,6 +99,8 @@ const AuthoritiesPage: React.FC = () => {
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar autoridad:', error);
+        } finally {
+            setLoading(false);
         }
     }, [authorityForm, addAuthority, updateAuthority]);
 
@@ -210,6 +214,7 @@ const AuthoritiesPage: React.FC = () => {
                 primaryButtonText={authorityForm.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleSubmit}
                 size="medium"
+                loading={loading}
             >
                 <form className="space-y-4">
                     <div className="mb-4">

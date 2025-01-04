@@ -24,6 +24,7 @@ const PersonalPage: React.FC = () => {
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Estados de Datos
     const [personalForm, setPersonalForm] = useState<PersonalForm>(INITIAL_PERSONAL_FORM);
@@ -83,6 +84,7 @@ const PersonalPage: React.FC = () => {
             position: personalForm.position,
         };
 
+        setLoading(true);
         try {
             personalForm.id
                 ? await updatePersonal(personalForm.id, formData)
@@ -90,6 +92,8 @@ const PersonalPage: React.FC = () => {
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar personal:', error);
+        } finally {
+            setLoading(false);
         }
     }, [personalForm, addPersonal, updatePersonal]);
 
@@ -183,6 +187,7 @@ const PersonalPage: React.FC = () => {
                 primaryButtonText={personalForm.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleSubmit}
                 size="medium"
+                loading={loading}
             >
                 <form className="space-y-4">
                     <div className="mb-4">
