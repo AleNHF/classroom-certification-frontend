@@ -246,12 +246,12 @@ const EvaluationDashboard = () => {
                             <p className="text-sm">
                                 No puedes certificar el aula porque no cumple con las condiciones mínimas aceptables.
                                 El puntaje obtenido es <span className="font-bold">{highestGrade}</span>,
-                                y debe ser al menos <span className="font-bold">51</span>.
+                                y debe ser al menos <span className="font-bold">55</span>.
                             </p>
                         </div>
                     )}
 
-                    {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && highestGrade >= 51 && (
+                    {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && highestGrade >= 55 && (
                         <div className="w-full p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-md mb-4">
                             <p>
                                 El aula tiene un puntaje de <span className="font-bold">{highestGrade}</span>. El aula está en <span className="font-bold">{getConditionByGrade(highestGrade)}</span>

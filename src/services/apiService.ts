@@ -345,6 +345,10 @@ class ApiService {
         return this.delete(`/form/${id}`);
     }
 
+    public addObservation(id: number, addObservation: { observation: string }) {
+        return this.patch(`/form/${id}/observation`, addObservation);
+    }
+
     /*
      * Métodos específicos para administrar valoración de aula virtual
      */

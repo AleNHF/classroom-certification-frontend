@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../../components';
 import { ErrorPage } from '../../utils';
 import { Assessment, AssessmentData, Requeriment } from '../../../types';
@@ -33,6 +33,9 @@ const AssessmentPage: React.FC = () => {
     const { formId } = useParams<{ formId: string }>();
     const safeFormId = formId || '';
     const navigate = useNavigate();
+    
+    const location = useLocation();
+    const observation = location.state?.formObservation; 
 
     const { getUserRole } = useAuthContext();
     const role = getUserRole();
@@ -297,7 +300,7 @@ const AssessmentPage: React.FC = () => {
     };
 
     const handleNavigateRosseta = () => {
-        navigate('/classrooms/evaluation-summary', { state: { formId: safeFormId } });
+        navigate('/classrooms/evaluation-summary', { state: { formId: safeFormId, formObservation: observation } });
     }
 
     const dynamicHeaders = useMemo(() => {
