@@ -3,6 +3,7 @@ import apiService from "../../services/apiService";
 
 const useSummary = () => {
   const [data, setData] = useState<any>(null);
+  const [observation, setObservation] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,11 +22,28 @@ const useSummary = () => {
     }
   }, []);
 
+  const addObservation = useCallback(async (formId: number, addObservation: { observation: string }) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await apiService.addObservation(formId, addObservation);
+      setObservation(response.data);
+    } catch (error: any) {
+      setError(error.message || "Ocurrió un error al añadir la observación");
+      throw error;
+    }
+  }, []);
+
   return {
     data,
+    observation,
+
     loading,
     error,
-    calculateSummary
+
+    calculateSummary,
+    addObservation
   };
 };
 

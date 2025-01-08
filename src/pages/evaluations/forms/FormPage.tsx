@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../../components';
 import { ErrorPage } from '../../utils';
 import { useForm } from '../../../hooks';
@@ -27,9 +27,13 @@ const FormPage: React.FC = () => {
     const safeClassroomId = classroomId || '';
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const classroom = location.state?.classroom;
+
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Estados de Datos
     const [newForm, setNewForm] = useState<FormDataProps>(INITIAL_FORM_DATA);
@@ -77,6 +81,7 @@ const FormPage: React.FC = () => {
             classroomId: parseInt(safeClassroomId)
         };
 
+        setLoading(true);
         try {
             newForm.id
                 ? await updateForm(newForm.id, formDataRequest)
@@ -85,6 +90,8 @@ const FormPage: React.FC = () => {
             handleCloseModal();
         } catch (error) {
             console.error('Error al añadir/actualizar el formulario:', error);
+        } finally {
+            setLoading(false);
         }
     }, [newForm, addForm, updateForm]);
 
@@ -133,8 +140,8 @@ const FormPage: React.FC = () => {
         }
     }, [getFormById]);
 
-    const handleAssessmentClick = async (formId: string, formName: string) => {
-        navigate(`/classrooms/evaluation-assessment/${formId}`, { state: { formName: formName } })
+    const handleAssessmentClick = async (formId: string, formName: string, formObservation: string) => {
+        navigate(`/classrooms/evaluation-assessment/${formId}`, { state: { formName: formName, formObservation: formObservation, classroom: classroom } })
     };
 
     // Renderizado de filas de la tabla
@@ -160,7 +167,7 @@ const FormPage: React.FC = () => {
                     />
                     <IconButtonComponent
                         variant="content"
-                        onClick={() => handleAssessmentClick(form.id, form.name)}
+                        onClick={() => handleAssessmentClick(form.id, form.name, form.observation)}
                     />
                 </div>
             )
@@ -186,9 +193,10 @@ const FormPage: React.FC = () => {
                         />
                     )}
 
-                    {formList.length == 0 && (
+                    {/* {formList.length == 0 && (
                         <AddButtonComponent onClick={handleAddClick} />
-                    )}
+                    )} */}
+                    <AddButtonComponent onClick={handleAddClick} />
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
@@ -206,6 +214,7 @@ const FormPage: React.FC = () => {
                 primaryButtonText={newForm.id ? 'ACTUALIZAR' : 'AGREGAR'}
                 onSubmit={handleSubmit}
                 size="large"
+                loading={loading}
             >
                 <FormModalContent
                     formData={newForm}
