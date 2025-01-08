@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageHeaderComponent, AddButtonComponent, TableComponent, ModalComponent, ConfirmDeleteModal, HeaderComponent, AlertComponent, PaginationComponent } from '../../../components';
 import { ErrorPage } from '../../utils';
 import { useForm } from '../../../hooks';
@@ -26,6 +26,9 @@ const FormPage: React.FC = () => {
     const { classroomId } = useParams<{ classroomId: string }>();
     const safeClassroomId = classroomId || '';
     const navigate = useNavigate();
+
+    const location = useLocation();
+    const classroom = location.state?.classroom;
 
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -138,7 +141,7 @@ const FormPage: React.FC = () => {
     }, [getFormById]);
 
     const handleAssessmentClick = async (formId: string, formName: string, formObservation: string) => {
-        navigate(`/classrooms/evaluation-assessment/${formId}`, { state: { formName: formName, formObservation: formObservation } })
+        navigate(`/classrooms/evaluation-assessment/${formId}`, { state: { formName: formName, formObservation: formObservation, classroom: classroom } })
     };
 
     // Renderizado de filas de la tabla

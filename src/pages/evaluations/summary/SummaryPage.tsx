@@ -12,6 +12,8 @@ import {
 import { useLocation } from "react-router-dom";
 import { HeaderComponent, ModalComponent, PageHeaderComponent, TableComponent } from "../../../components";
 import { useSummary } from "../../../hooks";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 // Registrar componentes de Chart.js
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -24,6 +26,7 @@ const SummaryPage: React.FC = () => {
     const location = useLocation();
     const formId = location.state?.formId;
     const formObservation = location.state?.formObservation;
+    const classroom = location.state?.classroom;
     const [total, setTotal] = useState();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -87,13 +90,25 @@ const SummaryPage: React.FC = () => {
     const renderTableRows = useCallback(() => {
         if (!data || !data.summary?.data) return [];
 
-        return data.summary.data.map((result: any) => ({
+        const rows = data.summary.data.map((result: any) => ({
             'Áreas': result.area,
             'Promedio': result.average,
             //'Porcentaje': result.percentage,
             //'Ponderación': result.weight,
             'Promedio Ponderado': result.weightedAverage
-        }))
+        }));
+
+        if (total !== undefined) {
+            rows.push({
+                Áreas: <strong>Promedio Ponderado General</strong>,
+                Promedio: "",
+                "Promedio Ponderado": (
+                    <span className="font-bold">{`${total} (${getConditionByGrade(total)})`}</span>
+                ),
+            });
+        }
+
+        return rows;
     }, [data]);
 
     const handleSubmit = useCallback(async () => {
@@ -130,6 +145,37 @@ const SummaryPage: React.FC = () => {
         return "Puntaje fuera de rango.";
     };
 
+    const exportToPdf = useCallback(async () => {
+        const element = document.getElementById("summary-container");
+        if (!element) {
+            console.error("No se encontró el contenido del certificado para exportar");
+            return;
+        }
+
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: false
+            });
+            const imgData = canvas.toDataURL("image/png");
+
+            const pdf = new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: "letter"
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`roseta-promedios-${classroom.code}`);
+        } catch (error) {
+            console.error("Error al generar PDF:", error);
+        }
+    }, [])
+
     return (
         <>
             <div className="flex flex-col items-center justify-start bg-white min-h-screen">
@@ -143,7 +189,7 @@ const SummaryPage: React.FC = () => {
                     <div className="flex w-full justify-end mb-4">
                         <button
                             className="bg-primary-red-color hover:bg-slate-700 text-white text-sm w-44 h-9 p-2 rounded-lg ml-2"
-                        //onClick={() => handleNavigateRosseta()}
+                            onClick={exportToPdf}
                         >
                             DESCARGAR PDF
                         </button>
@@ -156,50 +202,48 @@ const SummaryPage: React.FC = () => {
                         </button>
                     </div>
 
-                    <div className="w-full max-w-lg mx-auto">
-                        {loading ? (
-                            <p>Cargando datos...</p>
-                        ) : error ? (
-                            <p>Error al cargar datos: {error}</p>
-                        ) : chartData ? (
-                            <Radar
-                                data={chartData}
-                                options={{
-                                    responsive: true,
-                                    scales: {
-                                        r: {
-                                            beginAtZero: true,
-                                            max: 5, // Máximo en tu radar
-                                        },
-                                    },
-                                }}
-                            />
-                        ) : (
-                            <p>No hay datos disponibles.</p>
-                        )}
-                    </div>
-                    <div className="overflow-x-auto w-full mb-6">
-                        <TableComponent headers={headers} rows={renderTableRows()} />
-                        {total !== undefined && (
-                            <div className="mt-4 flex justify-between items-center space-x-2 mb-7">
-                                <h2 className="text-base font-semibold">Promedio Ponderado Total</h2>
-                                <p className="text-base">{total}</p><span className="font-bold">{getConditionByGrade(total!)}</span>
-                            </div>
-                        )}
+                    <div id="summary-container" className="w-full mx-auto p-10">
+                        <h1 className="text-2xl text-center font-bold p-4">EVALUACIÓN PROCESO DE CONSTRUCCIÓN AVA</h1>
+                        <h2 className="text-lg text-justify font-bold p-4">ASIGNATURA: <span>{classroom.name}</span></h2>
 
-                        {(formObservation || savedObservation) && (
-                            <div className="mt-4 bg-gray-100 p-4 rounded-lg">
-                                <h2 className="text-lg font-semibold">Calificación Cualitativa</h2>
-                                {/* <div className="w-full p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-md mb-4">
-                                    <p>
-                                        El aula tiene un puntaje de <span className="font-bold">{total}</span>. El aula está en <span className="font-bold">{getConditionByGrade(total!)}</span>
+                        <div className="w-full max-w-lg mx-auto">
+                            {loading ? (
+                                <p>Cargando datos...</p>
+                            ) : error ? (
+                                <p>Error al cargar datos: {error}</p>
+                            ) : chartData ? (
+                                <div>
+                                    <p className="text-lg text-center font-medium text-gray-500 p-4">ROSETA DE PROMEDIOS POR AREA</p>
+                                    <Radar
+                                        data={chartData}
+                                        options={{
+                                            responsive: true,
+                                            scales: {
+                                                r: {
+                                                    beginAtZero: true,
+                                                    max: 5, // Máximo en tu radar
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            ) : (
+                                <p>No hay datos disponibles.</p>
+                            )}
+                        </div>
+                        <div className="overflow-x-auto w-full mb-6">
+                            <h2 className="text-center font-bold">CUADRO RESUMEN DE VALORACIÓN</h2>
+                            <TableComponent headers={headers} rows={renderTableRows()} />
+
+                            {(formObservation || savedObservation) && (
+                                <div className="mt-6 bg-gray-100 p-4 rounded-lg">
+                                    <h2 className="text-lg font-semibold">Calificación Cualitativa</h2>
+                                    <p className="text-sm mt-2">
+                                        {savedObservation ? savedObservation : formObservation}
                                     </p>
-                                </div> */}
-                                <p className="text-sm mt-2">
-                                    {savedObservation ? savedObservation : formObservation}
-                                </p>
-                            </div>
-                        )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <ModalComponent

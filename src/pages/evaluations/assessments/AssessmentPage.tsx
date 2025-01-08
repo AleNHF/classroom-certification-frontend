@@ -36,6 +36,7 @@ const AssessmentPage: React.FC = () => {
     
     const location = useLocation();
     const observation = location.state?.formObservation; 
+    const classroom = location.state?.classroom;
 
     const { getUserRole } = useAuthContext();
     const role = getUserRole();
@@ -300,7 +301,7 @@ const AssessmentPage: React.FC = () => {
     };
 
     const handleNavigateRosseta = () => {
-        navigate('/classrooms/evaluation-summary', { state: { formId: safeFormId, formObservation: observation } });
+        navigate('/classrooms/evaluation-summary', { state: { formId: safeFormId, formObservation: observation, classroom: classroom } });
     }
 
     const dynamicHeaders = useMemo(() => {
