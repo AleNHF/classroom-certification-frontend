@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useEvaluation } from "../../../hooks";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ActionButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, PageHeaderComponent, PaginationComponent, TableComponent } from "../../../components";
+import { ActionButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, PageHeaderComponent, TableComponent } from "../../../components";
 
 const headers = ["Ciclo", "Área", "Resultado", "Fecha de revisión", "Acciones"];
 
@@ -22,8 +22,9 @@ const EvaluationList: React.FC = () => {
     const [evaluationToDelete, setEvaluationToDelete] = useState<{ id: string | null }>({ id: null });
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false); // Estado de carga al eliminar
+    const [cycleFilter, setCycleFilter] = useState<string>('all');
 
-    const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
+    //const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
 
     useEffect(() => {
         const loadEvaluations = async () => {
@@ -71,6 +72,16 @@ const EvaluationList: React.FC = () => {
         navigate(`/classrooms/evaluation-attachments`, { state: { classroom } })
     };
 
+    // Filtrado por ciclos
+    const filteredEvaluations = evaluationList.filter((evaluation) => {
+        if (cycleFilter !== 'all' && evaluation.cycle?.name !== cycleFilter) return false;
+        return true;
+    });
+
+    const uniqueCycles = Array.from(
+        new Set(evaluationList.map((evaluation) => evaluation.cycle?.name))
+    );
+
     // Renderizado de filas de la tabla
     const renderTableRows = useCallback(() => {
         const formatDateTime = (dateTime: string) => {
@@ -80,7 +91,7 @@ const EvaluationList: React.FC = () => {
             }).format(new Date(dateTime));
         };
 
-        return paginatedItems.map((evaluation: any) => ({
+        return filteredEvaluations.map((evaluation: any) => ({
             Ciclo: evaluation.cycle.name,
             'Área': evaluation.area.name,
             Resultado: evaluation.result,
@@ -100,7 +111,7 @@ const EvaluationList: React.FC = () => {
                 </div>
             )
         }));
-    }, [paginatedItems, handleDelete]);
+    }, [filteredEvaluations, handleDelete]);
 
     return (
         <>
@@ -132,13 +143,26 @@ const EvaluationList: React.FC = () => {
                     {error && <AlertComponent type="error" message={`Error: ${error}`} className="mb-4 w-full" />}
                     {successMessage && <AlertComponent type="success" message={successMessage} className="mb-4 w-full" />}
 
-                    <div className="overflow-x-auto w-full">
+                    <div className="w-full flex justify-end p-8">
+                        <select 
+                            value={cycleFilter}
+                            onChange={(e) => setCycleFilter(e.target.value)}
+                            className="border rounded px-3 py-2 ml-2"
+                        >
+                            <option value="all">Todos los ciclos</option>    
+                            {uniqueCycles.map((cycle) => (
+                                <option key={cycle} value={cycle}>{cycle}</option>
+                            ))}                        
+                        </select>
+                    </div>
+
+                    <div className="overflow-x-auto w-full mb-8">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>
-                    <PaginationComponent
+                    {/* <PaginationComponent
                         items={evaluationList}
                         onPageItemsChange={setPaginatedItems}
-                    />
+                    /> */}
                 </div>
             </div>
 
