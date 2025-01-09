@@ -11,7 +11,7 @@ import {
 } from "chart.js";
 import { useLocation } from "react-router-dom";
 import { HeaderComponent, ModalComponent, PageHeaderComponent, TableComponent } from "../../../components";
-import { useSummary } from "../../../hooks";
+import { useForm, useSummary } from "../../../hooks";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -25,7 +25,6 @@ const SummaryPage: React.FC = () => {
     const [chartData, setChartData] = useState<any>(null);
     const location = useLocation();
     const formId = location.state?.formId;
-    const formObservation = location.state?.formObservation;
     const classroom = location.state?.classroom;
     const [total, setTotal] = useState();
 
@@ -34,12 +33,21 @@ const SummaryPage: React.FC = () => {
     const [savedObservation, setSavedObservation] = useState<string>("");
 
     const { data, loading, error, calculateSummary, addObservation } = useSummary();
+    const { getFormById } = useForm(classroom.id);
 
     useEffect(() => {
         if (formId) {
             calculateSummary(formId);
+
+            getFormById(formId).then((form) => {
+                if (form?.observation) {
+                    setSavedObservation(form.observation);
+                }
+            }).catch((error) => {
+                console.error("Error al obtener el formulario:", error);
+            });
         }
-    }, [formId, calculateSummary]);
+    }, [formId, calculateSummary, getFormById]);
 
     useEffect(() => {
         if (data && data.summary?.data) {
@@ -70,12 +78,6 @@ const SummaryPage: React.FC = () => {
             setTotal(data.summary.totalWeightedAverage);
         }
     }, [data]);
-
-    useEffect(() => {
-        if (formObservation) {
-            setSavedObservation(formObservation);
-        }
-    }, [formObservation]);
 
     const handleAddObservation = useCallback(() => {
         setObservation("");
@@ -235,11 +237,11 @@ const SummaryPage: React.FC = () => {
                             <h2 className="text-center font-bold">CUADRO RESUMEN DE VALORACIÓN</h2>
                             <TableComponent headers={headers} rows={renderTableRows()} />
 
-                            {(formObservation || savedObservation) && (
+                            {(savedObservation) && (
                                 <div className="mt-6 bg-gray-100 p-4 rounded-lg">
                                     <h2 className="text-lg font-semibold">Calificación Cualitativa</h2>
                                     <p className="text-sm mt-2">
-                                        {savedObservation ? savedObservation : formObservation}
+                                        {savedObservation}
                                     </p>
                                 </div>
                             )}
