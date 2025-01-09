@@ -362,7 +362,7 @@ const AssessmentPage: React.FC = () => {
                     )}
 
                     <div className="flex w-full justify-end mb-4">
-                        {((role !== 'Evaluador') && (role !== 'DedteF')) && (
+                        {(!(role === 'Evaluador') && !(role === 'DedteF')) && (
                             <AddButtonComponent onClick={handleAddClick} />
                         )}
 
