@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEvaluation } from '../../../hooks';
 import { EvaluatedIndicator, EvaluationData } from '../../../types/evaluatedIndicators';
 import { HeaderComponent, PageHeaderComponent } from '../../../components';
+import { LoadingPage } from '../../utils';
 
 const EvaluationView: React.FC = () => {
     const { evaluationId } = useParams<{ evaluationId: string }>();
@@ -99,7 +100,8 @@ const EvaluationView: React.FC = () => {
     );
 
     if (!evaluationData) {
-        return <div className="p-6 text-center">Cargando evaluación...</div>;
+        //return <div className="p-6 text-center">Cargando evaluación...</div>;
+        return <LoadingPage />
     }
 
     return (
