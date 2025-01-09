@@ -8,6 +8,7 @@ import { validateFormData } from '../../../utils/validations/validateFormData';
 import IconButtonComponent from '../../../components/ui/IconButtonComponent';
 import ViewFormModal from './ViewFormModal';
 import FormModalContent from './FormModalComponent';
+import { useAuthContext } from '../../../context/AuthContext';
 
 const headers = ["Autor de Cont.", "Servidor", "Carrera", "Resultado", "Acciones"];
 
@@ -29,6 +30,8 @@ const FormPage: React.FC = () => {
 
     const location = useLocation();
     const classroom = location.state?.classroom;
+    const { getUserRole } = useAuthContext();
+    const role = getUserRole();
 
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -153,14 +156,18 @@ const FormPage: React.FC = () => {
             Resultado: form.finalGrade,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                    <IconButtonComponent
-                        variant="edit"
-                        onClick={() => handleEdit(form)}
-                    />
-                    <IconButtonComponent
-                        variant="delete"
-                        onClick={() => handleDelete(form.id, form.name)}
-                    />
+                    {!(role === 'DedteF') && (
+                        <>
+                            <IconButtonComponent
+                                variant="edit"
+                                onClick={() => handleEdit(form)}
+                            />
+                            <IconButtonComponent
+                                variant="delete"
+                                onClick={() => handleDelete(form.id, form.name)}
+                            />
+                        </>
+                    )}
                     <IconButtonComponent
                         variant="view"
                         onClick={() => handleView(form.id)}
@@ -196,7 +203,9 @@ const FormPage: React.FC = () => {
                     {/* {formList.length == 0 && (
                         <AddButtonComponent onClick={handleAddClick} />
                     )} */}
-                    <AddButtonComponent onClick={handleAddClick} />
+                    {(role !== 'DedteF') && (
+                        <AddButtonComponent onClick={handleAddClick} />
+                    )}
                     <div className="overflow-x-auto w-full">
                         <TableComponent headers={headers} rows={renderTableRows()} />
                     </div>

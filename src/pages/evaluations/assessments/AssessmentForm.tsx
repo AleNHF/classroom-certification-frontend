@@ -45,7 +45,7 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
                 <textarea
                     value={newAssessment.description}
                     onChange={(e) => onAssessmentChange({ ...newAssessment, description: e.target.value })}
-                    rows={2}
+                    rows={3}
                     className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500 resize-y"
                 />
                 {formErrors.description && (
@@ -54,11 +54,11 @@ export const AssessmentForm: React.FC<AssessmentFormProps> = ({
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">Conclusiones/Recomendaciones</label>
-                <input
-                    type="text"
+                <textarea
                     value={newAssessment.conclusions}
                     onChange={(e) => onAssessmentChange({ ...newAssessment, conclusions: e.target.value })}
                     className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                    rows={3}
                 />
             </div>
         </div>
