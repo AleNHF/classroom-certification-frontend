@@ -85,7 +85,7 @@ const AttachmentPage: React.FC = () => {
         try {
             const attachment = await getAttachmentById(attachmentId);
             if (attachment && attachment.url) {
-                navigate(`/classrooms/evaluation-attachments/${attachmentId}`, { state: { attachContent: attachment.url } });
+                navigate(`/classrooms/evaluation-attachments/${attachmentId}`, { state: { attachContent: attachment.url, classroom: classroom } });
             } else {
                 console.error('La URL del anexo no está disponible.');
             }

@@ -143,13 +143,13 @@ const EvaluationList: React.FC = () => {
                     {error && <AlertComponent type="error" message={`Error: ${error}`} className="mb-4 w-full" />}
                     {successMessage && <AlertComponent type="success" message={successMessage} className="mb-4 w-full" />}
 
-                    <div className="w-full flex justify-end p-8">
+                    <div className="w-full flex justify-end mt-8">
                         <select 
                             value={cycleFilter}
                             onChange={(e) => setCycleFilter(e.target.value)}
                             className="border rounded px-3 py-2 ml-2"
                         >
-                            <option value="all">Todos los ciclos</option>    
+                            <option value="all">Filtrar por ciclos</option>    
                             {uniqueCycles.map((cycle) => (
                                 <option key={cycle} value={cycle}>{cycle}</option>
                             ))}                        

@@ -5,6 +5,7 @@ import { PageHeaderComponent, HeaderComponent } from '../../../components';
 const AttachmentContentView: React.FC = () => {
     const location = useLocation();
     const contentJson = location.state?.attachContent;
+    const classroom = location.state?.classroom;
 
     const [contentData, setContentData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -14,6 +15,7 @@ const AttachmentContentView: React.FC = () => {
         const fetchData = async () => {
             try {
                 if (contentJson) {
+                    console.log('contentjson',contentJson)
                     const response = await fetch(contentJson);
                     if (!response.ok) {
                         throw new Error("Error al cargar los datos del aula.");
@@ -52,6 +54,8 @@ const AttachmentContentView: React.FC = () => {
                         </p>
                     )}
 
+                    <h1 className='text-2xl font-medium'>Contenido del aula: {classroom.name}</h1>
+
                     {/* Listado de secciones y módulos */}
                     {!isLoading && !error && (
                         <div className="space-y-6 w-full mt-6 mb-2">
@@ -70,16 +74,16 @@ const AttachmentContentView: React.FC = () => {
                                         {section.modules?.map((module: any, moduleIndex: number) => (
                                             <li
                                                 key={moduleIndex}
-                                                className="border-b last:border-none pb-2"
+                                                className="border-b last:border-none pb-2 visited:text-purple-600 no-underline hover:underline"
                                             >
-                                                <div className="flex justify-between">
+                                                <a href='' className="flex justify-between">
                                                     <span className="text-gray-700 font-medium">
                                                         {module.name || "Sin título"}
                                                     </span>
                                                     <span className="text-gray-500 text-sm">
                                                         {module.modname}
                                                     </span>
-                                                </div>
+                                                </a>
                                             </li>
                                         ))}
                                     </ul>
