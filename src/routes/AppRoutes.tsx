@@ -22,15 +22,15 @@ const AppRoutes: React.FC = () => {
             {/* Rutas protegidas con roles específicos */}
             <Route
                 path="/"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<HomePage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<HomePage />} />}
             />
             <Route
                 path="work-teams"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<WorkTeamsPage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<WorkTeamsPage />} />}
             />
             <Route
                 path="work-teams/personal"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<PersonalPage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<PersonalPage />} />}
             />
             <Route
                 path="work-teams/users"
@@ -38,7 +38,7 @@ const AppRoutes: React.FC = () => {
             />
             <Route
                 path="work-teams/teams"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<TeamPage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<TeamPage />} />}
             />
             <Route
                 path="indicators-configuration"
@@ -70,15 +70,15 @@ const AppRoutes: React.FC = () => {
             />
             <Route
                 path="classrooms"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<ClassroomPage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<ClassroomPage />} />}
             />
             <Route
                 path="classrooms/search"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<SearchClassroomPage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<SearchClassroomPage />} />}
             />
             <Route
                 path="classrooms/evaluation-dashboard"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<EvaluationDashboard />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<EvaluationDashboard />} />}
             />
             <Route
                 path="classrooms/evaluation-formulario/:classroomId"
