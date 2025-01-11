@@ -4,6 +4,7 @@ import { ClassroomStatus } from "../../utils/enums/classroomStatus";
 import { useArea, useCycle, useEvaluation, useForm } from "../../hooks";
 import { useCallback, useState } from "react";
 import { Form } from "../../types";
+import { useAuthContext } from "../../context/AuthContext";
 
 const mapStatusToText = (status: ClassroomStatus): string => {
     switch (status) {
@@ -24,6 +25,9 @@ const EvaluationDashboard = () => {
     const location = useLocation();
     const navigation = useNavigate();
     const classroom = location.state?.classroom;
+
+    const { getUserRole } = useAuthContext();
+    const role = getUserRole();
 
     if (!classroom || !classroom.id) {
         return <div>Error: No se encontró información del aula</div>;
@@ -241,7 +245,7 @@ const EvaluationDashboard = () => {
                     </div>
 
                     {/* Mensaje condicional */}
-                    {(classroom.status === ClassroomStatus.EVALUATED) && highestGrade < 51 && (
+                    {(classroom.status === ClassroomStatus.EVALUATED) && (highestGrade < 51) && (role !== 'DedteF') && (
                         <div className="w-full p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-md mb-4">
                             <p className="text-sm">
                                 No puedes certificar el aula porque no cumple con las condiciones mínimas aceptables.
@@ -251,7 +255,7 @@ const EvaluationDashboard = () => {
                         </div>
                     )}
 
-                    {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && highestGrade >= 55 && (
+                    {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (highestGrade >= 55) && (role !== 'DedteF') && (
                         <div className="w-full p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-md mb-4">
                             <p>
                                 El aula tiene un puntaje de <span className="font-bold">{highestGrade}</span>. El aula está en <span className="font-bold">{getConditionByGrade(highestGrade)}</span>
@@ -265,10 +269,10 @@ const EvaluationDashboard = () => {
                             route="/classrooms/evaluations"
                             onClick={() => navigation('/classrooms/evaluations', { state: { classroom } })}
                         />
-                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (role !== 'DedteF')  && (
                             <Card title='VALORACIÓN DE AULA VIRTUAL' route={routes.form} onClick={() => navigation(routes.form, { state: { classroom } })} />
                         )}
-                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (highestGrade >= 55) && (
+                        {(classroom.status === ClassroomStatus.EVALUATED || classroom.status === ClassroomStatus.CERTIFIED) && (highestGrade >= 55) && (role !== 'DedteF') && (
                             <Card title='CERTIFICADOS' route={routes.certificates} onClick={() => navigation(`/classrooms/certificates/${classroom.id}`, { state: { classroom } })} />
                         )}
                     </div>

@@ -94,15 +94,15 @@ const AppRoutes: React.FC = () => {
             />
             <Route
                 path="classrooms/evaluations"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<EvaluationList />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<EvaluationList />} />}
             />
             <Route
                 path="classrooms/evaluations/:evaluationId"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<EvaluationView />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<EvaluationView />} />}
             />
             <Route
                 path="classrooms/evaluation-results"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<EvaluationResults />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<EvaluationResults />} />}
             />
             <Route
                 path="classrooms/evaluation-summary"
