@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useEvaluation } from "../../../hooks";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ActionButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, PageHeaderComponent, PaginationComponent, TableComponent } from "../../../components";
+import { ActionButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, PageHeaderComponent, TableComponent } from "../../../components";
 
 const headers = ["Ciclo", "Área", "Resultado", "Fecha de revisión", "Acciones"];
 
