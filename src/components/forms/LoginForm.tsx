@@ -10,6 +10,7 @@ const LoginForm: React.FC = () => {
     const { handleLogin, isAuthenticated } = useAuthContext();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,10 +20,13 @@ const LoginForm: React.FC = () => {
             return;
         }
 
+        setLoading(true);
         try {
             await handleLogin(username, password);
         } catch (error) {
             setErrorMessage('Error en la autenticación, por favor intente de nuevo.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -80,11 +84,13 @@ const LoginForm: React.FC = () => {
             {/* Botón */}
             <button
                 type="submit"
-                className="w-full bg-primary-red-color text-white font-medium py-2 px-4 rounded-md hover:bg-red-500">
-                Iniciar Sesión
+                className="w-full bg-primary-red-color text-white font-medium py-2 px-4 rounded-md hover:bg-red-500"
+                disabled={loading}>
+                {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </button>
         </form>
     );
 };
 
 export default LoginForm;
+

@@ -122,11 +122,11 @@ const AppRoutes: React.FC = () => {
             />
             <Route
                 path="classrooms/evaluation-attachments"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<AttachmentPage />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<AttachmentPage />} />}
             />
             <Route
                 path="classrooms/evaluation-attachments/:attachmentId"
-                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador']} element={<AttachmentContentView />} />}
+                element={<RoleProtectedRoute allowedRoles={['Administrador', 'Evaluador', 'DedteF']} element={<AttachmentContentView />} />}
             />
 
             {/* Ruta para la página de no acceso */}

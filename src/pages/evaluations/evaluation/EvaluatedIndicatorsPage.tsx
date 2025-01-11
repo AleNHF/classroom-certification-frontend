@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEvaluation } from '../../../hooks';
 import { EvaluatedIndicator, EvaluationData } from '../../../types/evaluatedIndicators';
-import { HeaderComponent, PageHeaderComponent } from '../../../components';
+import { AlertComponent, HeaderComponent, PageHeaderComponent } from '../../../components';
 
 const EvaluationView: React.FC = () => {
     const { evaluationId } = useParams<{ evaluationId: string }>();
@@ -99,7 +99,15 @@ const EvaluationView: React.FC = () => {
     );
 
     if (!evaluationData) {
-        return <div className="p-6 text-center">Cargando evaluación...</div>;
+        //return <div className="p-6 text-center">Cargando evaluación...</div>;
+        return <div className="flex flex-col items-center justify-start bg-gray-50 min-h-screen">
+            <div className="w-full flex-shrink-0">
+                <HeaderComponent />
+                <div className="flex flex-col items-center w-full max-w-6xl px-4">
+                    <AlertComponent type="info" message={"Cargando..."} className="mb-4 w-full mt-8" />
+                </div>
+            </div>
+        </div>
     }
 
     return (

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useEvaluation } from "../../../hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ActionButtonComponent, AlertComponent, ConfirmDeleteModal, HeaderComponent, PageHeaderComponent, PaginationComponent, TableComponent } from "../../../components";
-import { useAuthContext } from "../../../context/AuthContext";
 
 const headers = ["Ciclo", "Área", "Resultado", "Fecha de revisión", "Acciones"];
 
@@ -10,9 +9,6 @@ const EvaluationList: React.FC = () => {
     const location = useLocation();
     const classroom = location.state?.classroom;
     const navigate = useNavigate();
-
-    const { getUserRole } = useAuthContext();
-    const role = getUserRole();
 
     const {
         evaluationList,
@@ -124,14 +120,12 @@ const EvaluationList: React.FC = () => {
                             >
                                 RESULTADOS
                             </button>
-                            {role !== 'DedteF' && (
-                                <button
+                            <button
                                     className="bg-black hover:bg-slate-800 text-white px-6 py-2 rounded-md transition-colors duration-200"
                                     onClick={() => navigateToEvaluationAttachments()}
                                 >
                                     ANEXOS
                                 </button>
-                            )}
                         </div>
                     }
                     {(loading || isDeleting) && <AlertComponent type="info" message={"Cargando..."} className="mb-4 w-full" />}
