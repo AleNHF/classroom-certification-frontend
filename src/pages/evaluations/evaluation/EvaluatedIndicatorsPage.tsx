@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEvaluation } from '../../../hooks';
 import { EvaluatedIndicator, EvaluationData } from '../../../types/evaluatedIndicators';
 import { AlertComponent, HeaderComponent, PageHeaderComponent } from '../../../components';
+import { LoadingPage } from '../../utils';
 
 const EvaluationView: React.FC = () => {
     const { evaluationId } = useParams<{ evaluationId: string }>();

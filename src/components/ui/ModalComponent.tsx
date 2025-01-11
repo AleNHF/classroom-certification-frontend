@@ -54,7 +54,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
                     )}
                     <button
                         type="button"
-                        className="bg-optional-button-color text-white w-auto px-4 py-2 rounded-md"
+                        className="bg-optional-button-color text-white w-auto px-4 py-2 rounded-md hover:bg-gray-700"
                         onClick={onClose}
                     >
                         {secondaryButtonText}
