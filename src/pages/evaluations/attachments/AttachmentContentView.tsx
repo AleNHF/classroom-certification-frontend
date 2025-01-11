@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { PageHeaderComponent, HeaderComponent } from '../../../components';
+import { PageHeaderComponent, HeaderComponent, AlertComponent } from '../../../components';
 
 const AttachmentContentView: React.FC = () => {
     const location = useLocation();
@@ -42,9 +42,7 @@ const AttachmentContentView: React.FC = () => {
 
                     {/* Indicador de carga o error */}
                     {isLoading && (
-                        <p className="text-gray-600 text-lg font-medium mt-4">
-                            Cargando contenido...
-                        </p>
+                        <AlertComponent type="info" message={"Cargando..."} className="mb-4 w-full" />
                     )}
                     {error && (
                         <p className="text-red-500 text-lg font-medium mt-4">
