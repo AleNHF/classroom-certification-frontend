@@ -21,6 +21,7 @@ class ApiService {
     ) {
         const url = `${this.baseUrl}${endpoint}`;
         const token = AuthService.getToken();
+        console.log('token', token)
         const headers: HeadersInit = {
             'Content-Type': contentType,
         };
@@ -36,6 +37,7 @@ class ApiService {
             body: body ? JSON.stringify(body) : undefined,
         };
 
+        console.log(options)
         // Manejo de contenido `FormData` para el personal
         if (body instanceof FormData) {
             delete headers['Content-Type']; // Dejar que el navegador maneje los headers
@@ -44,6 +46,7 @@ class ApiService {
 
         try {
             const response = await fetch(url, options);
+            console.log(response)
 
             if (!response.ok) {
                 const errorData = await response.json();

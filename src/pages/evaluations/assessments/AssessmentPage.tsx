@@ -317,7 +317,7 @@ const AssessmentPage: React.FC = () => {
             Valoración: assessment.assessment,
             Acciones: (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-                    {!(role === 'Evaluador' || role === 'DedteF') && (
+                    {!(role === 'DedteF') && (
                         <>
                             <IconButtonComponent
                                 variant="edit"
@@ -362,7 +362,7 @@ const AssessmentPage: React.FC = () => {
                     )}
 
                     <div className="flex w-full justify-end mb-4">
-                        {((role !== 'Evaluador') && (role !== 'DedteF')) && (
+                        {(!(role === 'Evaluador') && !(role === 'DedteF')) && (
                             <AddButtonComponent onClick={handleAddClick} />
                         )}
 
