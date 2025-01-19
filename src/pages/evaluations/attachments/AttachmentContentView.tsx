@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageHeaderComponent, HeaderComponent, AlertComponent } from '../../../components';
+import ContentToPDF from './ContentToPdf';
 
 const AttachmentContentView: React.FC = () => {
     const location = useLocation();
     const contentJson = location.state?.attachContent;
+    const classroom = location.state?.classroom;
 
     const [contentData, setContentData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -52,38 +54,7 @@ const AttachmentContentView: React.FC = () => {
 
                     {/* Listado de secciones y módulos */}
                     {!isLoading && !error && (
-                        <div className="space-y-6 w-full mt-6 mb-2">
-                            {contentData.map((section, index) => (
-                                <div
-                                    key={index}
-                                    className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-                                >
-                                    {/* Encabezado de la sección */}
-                                    <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
-                                        {section.name || `Sección ${index + 1}`}
-                                    </h2>
-
-                                    {/* Lista de módulos */}
-                                    <ul className="space-y-2">
-                                        {section.modules?.map((module: any, moduleIndex: number) => (
-                                            <li
-                                                key={moduleIndex}
-                                                className="border-b last:border-none pb-2"
-                                            >
-                                                <div className="flex justify-between">
-                                                    <span className="text-gray-700 font-medium">
-                                                        {module.name || "Sin título"}
-                                                    </span>
-                                                    <span className="text-gray-500 text-sm">
-                                                        {module.modname}
-                                                    </span>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
-                        </div>
+                        <ContentToPDF contentData={contentData} classroom={classroom} />
                     )}
                 </div>
             </div>
