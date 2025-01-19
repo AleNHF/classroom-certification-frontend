@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-const ContentToPDF: React.FC<{ contentData: any[] }> = ({ contentData }) => {
+const ContentToPDF: React.FC<{ contentData: any[], classroom: any }> = ({ contentData, classroom }) => {
     const contentRef = useRef<HTMLDivElement>(null);
 
     const downloadPDF = async () => {
@@ -12,46 +12,75 @@ const ContentToPDF: React.FC<{ contentData: any[] }> = ({ contentData }) => {
             const pdf = new jsPDF('p', 'pt', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
-            const margins = 40;
+            const margins = 30;
+            const contentWidth = pdfWidth - (margins * 2);
+            const headerHeight = 60;
 
-            // Agregar título en la primera página
-            pdf.setFontSize(16);
-            pdf.text('Contenido del Aula', pdfWidth / 2, margins, { align: 'center' });
+            // Portada
+            pdf.setFontSize(14);
+            pdf.text('ANEXOS MATRIZ DE INDICADORES', pdfWidth / 2, margins + 10, { align: 'center' });
+            pdf.text(`ASIGNATURA: ${classroom.code} - ${classroom.name}`, pdfWidth / 2, margins + 30, { align: 'center' });
 
-            // Obtener todos los elementos de sección
-            const sections = contentRef.current.querySelectorAll('.pdf-section');
-            let currentY = margins + 30; // Empezar después del título
+            // Obtener todos los módulos
+            const modules = Array.from(contentRef.current.querySelectorAll('.pdf-module'));
+            let currentY = headerHeight;
+            let isFirstModuleOnPage = true;
 
-            for (let i = 0; i < sections.length; i++) {
-                const section = sections[i];
+            for (let i = 0; i < modules.length; i++) {
+                const module = modules[i];
 
-                // Capturar cada sección como canvas
-                const canvas = await html2canvas(section as HTMLElement, {
-                    scale: 2,
+                // Capturar el módulo actual como canvas
+                const canvas = await html2canvas(module as HTMLElement, {
+                    scale: 1.5,
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff'
                 });
 
-                // Convertir a imagen
                 const imgData = canvas.toDataURL('image/png');
+                const aspectRatio = canvas.height / canvas.width;
+                const imgWidth = contentWidth;
+                const imgHeight = contentWidth * aspectRatio;
 
-                // Calcular dimensiones de la imagen
-                const imgWidth = pdfWidth - (margins * 2);
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-                // Si la imagen no cabe en el espacio restante de la página actual
-                if (currentY + imgHeight > pdfHeight - margins) {
-                    pdf.addPage(); // Agregar nueva página
-                    currentY = margins; // Resetear Y al inicio de la nueva página
+                // Si es el primer módulo de la página
+                if (isFirstModuleOnPage) {
+                    // Si no es el primer módulo del documento, agregar nueva página
+                    if (i > 0) {
+                        pdf.addPage();
+                        currentY = margins;
+                    }
+                    
+                    // Agregar el primer módulo
+                    pdf.addImage(imgData, 'PNG', margins, currentY, imgWidth, imgHeight);
+                    currentY += imgHeight + 20;
+                    
+                    // Verificar si hay espacio para otro módulo y si hay otro módulo disponible
+                    if (i + 1 < modules.length) {
+                        // Capturar el siguiente módulo para ver si cabe
+                        const nextCanvas = await html2canvas(modules[i + 1] as HTMLElement, {
+                            scale: 1.5,
+                            useCORS: true,
+                            logging: false,
+                            backgroundColor: '#ffffff'
+                        });
+                        
+                        const nextImgHeight = contentWidth * (nextCanvas.height / nextCanvas.width);
+                        
+                        // Si el siguiente módulo cabe en la página actual
+                        if (currentY + nextImgHeight <= pdfHeight - margins) {
+                            isFirstModuleOnPage = false;
+                            continue;
+                        }
+                    }
+                    isFirstModuleOnPage = true;
+                } else {
+                    // Es el segundo módulo de la página
+                    pdf.addImage(imgData, 'PNG', margins, currentY, imgWidth, imgHeight);
+                    isFirstModuleOnPage = true;
                 }
-
-                // Agregar imagen a la página actual
-                pdf.addImage(imgData, 'PNG', margins, currentY, imgWidth, imgHeight);
-                currentY += imgHeight + 20; // Agregar espacio entre secciones
             }
 
-            pdf.save('contenido-aula.pdf');
+            pdf.save(`anexos-matriz-indicadores-${classroom.code}`);
         } catch (error) {
             console.error('Error al generar el PDF:', error);
             alert('Hubo un error al generar el PDF. Por favor, intente nuevamente.');
@@ -74,7 +103,7 @@ const ContentToPDF: React.FC<{ contentData: any[] }> = ({ contentData }) => {
                     {contentData.map((section, index) => (
                         <div
                             key={index}
-                            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow pdf-section"
+                            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
                         >
                             {/* Encabezado de la sección */}
                             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4">
@@ -86,7 +115,7 @@ const ContentToPDF: React.FC<{ contentData: any[] }> = ({ contentData }) => {
                                 {section.modules?.map((module: any, moduleIndex: any) => (
                                     <li
                                         key={moduleIndex}
-                                        className="border-b last:border-none pb-4"
+                                        className="border-b last:border-none pb-4 pdf-module"
                                     >
                                         {/* Nombre del módulo */}
                                         <div className="flex justify-between items-center mb-2">
