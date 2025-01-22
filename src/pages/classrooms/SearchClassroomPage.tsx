@@ -11,6 +11,7 @@ const headers = ["Código", "Nombre", "Acciones"];
 
 const SearchClassroomPage: React.FC = () => {
     const navigate = useNavigate();
+    const selectedServer = localStorage.getItem('platform_id') || '';
     
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [fieldTerm, setFieldTerm] = useState<string>("id");
@@ -26,7 +27,7 @@ const SearchClassroomPage: React.FC = () => {
         searchClassroomsList,
         error,
         searchClassrooms,
-        addClassroom
+        addClassroom, 
     } = useClassroom();
 
     /* useEffect(() => {
@@ -85,11 +86,13 @@ const SearchClassroomPage: React.FC = () => {
             code: selectedClassroom.shortname,
             status: ClassroomStatus.PENDING,
             moodleCourseId: selectedClassroom.id,
-            teamId: parseInt(selectedTeam)
+            teamId: parseInt(selectedTeam),
+            platformId: parseInt(selectedServer)
         };
 
         try {
             const classroom = await addClassroom(classroomData);
+
             navigate('/classrooms/evaluation-dashboard', { state: { classroom: classroom.data.classroom } });
         } catch (error) {
             console.error('Error al añadir el aula virtual:', error);
