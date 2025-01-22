@@ -7,9 +7,10 @@ interface SearchInputComponentProps {
     fieldTerm: string;
     setFieldTerm: (term: string) => void;
     onSearch: () => void;
+    loading?: boolean;
 }
 
-const SearchInputComponent: React.FC<SearchInputComponentProps> = ({ searchTerm, setSearchTerm, fieldTerm, setFieldTerm, onSearch }) => {
+const SearchInputComponent: React.FC<SearchInputComponentProps> = ({ searchTerm, setSearchTerm, fieldTerm, setFieldTerm, onSearch, loading = false }) => {
     return (
         <div className="flex items-center w-full max-w-3xl flex-wrap">
             <div className="flex-grow border border-gray-300 bg-transparent rounded-full shadow-md px-2 mb-2 sm:mb-0">
@@ -34,9 +35,11 @@ const SearchInputComponent: React.FC<SearchInputComponentProps> = ({ searchTerm,
             </div>
             <button
                 onClick={onSearch}
-                className="ml-0 sm:ml-4 bg-primary-red-color text-white text-sm px-4 py-2 rounded-md w-full sm:w-24 flex items-center justify-center"
+                disabled={loading}
+                className={`ml-0 sm:ml-4 bg-primary-red-color text-white text-sm px-4 py-2 rounded-md w-full sm:w-24 flex items-center justify-center hover:bg-red-400 
+                    ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                BUSCAR
+                {loading ? 'BUSCANDO...' : 'BUSCAR'}
             </button>
         </div>
     );

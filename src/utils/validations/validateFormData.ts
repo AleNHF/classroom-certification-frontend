@@ -11,9 +11,9 @@ export const validateFormData = (form: FormDataProps) => {
         errorMessages.author = 'El autor de contenido es obligatorio.';
     }
 
-    if (!form.server) {
+    /* if (!form.server) {
         errorMessages.server = 'El servidor es obligatorio.';
-    }
+    } */
 
     if (!form.career) {
         errorMessages.career = 'La carrera es obligatorio.';

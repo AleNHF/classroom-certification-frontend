@@ -26,6 +26,7 @@ const SearchClassroomPage: React.FC = () => {
     const {
         searchClassroomsList,
         error,
+        loading,
         searchClassrooms,
         addClassroom, 
     } = useClassroom();
@@ -141,6 +142,7 @@ const SearchClassroomPage: React.FC = () => {
                             fieldTerm={fieldTerm}
                             setFieldTerm={setFieldTerm}
                             onSearch={handleSearch}
+                            loading={loading}
                         />
                     </div>
 

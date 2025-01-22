@@ -1,18 +1,18 @@
 // FormModalContent.tsx
-import React, { useEffect, useState } from 'react';
-import { FormDataProps, Platform } from '../../../types';
-import apiService from '../../../services/apiService';
+import React, {  } from 'react';
+import { FormDataProps } from '../../../types';
 
 interface FormModalContentProps {
     formData: FormDataProps;
     setFormData: React.Dispatch<React.SetStateAction<FormDataProps>>;
     formErrors: Record<string, string>;
+    formServer: string
 }
 
-const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormData, formErrors }) => {
-    const [platformList, setPlatformList] = useState<Platform[]>([]);
+const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormData, formErrors, formServer }) => {
+    //const [platformList, setPlatformList] = useState<Platform[]>([]);
 
-    useEffect(() => {
+    /* useEffect(() => {
         // Cargar las plataformas al montar el componente
         const loadPlatforms = async () => {
             try {
@@ -24,7 +24,7 @@ const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormDa
         };
 
         loadPlatforms();
-    }, []);
+    }, []); */
 
     return (
         <form className="space-y-4">
@@ -42,6 +42,17 @@ const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormDa
                 </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700">Servidor</label>
+                    <input
+                        type="text"
+                        value={formServer}
+                        disabled
+                        //onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    {formErrors.name && <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>}
+                </div>
+                {/* <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">Servidor</label>
                     <select
                         value={formData.server}
                         onChange={(e) => setFormData((prev) => ({ ...prev, server: e.target.value }))}
@@ -55,7 +66,7 @@ const FormModalContent: React.FC<FormModalContentProps> = ({ formData, setFormDa
                         ))}
                     </select>
                     {formErrors.server && <p className="text-red-600 text-sm">{formErrors.server}</p>}
-                </div>
+                </div> */}
             </div>
 
             <div className="mb-4">
