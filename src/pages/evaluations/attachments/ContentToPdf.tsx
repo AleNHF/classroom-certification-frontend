@@ -1,12 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 const ContentToPDF: React.FC<{ contentData: any[], classroom: any }> = ({ contentData, classroom }) => {
     const contentRef = useRef<HTMLDivElement>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const downloadPDF = async () => {
         if (!contentRef.current) return;
+
+        setIsDownloading(true);
 
         try {
             const pdf = new jsPDF('p', 'pt', 'a4');
@@ -49,11 +52,11 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any }> = ({ conten
                         pdf.addPage();
                         currentY = margins;
                     }
-                    
+
                     // Agregar el primer módulo
                     pdf.addImage(imgData, 'PNG', margins, currentY, imgWidth, imgHeight);
-                    currentY += imgHeight + 20;
-                    
+                    currentY += imgHeight + 30;
+
                     // Verificar si hay espacio para otro módulo y si hay otro módulo disponible
                     if (i + 1 < modules.length) {
                         // Capturar el siguiente módulo para ver si cabe
@@ -63,9 +66,9 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any }> = ({ conten
                             logging: false,
                             backgroundColor: '#ffffff'
                         });
-                        
+
                         const nextImgHeight = contentWidth * (nextCanvas.height / nextCanvas.width);
-                        
+
                         // Si el siguiente módulo cabe en la página actual
                         if (currentY + nextImgHeight <= pdfHeight - margins) {
                             isFirstModuleOnPage = false;
@@ -84,6 +87,8 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any }> = ({ conten
         } catch (error) {
             console.error('Error al generar el PDF:', error);
             alert('Hubo un error al generar el PDF. Por favor, intente nuevamente.');
+        } finally {
+            setIsDownloading(false);
         }
     };
 
@@ -91,10 +96,12 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any }> = ({ conten
         <div>
             <div className="flex w-full justify-end mb-4">
                 <button
-                    className="bg-black hover:bg-slate-700 text-white text-sm w-44 h-9 p-2 rounded-lg ml-2"
+                    className={`bg-black text-white text-sm w-44 h-9 p-2 rounded-lg ml-2 ${isDownloading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'
+                        }`}
                     onClick={() => downloadPDF()}
+                    disabled={isDownloading}
                 >
-                    DESCARGAR
+                    {isDownloading ? 'DESCARGANDO...' : 'DESCARGAR'}
                 </button>
             </div>
 
@@ -107,7 +114,7 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any }> = ({ conten
                         >
                             {/* Encabezado de la sección */}
                             <h2 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4">
-                                {section.name.trim()}
+                                {section.name.trim() || "Sección sin nombre"}
                             </h2>
 
                             {/* Listado de módulos */}
