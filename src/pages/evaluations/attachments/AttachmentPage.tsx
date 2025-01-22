@@ -14,6 +14,7 @@ const AttachmentPage: React.FC = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [newAttachment, setNewAttachment] = useState<{ classroomId: number, courseId: number, token: string }>({ classroomId: 0, courseId: 0, token: '' });
     const [attachmentToDelete, setAttachmentToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
@@ -37,6 +38,7 @@ const AttachmentPage: React.FC = () => {
 
     // Handler para submit del formulario
     const handleSubmit = useCallback(async () => {
+        setLoading(true);
         try {
             if (!classroom.id) {
                 console.error('El ID del aula (classroomId) es obligatorio.');
@@ -54,6 +56,8 @@ const AttachmentPage: React.FC = () => {
             console.info(newAttachment);
         } catch (error) {
             console.error('Error al generar el anexo:', error);
+        } finally {
+            setLoading(false);
         }
     }, [
         classroom,
@@ -169,6 +173,7 @@ const AttachmentPage: React.FC = () => {
                 primaryButtonText={'GENERAR'}
                 onSubmit={handleSubmit}
                 size="small"
+                loading={loading}
             >
                 <div className="text-justify">
                     <p className="text-lg font-medium text-gray-700">¿Deseas generar un nuevo anexo?</p>
