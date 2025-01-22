@@ -24,6 +24,7 @@ const ACTION_MESSAGES: Record<Action, ActionMessages> = {
 
 const useClassroom = () => {
     const [classroomList, setClassroomList] = useState<Classroom[]>([]);
+    const [serverList, setServerList] = useState<{id: number, name: string}[]>([]);
     const [searchClassroomsList, setSearchClassroomsList] = useState<ClassroomMoodle[]>([]);
     const [fetchState, setFetchState] = useState<FetchState>({
         loading: false,
@@ -62,11 +63,32 @@ const useClassroom = () => {
         }
     }, []);
 
+    const fetchServers = useCallback(async () => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.getPlatforms();
+            setServerList(response.data.platforms);
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al cargar los datos';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching data:', error);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, []);
+
     // Efecto inicial con retry
     useEffect(() => {
         const initFetch = async () => {
             try {
                 await fetchData();
+                await fetchServers();
             } catch (error) {
                 // Intenta nuevamente después de 5 segundos en caso de error
                 setTimeout(fetchData, 5000);
@@ -78,7 +100,7 @@ const useClassroom = () => {
 
     const handleAction = useCallback(async (
         action: Action,
-        classroomData?: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number },
+        classroomData?: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number, platformId: number },
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -91,7 +113,8 @@ const useClassroom = () => {
         }));
         try {
             if (action === 'add') {
-                return await apiService.addClassroom(classroomData!);
+                const response = await apiService.addClassroom(classroomData!);
+                return response;
             } else if (action === 'update') {
                 await apiService.updateClassroom(id!, classroomData!);
             } else if (action === 'delete') {
@@ -121,12 +144,12 @@ const useClassroom = () => {
 
     // Optimización de funciones retornadas con useCallback
     const addClassroom = useCallback(
-        (classroomData: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number }) => handleAction('add', classroomData),
+        (classroomData: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number, platformId: number }) => handleAction('add', classroomData),
         [handleAction]
     );
 
     const updateClassroom = useCallback(
-        (id: string, classroomData: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number }) => handleAction('update', classroomData, id),
+        (id: string, classroomData: { name: string, code: string, status: ClassroomStatus, moodleCourseId: number, teamId: number, platformId: number }) => handleAction('update', classroomData, id),
         [handleAction]
     );
 
@@ -161,6 +184,7 @@ const useClassroom = () => {
     return {
         classroomList,
         searchClassroomsList,
+        serverList,
 
         loading: fetchState.loading,
         error: fetchState.error,

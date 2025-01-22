@@ -260,7 +260,7 @@ class ApiService {
         return this.get(`/classroom`);
     }
 
-    public addClassroom(classroomData: {name: string, code: string, status: ClassroomStatus}) {
+    public addClassroom(classroomData: {name: string, code: string, status: ClassroomStatus, teamId: number, platformId: number}) {
         return this.post('/classroom', classroomData);
     }
 
