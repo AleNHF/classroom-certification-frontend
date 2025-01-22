@@ -164,8 +164,8 @@ const EvaluationView: React.FC = () => {
                         className="border rounded px-3 py-2 ml-2"
                     >
                         <option value="all">Todos los recursos</option>
-                        {uniqueResources.map((resource) => (
-                            <option key={resource} value={resource}>
+                        {uniqueResources.map((resource, index) => (
+                            <option key={`${resource}-${index}`} value={resource}>
                                 {resource}
                             </option>
                         ))}
@@ -177,8 +177,8 @@ const EvaluationView: React.FC = () => {
                             className="border rounded px-3 py-2 ml-2"
                         >
                             <option value="all">Todos los contenidos</option>
-                            {uniqueContents.map((content) => (
-                                <option key={content} value={content}>
+                            {uniqueContents.map((content, index) => (
+                                <option key={`${content}-${index}`} value={content}>
                                     {content}
                                 </option>
                             ))}
@@ -191,9 +191,9 @@ const EvaluationView: React.FC = () => {
                     {filteredIndicators.length === 0 ? (
                         <p className="text-gray-500">No hay indicadores que coincidan con el filtro seleccionado.</p>
                     ) : (
-                        filteredIndicators.map((indicator) => (
+                        filteredIndicators.map((indicator, index) => (
                             <div
-                                key={indicator.id}
+                                key={`${indicator.id}-${index}`}
                                 className={`border py-4 px-6 mb-4 rounded-lg ${indicator.result === 1 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}
                             >
                                 <div className="flex justify-between items-center">

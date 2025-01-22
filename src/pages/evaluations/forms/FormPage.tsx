@@ -15,7 +15,7 @@ const headers = ["Autor de Cont.", "Servidor", "Carrera", "Resultado", "Acciones
 const INITIAL_FORM_DATA: FormDataProps = {
     id: '',
     name: 'FEPCAV007',
-    server: '',
+    //server: '',
     career: '',
     director: '',
     responsible: '',
@@ -32,6 +32,7 @@ const FormPage: React.FC = () => {
     const classroom = location.state?.classroom;
     const { getUserRole } = useAuthContext();
     const role = getUserRole();
+    //console.log(classroom)
 
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -76,7 +77,7 @@ const FormPage: React.FC = () => {
 
         const formDataRequest = {
             name: newForm.name,
-            server: newForm.server,
+            //server: newForm.server,
             career: newForm.career,
             director: newForm.director,
             responsible: newForm.responsible,
@@ -121,7 +122,7 @@ const FormPage: React.FC = () => {
         setNewForm({
             id: form.id?.toString(),
             name: form.name!,
-            server: form.server!,
+            //server: form.server!,
             career: form.career!,
             director: form.director!,
             responsible: form.responsible!,
@@ -229,6 +230,7 @@ const FormPage: React.FC = () => {
                     formData={newForm}
                     setFormData={setNewForm}
                     formErrors={formErrors}
+                    formServer={classroom.platform.name}
                 />
             </ModalComponent>
 
