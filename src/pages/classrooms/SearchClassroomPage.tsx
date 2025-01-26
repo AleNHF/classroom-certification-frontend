@@ -6,12 +6,14 @@ import { useClassroom, useTeam } from '../../hooks';
 import { ClassroomMoodle } from '../../types';
 import { useNavigate } from 'react-router-dom';
 import { ClassroomStatus } from '../../utils/enums/classroomStatus';
+import { usePlatform } from '../../context/PlatformContext';
 
 const headers = ["Código", "Nombre", "Acciones"];
 
 const SearchClassroomPage: React.FC = () => {
     const navigate = useNavigate();
     const selectedServer = localStorage.getItem('platform_id') || '';
+    const { platformId } = usePlatform();
     
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [fieldTerm, setFieldTerm] = useState<string>("id");
@@ -51,7 +53,7 @@ const SearchClassroomPage: React.FC = () => {
         }
 
         setCustomErrorMessage(null);
-        searchClassrooms({ field: fieldTerm, value: searchTerm }, moodleToken)
+        searchClassrooms({ field: fieldTerm, value: searchTerm, platformId: parseInt(platformId) })
             .catch(err => {
                 // Manejo específico para error 404
                 if (err.message && err.message.includes('404')) {
@@ -60,7 +62,7 @@ const SearchClassroomPage: React.FC = () => {
                     setCustomErrorMessage('Ocurrió un error al buscar el aula. Intenta de nuevo más tarde.');
                 }
             });
-    }, [fieldTerm, searchTerm, searchClassrooms]);
+    }, [fieldTerm, searchTerm, searchClassrooms, platformId]);
 
     const handleClassroomSelect = (classroom: ClassroomMoodle) => {
         setSelectedClassroom(classroom);
@@ -83,10 +85,10 @@ const SearchClassroomPage: React.FC = () => {
         if (!selectedTeam) return;
 
         const classroomData = {
-            name: selectedClassroom.fullname,
-            code: selectedClassroom.shortname,
+            name: selectedClassroom.fullname!,
+            code: selectedClassroom.shortname!,
             status: ClassroomStatus.PENDING,
-            moodleCourseId: selectedClassroom.id,
+            moodleCourseId: selectedClassroom.id!,
             teamId: parseInt(selectedTeam),
             platformId: parseInt(selectedServer)
         };
@@ -179,8 +181,8 @@ const SearchClassroomPage: React.FC = () => {
                             <span className="font-medium text-sm text-gray-800">{selectedClassroom?.fullname}</span>
                         </div>
                         <div className="flex justify-items-center">
-                            <span className="text-gray-600 w-32">Categoría:</span>
-                            <span className="font-medium text-sm text-gray-800">{selectedClassroom?.categoryname}</span>
+                            <span className="text-gray-600 w-32">Número de secciones:</span>
+                            <span className="font-medium text-sm text-gray-800">{selectedClassroom?.numsections}</span>
                         </div>
                     </div>
 

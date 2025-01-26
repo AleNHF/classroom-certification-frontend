@@ -32,7 +32,6 @@ const FormPage: React.FC = () => {
     const classroom = location.state?.classroom;
     const { getUserRole } = useAuthContext();
     const role = getUserRole();
-    //console.log(classroom)
 
     // Estados de UI
     const [isModalOpen, setIsModalOpen] = useState(false);

@@ -1,53 +1,38 @@
 export interface ClassroomMoodle {
-    id:                       number;
-    fullname:                 string;
-    displayname:              string;
-    shortname:                string;
-    categoryid:               number;
-    categoryname:             string;
-    sortorder:                number;
-    summary:                  string;
-    summaryformat:            number;
-    summaryfiles:             any[];
-    overviewfiles:            any[];
-    showactivitydates:        boolean;
-    showcompletionconditions: boolean;
-    contacts:                 any[];
-    enrollmentmethods:        string[];
-    idnumber:                 string;
-    format:                   string;
-    showgrades:               number;
-    newsitems:                number;
-    startdate:                number;
-    enddate:                  number;
-    maxbytes:                 number;
-    showreports:              number;
-    visible:                  number;
-    groupmode:                number;
-    groupmodeforce:           number;
-    defaultgroupingid:        number;
-    enablecompletion:         number;
-    completionnotify:         number;
-    lang:                     string;
-    theme:                    string;
-    marker:                   number;
-    legacyfiles:              number;
-    calendartype:             string;
-    timecreated:              number;
-    timemodified:             number;
-    requested:                number;
-    cacherev:                 number;
-    filters:                  Filter[];
-    courseformatoptions:      Courseformatoption[];
+    id?:                       number;
+    shortname?:                string;
+    categoryid?:               number;
+    categorysortorder?:        number;
+    fullname?:                 string;
+    displayname?:              string;
+    idnumber?:                 string;
+    summary?:                  string;
+    summaryformat?:            number;
+    format?:                   string;
+    showgrades?:               number;
+    newsitems?:                number;
+    startdate?:                number;
+    enddate?:                  number;
+    numsections?:              number;
+    maxbytes?:                 number;
+    showreports?:              number;
+    visible?:                  number;
+    hiddensections?:           number;
+    groupmode?:                number;
+    groupmodeforce?:           number;
+    defaultgroupingid?:        number;
+    timecreated?:              number;
+    timemodified?:             number;
+    enablecompletion?:         number;
+    completionnotify?:         number;
+    lang?:                     string;
+    forcetheme?:               string;
+    courseformatoptions?:      Courseformatoption[];
+    showactivitydates?:        boolean;
+    showcompletionconditions?: boolean;
 }
 
 export interface Courseformatoption {
-    name:  string;
-    value: number | string;
-}
-
-export interface Filter {
-    filter:         string;
-    localstate:     number;
-    inheritedstate: number;
+    name?:  string;
+    value?: number | string;
 }
