@@ -19,7 +19,7 @@ const SearchInputComponent: React.FC<SearchInputComponentProps> = ({ searchTerm,
                         value={fieldTerm || 'id'}
                         onChange={(e) => setFieldTerm(e.target.value)}
                         className="bg-transparent text-black outline-none mr-2 border border-transparent focus:border-white focus:ring-2 focus:ring-white rounded-md">
-                        <option value="id">Identificador</option>
+                        {/* <option value="id">Identificador</option> */}
                         <option value="fullname">Nombre</option>
                         <option value="shortname">Código</option>
                     </select>

@@ -158,10 +158,33 @@ const useClassroom = () => {
         [handleAction]
     );
 
-    const searchClassrooms = useCallback(async (searchData: { field: string, value: string }, moodleToken: string) => {
+    /* const searchClassrooms = useCallback(async (searchData: { field: string, value: string }, moodleToken: string) => {
         setFetchState(prev => ({ ...prev, loading: true, error: null }));
         try {
             const response = await apiService.getClassroomsInMoodle(searchData, moodleToken);
+            setSearchClassroomsList(response.data.classrooms);
+        } catch (error) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Error al cargar los datos';
+
+            setFetchState(prev => ({
+                ...prev,
+                error: errorMessage
+            }));
+            console.error('Error fetching data:', error);
+
+            // Lanza el error para ser capturado en handleSearch
+            throw new Error(errorMessage);
+        } finally {
+            setFetchState(prevState => ({ ...prevState, loading: false }));
+        }
+    }, []); */
+
+    const searchClassrooms = useCallback(async (searchData: { field: string, value: string, platformId: number }) => {
+        setFetchState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            const response = await apiService.getClassroomsInMoodle(searchData);
             setSearchClassroomsList(response.data.classrooms);
         } catch (error) {
             const errorMessage = error instanceof Error

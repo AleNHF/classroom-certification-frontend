@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useAuthContext } from "../../context/AuthContext";
+import { usePlatform } from "../../context/PlatformContext"; // New import
 import { Platform } from "../../types";
 import apiService from "../../services/apiService";
 
 const HeaderComponent: React.FC = () => {
     const { isAuthenticated, logout } = useAuthContext();
-    // Obtén el nombre de usuario desde el localStorage
+    const { platformId, platformName, setPlatform } = usePlatform(); // Use platform context
     const username = localStorage.getItem('name') || '';
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedOptionId, setSelectedOptionId] = useState<string>(
-        localStorage.getItem('platform_id') || ""
-    );
-    const [selectedOptionName, setSelectedOptionName] = useState<string>(
-        localStorage.getItem('platform_name') || "Selecciona un servidor"
-    );
     const [platformList, setPlatformList] = useState<Platform[]>([]);
 
     const toggleDropdown = () => {
@@ -21,56 +16,61 @@ const HeaderComponent: React.FC = () => {
     };
 
     useEffect(() => {
-        const loadData = async () => {
+        const loadPlatforms = async () => {
             try {
                 const data = await apiService.getPlatforms();
                 setPlatformList(data.data.platforms);
+                console.info(platformName)
 
-                if (selectedOptionId) {
-                    try {
-                        await apiService.selectPlatform(selectedOptionId);
-                    } catch (error) {
-                        console.error("Error reselecting previous platform:", error);
-                        // Clear stored platform if it no longer exists
-                        localStorage.removeItem('platform_id');
-                        localStorage.removeItem('platform_name');
-                        localStorage.removeItem('moodle_token');
-                        setSelectedOptionId("");
-                        setSelectedOptionName("Selecciona un servidor");
+                // If a platform was previously selected, attempt to reselect it
+                if (platformId) {
+                    const selectedPlatform = data.data.platforms.find(
+                        (platform: any) => platform.id.toString() === platformId
+                    );
+
+                    if (selectedPlatform) {
+                        try {
+                            const platform = await apiService.selectPlatform(platformId);
+                            localStorage.setItem('moodle_token', platform.data.token);
+                        } catch (error) {
+                            console.error("Error reselecting previous platform:", error);
+                            clearPlatformStorage();
+                        }
+                    } else {
+                        // Selected platform no longer exists
+                        clearPlatformStorage();
                     }
                 }
             } catch (error) {
-                console.error("Error fetching data:", error)
+                console.error("Error fetching platforms:", error);
             }
         };
-        loadData();
-    }, [platformList]);
+
+        loadPlatforms();
+    }, []); 
+
+    const clearPlatformStorage = () => {
+        setPlatform('', "Selecciona un servidor");
+        localStorage.removeItem('moodle_token');
+    };
 
     const handleSelectChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedId = event.target.value;
-        const selectedPlatform = platformList.find((platform) => String(platform.id) === selectedId);
+        const selectedPlatform = platformList.find((platform) => platform.id === parseInt(selectedId));
         const selectedName = selectedPlatform?.name || "Selecciona un servidor";
-
-        setSelectedOptionId(selectedId);
-        setSelectedOptionName(selectedName);
 
         if (selectedId) {
             try {
                 const platform = await apiService.selectPlatform(selectedId);
                 
-                console.info(selectedOptionName);
-                // Persist platform selection across views
-                localStorage.setItem('platform_id', selectedId);
-                localStorage.setItem('platform_name', selectedName);
+                // Update platform context and localStorage
+                setPlatform(selectedId, selectedName);
                 localStorage.setItem('moodle_token', platform.data.token);
             } catch (error) {
                 console.error("Error selecting platform:", error);
             }
         } else {
-            // Clear platform data if no platform is selected
-            localStorage.removeItem('platform_id');
-            localStorage.removeItem('platform_name');
-            localStorage.removeItem('moodle_token');
+            clearPlatformStorage();
         }
     };
 
@@ -86,7 +86,7 @@ const HeaderComponent: React.FC = () => {
                 <div className="relative flex items-center">
                     {/* Select Dropdown */}
                     <select
-                        value={selectedOptionId}
+                        value={platformId}
                         onChange={handleSelectChange}
                         className="mr-10 px-2 py-1 bg-transparent text-white text-sm rounded-md focus:outline-none"
                     >
