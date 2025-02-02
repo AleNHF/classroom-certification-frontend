@@ -16,7 +16,7 @@ const SearchClassroomPage: React.FC = () => {
     const { platformId } = usePlatform();
     
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [fieldTerm, setFieldTerm] = useState<string>("id");
+    const [fieldTerm, setFieldTerm] = useState<string>("fullname");
     const [customErrorMessage, setCustomErrorMessage] = useState<string | null>(null);
 
     const [isModalOpen, setIsModalOpen] = useState(false);

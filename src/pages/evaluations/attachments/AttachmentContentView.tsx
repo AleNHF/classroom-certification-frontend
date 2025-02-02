@@ -7,6 +7,7 @@ const AttachmentContentView: React.FC = () => {
     const location = useLocation();
     const contentJson = location.state?.attachContent;
     const classroom = location.state?.classroom;
+    const type = location.state?.attachmentType
 
     const [contentData, setContentData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -54,7 +55,7 @@ const AttachmentContentView: React.FC = () => {
 
                     {/* Listado de secciones y módulos */}
                     {!isLoading && !error && (
-                        <ContentToPDF contentData={contentData} classroom={classroom} />
+                        <ContentToPDF contentData={contentData} classroom={classroom} type={type} />
                     )}
                 </div>
             </div>
