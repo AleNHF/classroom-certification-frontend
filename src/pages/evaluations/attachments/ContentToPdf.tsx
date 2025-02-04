@@ -17,16 +17,18 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any, type: any }> 
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const margins = 30;
             const contentWidth = pdfWidth - (margins * 2);
-            const headerHeight = 60;
+            const headerHeight = 100;
 
             // Portada
             pdf.setFontSize(14);
+            pdf.setFont('helvetica', 'bold');
             pdf.text('ANEXOS MATRIZ DE INDICADORES', pdfWidth / 2, margins + 10, { align: 'center' });
-            pdf.text(`ASIGNATURA: ${classroom.code} - ${classroom.name}`, pdfWidth / 2, margins + 30, { align: 'center' });
+            pdf.text(`INFORME ${type === 'forum' ? 'Foros' : type === 'assign' ? 'Tareas' : 'General'}`, pdfWidth / 2, margins + 40, { align: 'center' });
+            pdf.text(`ASIGNATURA: ${classroom.code} - ${classroom.name}`, pdfWidth / 2, margins + 80, { align: 'center' });
 
             // Obtener todos los módulos
             const modules = Array.from(contentRef.current.querySelectorAll('.pdf-module'));
-            let currentY = headerHeight;
+            let currentY = headerHeight + 40;
             let isFirstModuleOnPage = true;
 
             for (let i = 0; i < modules.length; i++) {
@@ -105,7 +107,7 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any, type: any }> 
                 {contentData.map((forum, index) => (
                     <div
                         key={index}
-                        className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow space-y-6"
+                        className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow space-y-6 pdf-module"
                     >
                         <h3 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4">
                             {forum.name.trim() || "Foro sin nombre"}
@@ -388,7 +390,7 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any, type: any }> 
                                                                 </span>
                                                             ) : (
                                                                 <a
-                                                                    href={content.fileurl || "#"}
+                                                                    /* href={content.fileurl || "#"} */
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     className="underline text-blue-600 hover:text-blue-800"
@@ -411,6 +413,89 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any, type: any }> 
         );
     }
 
+    const renderAssignContent = () => {
+        return (
+            <div className="space-y-6 w-full mt-6 mb-2">
+                {contentData.map((assign, index) => (
+                    <div
+                        key={index}
+                        className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow space-y-6 pdf-module"
+                    >
+                        <h3 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4">
+                            {assign.name.trim() || "Tarea sin nombre"}
+                        </h3>
+
+                        {/* Instrucciones de la actividad */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Instrucciones de la actividad</h4>
+                            <p className="text-gray-600 text-sm mb-2">{assign.intro.trim() || "No cuenta con instrucciones"}</p>
+                        </div>
+
+                        {/* Configuración de envío */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Configuración de envío</h4>
+                            <p className="text-gray-600 text-sm">Requiere pulsar el botón de envío: {assign.completionsubmit ? "Sí" : "No"}</p>
+                            <p className="text-gray-600 text-sm">Intentos adicionales: {assign.maxattempts === -1 ? "Nunca" : assign.maxattempts}</p>
+                        </div>
+
+                        {/* Avisos */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Avisos</h4>
+                            <p className="text-gray-600 text-sm">Notificar a los estudiantes: {assign.sendstudentnotifications ? "Sí" : "No"}</p>
+                        </div>
+
+                        {/* Calificación */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Calificación</h4>
+                            <p className="text-gray-600 text-sm">Escala de calificación: {assign.grade > 0 ? `${assign.grade} puntos` : "Sin calificación"}</p>
+                        </div>
+
+                        {/* Archivos adicionales */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Archivos adicionales</h4>
+                            {assign.introattachments.length > 0 ? (
+                                <ul className="text-gray-600 text-sm">
+                                    {assign.introattachments.map((file: any, fileIndex: any) => (
+                                        <li key={fileIndex}>
+                                            <a /* href={file.fileurl} */ className="text-blue-500 underline">
+                                                {file.filename} ({(file.filesize / 1024).toFixed(2)} KB)
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-gray-600 text-sm">No hay archivos adicionales</p>
+                            )}
+                        </div>
+
+                        {/* Fechas */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Fechas</h4>
+                            <p className="text-gray-600 text-sm">Permitir entregas desde: {assign.allowsubmissionsfromdate ? new Date(assign.allowsubmissionsfromdate * 1000).toLocaleDateString() : "No especificado"}</p>
+                            <p className="text-gray-600 text-sm">Fecha de entrega: {assign.duedate ? new Date(assign.duedate * 1000).toLocaleDateString() : "No especificado"}</p>
+                            <p className="text-gray-600 text-sm">Fecha límite: {assign.cutoffdate ? new Date(assign.cutoffdate * 1000).toLocaleDateString() : "No especificado"}</p>
+                        </div>
+
+                        {/* Restricciones de entrega */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Restricciones de entrega</h4>
+                            <p className="text-gray-600 text-sm">Número máximo de archivos subidos: {assign.configs.find((c: any) => c.name === "maxfilesubmissions")?.value || "No especificado"}</p>
+                            <p className="text-gray-600 text-sm">Tamaño máximo de la entrega: {assign.configs.find((c: any) => c.name === "maxsubmissionsizebytes")?.value ? `${(assign.configs.find((c: any) => c.name === "maxsubmissionsizebytes").value / 1048576).toFixed(2)} MB` : "No especificado"}</p>
+                            <p className="text-gray-600 text-sm">Tipos de archivos aceptados: {assign.configs.find((c: any) => c.name === "filetypeslist")?.value || "Cualquier tipo de archivo"}</p>
+                        </div>
+
+                        {/* Tipos de retroalimentación */}
+                        <div className="mb-2">
+                            <h4 className="text-sm font-semibold text-gray-800">Tipos de retroalimentación</h4>
+                            <p className="text-gray-600 text-sm">Comentarios habilitados: {assign.configs.find((c: any) => c.plugin === "comments" && c.subtype === "assignfeedback" && c.name === "enabled")?.value === "1" ? "Sí" : "No"}</p>
+                            <p className="text-gray-600 text-sm">Comentario en línea: {assign.configs.find((c: any) => c.plugin === "comments" && c.subtype === "assignfeedback" && c.name === "commentinline")?.value === "1" ? "Sí" : "No"}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div>
             <div className="flex w-full justify-end mb-4">
@@ -425,7 +510,7 @@ const ContentToPDF: React.FC<{ contentData: any[], classroom: any, type: any }> 
             </div>
 
             <div ref={contentRef}>
-                {type === 'forum' ? renderForumContent() : renderGeneralContent()}
+                {type === 'general' ? renderGeneralContent() : type === 'forum' ? renderForumContent() : renderAssignContent()}
             </div>
         </div>
     );
