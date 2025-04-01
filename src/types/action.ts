@@ -1,0 +1,1 @@
+export type Action = 'add' | 'update' | 'delete';
