@@ -269,18 +269,7 @@ const TeamPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* <div className="mt-4">
-                        <label className="block text-sm font-medium text-gray-700">Facultad</label>
-                        <input
-                            type="text"
-                            value={newTeam.faculty || ''}
-                            onChange={(e) => setNewTeam({ ...newTeam, faculty: e.target.value })}
-                            className="border border-gray-300 rounded-md p-2 w-full mt-2 focus:ring focus:ring-blue-200 focus:border-blue-500"
-                        />
-                        {formErrors.faculty && <p className="text-red-600 text-sm">{formErrors.faculty}</p>}
-                    </div> */}
-
-                    <div className="mt-3">
+                    <div className="mt-4">
                         <label
                             className="block text-sm font-medium text-gray-700"
                         >

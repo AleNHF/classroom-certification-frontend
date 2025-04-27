@@ -98,7 +98,7 @@ const useAttach = (classroomId: string) => {
 
     const handleAction = useCallback(async (
         action: Action,
-        attachmentData?: { classroomId: number, courseId: number, token: string },
+        attachmentData?: { classroomId: number, type: string },
         id?: string,
     ) => {
         const messages = ACTION_MESSAGES[action];
@@ -112,8 +112,6 @@ const useAttach = (classroomId: string) => {
         try {
             if (action === 'add') {
                 await apiService.addAttachment(attachmentData!);
-            } else if (action === 'update') {
-                await apiService.updateAttachment(id!, attachmentData!);
             } else if (action === 'delete') {
                 await apiService.deleteAttachment(id!);
             }
@@ -141,12 +139,7 @@ const useAttach = (classroomId: string) => {
 
     // Optimización de funciones retornadas con useCallback
     const addAttachment = useCallback(
-        (attachmentData: { classroomId: number, courseId: number, token: string }) => handleAction('add', attachmentData),
-        [handleAction]
-    );
-
-    const updateAttachment = useCallback(
-        (id: string, attachmentData: { classroomId: number, courseId: number, token: string }) => handleAction('update', attachmentData, id),
+        (attachmentData: { classroomId: number, type: string }) => handleAction('add', attachmentData),
         [handleAction]
     );
 
@@ -165,7 +158,6 @@ const useAttach = (classroomId: string) => {
 
         getAttachmentById,
         addAttachment,
-        updateAttachment,
         deleteAttachment
     };
 };

@@ -4,26 +4,27 @@ import { PageHeaderComponent, TableComponent, ConfirmDeleteModal, HeaderComponen
 import { ErrorPage } from '../../utils';
 import useAttach from '../../../hooks/classrooms/useAttach';
 
-const headers = ["ID", "Fecha de creación", "Versión", "Acciones"];
+const headers = ["ID", "Fecha de creación", "Versión", "Tipo", "Acciones"];
 
 const AttachmentPage: React.FC = () => {
     const location = useLocation();
     const classroom = location.state?.classroom;
-    const moodleToken = localStorage.getItem('moodle_token') || '';
     const navigate = useNavigate();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const [newAttachment, setNewAttachment] = useState<{ classroomId: number, courseId: number, token: string }>({ classroomId: 0, courseId: 0, token: '' });
+    const [newAttachment, setNewAttachment] = useState<{ classroomId: number, type: string }>({ classroomId: 0, type: '' });
     const [attachmentToDelete, setAttachmentToDelete] = useState<{ id: string | null, name: string | null }>({ id: null, name: null });
     const [paginatedItems, setPaginatedItems] = useState<any[]>([]);
+    const [selectedType, setSelectedType] = useState<string>('general');
 
     const { attachList, error, successMessage, getAttachmentById, addAttachment, deleteAttachment } = useAttach(classroom.id);
 
     const resetData = () => {
-        setNewAttachment({ classroomId: 0, courseId: 0, token: '' });
+        setNewAttachment({ classroomId: 0, type: '' });
+        setSelectedType('general');
     }
 
     const handleAddClick = useCallback(() => {
@@ -47,8 +48,7 @@ const AttachmentPage: React.FC = () => {
 
             const data = {
                 classroomId: classroom.id,
-                courseId: classroom.moodleCourseId,
-                token: moodleToken
+                type: selectedType
             };
 
             await addAttachment(data);
@@ -63,6 +63,7 @@ const AttachmentPage: React.FC = () => {
         classroom,
         addAttachment,
         handleCloseModal,
+        selectedType
     ]);
 
     // Handlers para eliminación
@@ -89,7 +90,7 @@ const AttachmentPage: React.FC = () => {
         try {
             const attachment = await getAttachmentById(attachmentId);
             if (attachment && attachment.url) {
-                navigate(`/classrooms/evaluation-attachments/${attachmentId}`, { state: { attachContent: attachment.url, classroom: classroom } });
+                navigate(`/classrooms/evaluation-attachments/${attachmentId}`, { state: { attachContent: attachment.url, classroom: classroom, attachmentType: attachment.type } });
             } else {
                 console.error('La URL del anexo no está disponible.');
             }
@@ -110,6 +111,7 @@ const AttachmentPage: React.FC = () => {
                 ID: attachment.id,
                 'Fecha de creación': formattedDate,
                 Versión: attachment.version,
+                Tipo: attachment.type,
                 Acciones: (
                     <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                         <ActionButtonComponent
@@ -177,9 +179,19 @@ const AttachmentPage: React.FC = () => {
             >
                 <div className="text-justify">
                     <p className="text-lg font-medium text-gray-700">¿Deseas generar un nuevo anexo?</p>
-                    <p className="mt-2 text-sm text-gray-600">
-                        Al confirmar, se registrará un nuevo anexo para esta aula virtual.
-                    </p>
+                    <p className="mt-2 text-sm text-gray-600">Al confirmar, se registrará un nuevo anexo para esta aula virtual.</p>
+                    <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700">Selecciona el tipo de anexo:</label>
+                        <select
+                            className="mt-1 p-2 w-full border border-gray-300 rounded-lg"
+                            value={selectedType}
+                            onChange={(e) => setSelectedType(e.target.value)}
+                        >
+                            <option value="general">General</option>
+                            <option value="assign">Reto</option>
+                            <option value="forum">Foro</option>
+                        </select>
+                    </div>
                 </div>
             </ModalComponent>
 

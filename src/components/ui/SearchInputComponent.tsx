@@ -16,7 +16,7 @@ const SearchInputComponent: React.FC<SearchInputComponentProps> = ({ searchTerm,
             <div className="flex-grow border border-gray-300 bg-transparent rounded-full shadow-md px-2 mb-2 sm:mb-0">
                 <div className="flex items-center">
                     <select
-                        value={fieldTerm || 'id'}
+                        value={fieldTerm || 'fullname'}
                         onChange={(e) => setFieldTerm(e.target.value)}
                         className="bg-transparent text-black outline-none mr-2 border border-transparent focus:border-white focus:ring-2 focus:ring-white rounded-md">
                         {/* <option value="id">Identificador</option> */}

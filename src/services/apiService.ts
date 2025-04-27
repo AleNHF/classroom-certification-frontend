@@ -473,11 +473,7 @@ class ApiService {
         return this.delete(`/attach/${id}`);
     }
 
-    public updateAttachment(id: string, updateData: { classroomId: number, courseId: number, token: string}) {
-        return this.patch(`/attach/${id}`, updateData);
-    }
-
-    public addAttachment(createData: { classroomId: number, courseId: number, token: string}) {
+    public addAttachment(createData: { classroomId: number, type: string}) {
         return this.post('/attach', createData);
     }
 }
